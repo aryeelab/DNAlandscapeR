@@ -1,30 +1,21 @@
+
 library(shiny)
 library(ggplot2)
+library(GenomicRanges)
+library(diffloop)
+library(Sushi)
 
-dataset <- diamonds
-
-fluidPage(
-
-  titlePanel("Diamonds Explorer"),
-
+pageWithSidebar(
+  headerPanel("DNA Regional Viewer"),
   sidebarPanel(
-
-    sliderInput('sampleSize', 'Sample Size', min=1, max=nrow(dataset),
-                value=min(1000, nrow(dataset)), step=500, round=0),
-
-    selectInput('x', 'X', names(dataset)),
-    selectInput('y', 'Y', names(dataset), names(dataset)[[2]]),
-    selectInput('color', 'Color', c('None', names(dataset))),
-
-    checkboxInput('jitter', 'Jitter'),
-    checkboxInput('smooth', 'Smooth'),
-
-    selectInput('facet_row', 'Facet Row', c(None='.', names(dataset))),
-    selectInput('facet_col', 'Facet Column', c(None='.', names(dataset)))
+    textInput("chr", "Chromsome", value = "1", width = NULL, placeholder = NULL),
+    textInput("start", "Start", value = "36000000", width = NULL, placeholder = NULL),
+    textInput("stop", "Stop", value = "36100000", width = NULL, placeholder = NULL),
+    textInput("Gene", "Gene", value = "MYC", width = NULL, placeholder = NULL),
+    actionButton("plot.region", "Plot Region"), 
+    actionButton("plot.gene", "Plot Gene")
   ),
 
-  mainPanel(
-    plotOutput('plot')
-  )
+  mainPanel(plotOutput("plot"))
 )
 
