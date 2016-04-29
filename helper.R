@@ -30,16 +30,14 @@ oneSampleLoopPlot <- function(x, y, colorLoops = TRUE) {
     objReg <- removeSelfLoops(subsetRegion(x, y))
     if(dim(objReg)[2] != 1 & !is.na(objReg@interactions[1,1])){
     res <- objReg@rowData
-    
 
-    
     # Dimensions of dataframe
     n <- dim(objReg@interactions)[1]  #number of interactions
     m <- dim(objReg@counts)[2]  #number of samples
     
     cs <- 0
     # Setup colors for plotting
-    if(exists(res$loop.type) & colorLoops){
+    if(!is.null(res$loop.type) & colorLoops){
         cs <- res$loop.type
         cs <- gsub("e-p", "red", cs)
         cs <- gsub("ctcf", "blue", cs)
