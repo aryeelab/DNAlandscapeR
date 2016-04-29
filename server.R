@@ -8,21 +8,18 @@ library(foreach)
 library(gridExtra)
 
 source("helper.R")
+# Import data/annotate
+rda<-paste(system.file('rda',package='diffloop'),'loops.small.rda',sep='/')
+load(rda)
+ctcf_j <- system.file('extdata','Jurkat_CTCF_chr1.narrowPeak',package='diffloop')
+ctcf <- rmchr(padGRanges(bedToGRanges(ctcf_j), pad = 1000))
+h3k27ac_j <- system.file('extdata','Jurkat_H3K27ac_chr1.narrowPeak',package='diffloop')
+h3k27ac <- rmchr(padGRanges(bedToGRanges(h3k27ac_j), pad = 1000))
+promoter <- padGRanges(getHumanTSS(c('1')), pad = 1000)
+loops.small <- annotateLoops(loops.small, ctcf, h3k27ac, promoter)
 
-h <- 100
 function(input, output) {
     val <- reactiveValues(region = NULL)
-  
-    # Import data/annotate
-    rda<-paste(system.file('rda',package='diffloop'),'loops.small.rda',sep='/')
-    load(rda)
-    ctcf_j <- system.file('extdata','Jurkat_CTCF_chr1.narrowPeak',package='diffloop')
-    ctcf <- rmchr(padGRanges(bedToGRanges(ctcf_j), pad = 1000))
-    h3k27ac_j <- system.file('extdata','Jurkat_H3K27ac_chr1.narrowPeak',package='diffloop')
-    h3k27ac <- rmchr(padGRanges(bedToGRanges(h3k27ac_j), pad = 1000))
-    promoter <- padGRanges(getHumanTSS(c('1')), pad = 1000)
-    loops.small <- annotateLoops(loops.small, ctcf, h3k27ac, promoter)
-    
     observeEvent(input$plot.region, {
         val$region <- GRanges(seqnames=c(input$chr),ranges=IRanges(start=c(as.numeric(input$start)),end=c(as.numeric(input$stop))))
         })
