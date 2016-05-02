@@ -1,24 +1,26 @@
-humanAnnotation <- function(y) {
-    chrom <- as.character(seqnames(y))
-    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
-    start <- as.integer(start(ranges(range(y))))
-    end <- as.integer(end(ranges(range(y))))
+# trackplot is a fuction that plots the epigenetic tracks.
+# Need to specify some sort of smoothing paramter. 
+trackplot <- function(file, region){
+    region.bed <- import.bw(file, which = addchr(region))
+    region.bedgraph <- data.frame(region.bed)
+    region.bedgraph <- region.bedgraph[,c(-4,-5)]
     
-    # Use cache annotation
-    rda <- paste(system.file("rda", package = "diffloop"), "geneinfo.h.rda", sep = "/")
-    load(rda)
-    geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start - 10000 & geneinfo$stop < end + 10000,]
-
-    loplot <- recordPlot()
-    pg = plotGenes(geneinfo = geneinfo, chrom = chromchr, chromstart = start, 
-        chromend = end, bheight = 0.1, plotgenetype = "box", 
-        bentline = FALSE, labeloffset = 0.4, fontsize = 1, arrowlength = 0.025, 
-        labeltext = TRUE)
-    mtext(paste0("Region: ", chrom, ":", start, "-", end), outer = TRUE, 
-        line = 1)
-    return(loplot)
+    chrom <- as.character(seqnames(region))
+    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
+    start <- as.integer(start(ranges(range(region))))
+    end <- as.integer(end(ranges(range(region))))
+    sample <- basename(file_path_sans_ext(file))
+    
+    trackplot <- recordPlot()
+    plotBedgraph(region.bedgraph, chromchr, start, end, 
+                 main = sample, adj=0)
+    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
+                n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+    return(trackplot)
 }
 
+# oneSampleLoopPlot has some specialized features for plotting only 
+# one sample's loops in these plots. 
 oneSampleLoopPlot <- function(x, y, colorLoops = TRUE) {
     # Grab Regional Coordinates
     chrom <- as.character(seqnames(y))
@@ -86,3 +88,24 @@ oneSampleLoopPlot <- function(x, y, colorLoops = TRUE) {
     }
 }
 
+# humanAnnotation plots the human gene tracks from the cached genome loci. 
+humanAnnotation <- function(y) {
+    chrom <- as.character(seqnames(y))
+    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
+    start <- as.integer(start(ranges(range(y))))
+    end <- as.integer(end(ranges(range(y))))
+    
+    # Use cache annotation
+    rda <- paste(system.file("rda", package = "diffloop"), "geneinfo.h.rda", sep = "/")
+    load(rda)
+    geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start - 10000 & geneinfo$stop < end + 10000,]
+
+    loplot <- recordPlot()
+    pg = plotGenes(geneinfo = geneinfo, chrom = chromchr, chromstart = start, 
+        chromend = end, bheight = 0.1, plotgenetype = "box", 
+        bentline = FALSE, labeloffset = 0.4, fontsize = 1, arrowlength = 0.025, 
+        labeltext = TRUE)
+    mtext(paste0("Region: ", chrom, ":", start, "-", end), outer = TRUE, 
+        line = 1)
+    return(loplot)
+}
