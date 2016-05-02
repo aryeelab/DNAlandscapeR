@@ -1,5 +1,7 @@
+library(readr)
+
 # bwtrackplot is a fuction that plots the epigenetic tracks
-# from bigwig files. 
+# from bigwig files. Axis shows "Read Depth". 
 bw.trackplot <- function(file, region){
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
@@ -14,7 +16,29 @@ bw.trackplot <- function(file, region){
     trackplot <- recordPlot()
     plotBedgraph(region.bedgraph, chromchr, start, end, 
                  main = sample, adj=0)
-    mtext("Read Depth",side=2,line=1.75,cex=1,font=2)
+    mtext("Read Depth",side=2,line=2.5,cex=1,font=2)
+    axis(side=2,las=2,tcl=.2)
+    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
+                n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+    return(trackplot)
+}
+
+# bwtrackplot is a fuction that plots the epigenetic tracks
+# from bigwig files. 
+methyl.bedgraph.trackplot <- function(file, region){
+    region.bed <- read_delim(file, delim = " ")
+    region.bedgraph <- data.frame(region.bed)
+
+    chrom <- as.character(seqnames(region))
+    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
+    start <- as.integer(start(ranges(range(region))))
+    end <- as.integer(end(ranges(range(region))))
+    sample <- basename(file_path_sans_ext(file))
+    
+    trackplot <- recordPlot()
+    plotBedgraph(region.bedgraph, chromchr, start, end, 
+                 main = sample, adj=0)
+    mtext("Methylation",side=2,line=2.5,cex=1,font=2)
     axis(side=2,las=2,tcl=.2)
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
                 n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
