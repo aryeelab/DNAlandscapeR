@@ -39,7 +39,7 @@ function(input, output) {
     output$plot <- renderPlot({
         if (is.null(val$region)) return()
         if (length(input$tracks) == 0) return()
-        par(mfrow=c(length(input$tracks)+1, 1), oma = c(0, 0, 0, 0), mar = c(3, 5, 1, 1))
+        par(mfrow=c(length(input$tracks)+input$showgenes, 1), oma = c(0, 0, 0, 0), mar = c(3, 5, 1, 1))
         for(i in input$tracks){
             if (as.numeric(i) < 1000){ #ChIA-PET from Data Source File
                 oneSampleLoopPlot(loops.small[,as.numeric(i)],val$region)
@@ -51,6 +51,6 @@ function(input, output) {
                 if(i == 2001) methyl.bedgraph.trackplot("data/jurkat450k.bedgraph", val$region)
             } else {return()}
         }
-        humanAnnotation(val$region)
+        if(input$showgenes) humanAnnotation(val$region)
      }, height = 700)
  }

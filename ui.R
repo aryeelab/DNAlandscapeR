@@ -28,6 +28,7 @@ pageWithSidebar(
     textInput("start", "Start", value = "36100000", width = NULL, placeholder = NULL),
     textInput("stop", "Stop", value = "36300000", width = NULL, placeholder = NULL),
     textInput("Gene", "Gene", value = "AGO3", width = NULL, placeholder = NULL),
+    checkboxInput("showgenes", "Show Gene Annotation", value = TRUE, width = NULL),
     actionButton("plot.region", "Plot Region"), 
     actionButton("plot.gene", "Plot Gene"),
     downloadButton("down", "Download Plot"),
