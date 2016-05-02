@@ -1,6 +1,6 @@
-# trackplot is a fuction that plots the epigenetic tracks.
-# Need to specify some sort of smoothing paramter. 
-trackplot <- function(file, region){
+# bwtrackplot is a fuction that plots the epigenetic tracks
+# from bigwig files. 
+bw.trackplot <- function(file, region){
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
     region.bedgraph <- region.bedgraph[,c(-4,-5)]
@@ -14,6 +14,8 @@ trackplot <- function(file, region){
     trackplot <- recordPlot()
     plotBedgraph(region.bedgraph, chromchr, start, end, 
                  main = sample, adj=0)
+    mtext("Read Depth",side=2,line=1.75,cex=1,font=2)
+    axis(side=2,las=2,tcl=.2)
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
                 n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     return(trackplot)

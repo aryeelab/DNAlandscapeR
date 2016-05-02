@@ -39,12 +39,12 @@ function(input, output) {
     output$plot <- renderPlot({
         if (is.null(val$region)) return()
         if (length(input$tracks) == 0) return()
-        par(mfrow=c(length(input$tracks)+2, 1), oma = c(0, 0, 0, 0), mar = c(3, 1, 1, 1))
+        par(mfrow=c(length(input$tracks)+2, 1), oma = c(0, 0, 0, 0), mar = c(3, 3, 1, 1))
         for(i in input$tracks){
             oneSampleLoopPlot(loops.small[,as.numeric(i)],val$region)
         }
-        n.r1.h3k27ac <- "/Users/lareauc/Downloads/Naive-R1-H3K27ac.bw"
-        trackplot(n.r1.h3k27ac, val$region)
+        n.r1.h3k27ac <- "data/Naive-R1-H3K27ac.bw"
+        bw.trackplot(n.r1.h3k27ac, val$region)
         humanAnnotation(val$region)
      }, height = 700)
  }
