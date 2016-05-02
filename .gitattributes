@@ -1,1 +1,2 @@
 *.bw filter=lfs diff=lfs merge=lfs -text
+*.bedgraph filter=lfs diff=lfs merge=lfs -text
