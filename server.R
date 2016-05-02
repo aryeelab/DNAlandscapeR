@@ -41,14 +41,14 @@ function(input, output) {
         if (length(input$tracks) == 0) return()
         par(mfrow=c(length(input$tracks)+input$showgenes, 1), oma = c(0, 0, 0, 0), mar = c(3, 5, 1, 1))
         for(i in input$tracks){
-            if (as.numeric(i) < 1000){ #ChIA-PET from Data Source File
-                oneSampleLoopPlot(loops.small[,as.numeric(i)],val$region)
-            } else if (as.numeric(i) < 2000) { #BigWig Read Count
-                if(i == 1001) bw.trackplot("data/Naive-R1-H3K27ac.bw", val$region)
-                if(i == 1002) bw.trackplot("data/Primed-R1-H3K27ac.bw", val$region)
-                if(i == 1003) bw.trackplot("data/Jurkat-H3K27ac.bw", val$region)
-            } else if (as.numeric(i) < 3000){ #DNA Methylation
-                if(i == 2001) methyl.bedgraph.trackplot("data/jurkat450k.bedgraph", val$region)
+            i <- as.integer(i)
+            if (i < 1000){ #ChIA-PET from Data Source File
+                oneSampleLoopPlot(loops.small[,i],val$region)
+            } else if (i < 2000) { # BigWig Read Count Track
+                bw.trackplot(paste("data/tracks/", e.full[[i-1000]], sep = ""), val$region)
+            } else if (i < 3000){ #DNA Methylation
+                print(m.full[[i-2000]])
+                methyl.bedgraph.trackplot(paste("data/methylation/", m.full[[i-2000]],sep = ""), val$region)
             } else {return()}
         }
         if(input$showgenes) humanAnnotation(val$region)
