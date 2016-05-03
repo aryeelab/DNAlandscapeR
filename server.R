@@ -10,7 +10,7 @@ library(tools)
 source("helper.R")
 source("global.R")
 
-function(input, output) {
+function(input, output, session) {
     val <- reactiveValues(region = NULL)
     observeEvent(input$plot.region, {
         val$region <- GRanges(seqnames=c(input$chr),ranges=IRanges(start=c(as.numeric(input$start)),end=c(as.numeric(input$stop))))
@@ -21,10 +21,10 @@ function(input, output) {
         load(rda)
         t <- human.genes[mcols(human.genes)$id == as.character(input$Gene) ]
         val$region <- padGRanges(t, pad = as.integer(width(t)/2))
-        # Update the values displayed somehow? 
-        # input$chr <- as.numeric(seqnames(val$region))
-        # input$start <- as.integer(start(ranges(range(val$region))))
-        # input$stop <- as.integer(end(ranges(range(val$region))))
+        updateNumericInput(session, "chr", value = as.numeric(seqnames(val$region)))       
+        updateNumericInput(session, "start", value = as.integer(start(ranges(range(val$region)))))  
+        updateNumericInput(session, "stop", value = as.integer(end(ranges(range(val$region)))))       
+
     })  
   
     observeEvent(input$clear, {
