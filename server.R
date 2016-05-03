@@ -1,11 +1,3 @@
-library(shiny)
-library(ggplot2)
-library(GenomicRanges)
-library(diffloop)
-library(Sushi)
-library(foreach)
-library(rtracklayer)
-library(tools)
 
 source("helper.R")
 source("global.R")

@@ -1,5 +1,14 @@
 # Global variables for both server.R and ui.R to reference
 library(tools)
+library(shiny)
+library(shinythemes)
+library(ggplot2)
+library(GenomicRanges)
+library(diffloop)
+library(Sushi)
+library(foreach)
+library(rtracklayer)
+
 
 # From 0-1,000-- ChIA-PET loops objects
 c.full <- list.files("data/loops/")

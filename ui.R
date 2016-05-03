@@ -1,8 +1,11 @@
-library(shiny)
+
 source("global.R")
 
-pageWithSidebar(
-  headerPanel("DNAlandscapeR"),
+shinyUI(fluidPage(
+
+titlePanel("DNAlandscapeR"),
+theme = shinytheme("readable"),
+sidebarLayout(
   sidebarPanel(
     selectInput("tracks", label = h3("Tracks"), 
         choices = f.list, 
@@ -20,8 +23,8 @@ pageWithSidebar(
     actionButton("clear", "Clear")
   ),
 
-  mainPanel(
-      plotOutput("plot")
-      )
+  mainPanel(plotOutput("plot")),
+  fluid = TRUE
 )
-
+)
+)
