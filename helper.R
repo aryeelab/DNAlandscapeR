@@ -47,7 +47,12 @@ methyl.bedgraph.trackplot <- function(file, region){
 
 # oneSampleLoopPlot has some specialized features for plotting only 
 # one sample's loops in these plots. 
-oneSampleLoopPlot <- function(x, y, colorLoops = TRUE) {
+oneSampleLoopPlot <- function(file, y, colorLoops = TRUE) {
+    # Load the RDA
+    load(file)
+    sample <- basename(file_path_sans_ext(file))
+    x <- get(sample)
+    
     # Grab Regional Coordinates
     chrom <- as.character(seqnames(y))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
@@ -56,61 +61,59 @@ oneSampleLoopPlot <- function(x, y, colorLoops = TRUE) {
     
     #  Restrict the loops object to the region
     objReg <- removeSelfLoops(subsetRegion(x, y))
-    if(dim(objReg)[2] != 1 & !is.na(objReg@interactions[1,1])){
-    res <- objReg@rowData
-
-    # Dimensions of dataframe
-    n <- dim(objReg@interactions)[1]  #number of interactions
-    m <- dim(objReg@counts)[2]  #number of samples
     
-    cs <- 0
-    # Setup colors for plotting
-    if(!is.null(res$loop.type) & colorLoops){
-        cs <- res$loop.type
-        cs <- gsub("e-p", "red", cs)
-        cs <- gsub("ctcf", "blue", cs)
-        cs <- gsub("none", "black", cs)
+    # Make sure loop object is non-empty
+    if(dim(objReg)[2] != 0){
+        res <- objReg@rowData
+        n <- dim(objReg@interactions)[1]  #number of interactions
+        
+        # Setup colors for plotting
+        cs <- 0
+        if(!is.null(res$loop.type) & colorLoops){
+            cs <- res$loop.type
+            cs <- gsub("e-p", "red", cs)
+            cs <- gsub("ctcf", "blue", cs)
+            cs <- gsub("none", "black", cs)
+        } else {
+            cs <- rep("black", n)
+        }
+        
+        # Setup Dataframe for Plot
+        leftAnchor <- as.data.frame(objReg@anchors[objReg@interactions[,1]])[c(1, 2, 3)]
+        LA <- do.call("rbind", replicate(1, leftAnchor, simplify = FALSE))
+        rightAnchor <- as.data.frame(objReg@anchors[objReg@interactions[,2]])[c(1, 2, 3)]
+        RA <- do.call("rbind", replicate(1, rightAnchor, simplify = FALSE))
+        colnames(LA) <- c("chr_1", "start_1", "end_1")
+        colnames(RA) <- c("chr_2", "start_2", "end_2")
+        name <- rep(NA, n)
+        strand_1 <- rep(".", n * 1)
+        strand_2 <- rep(".", n * 1)
+        score <- matrix(objReg@counts, ncol = 1)
+        sample_id <- matrix(sapply(colnames(objReg@counts),
+                                   function(x) rep(x,n)), ncol = 1)
+        
+        bedPE <- data.frame(LA, RA, name, score, strand_1, strand_2, sample)
+        
+        w <- loopWidth(objReg)
+        h <- sqrt(w/max(w))
+        lwd <- 5 * (bedPE$score/max(bedPE$score))
+        
+        loplot <- recordPlot()
+        plotBedpe(bedPE, chrom, start, end, color = cs, lwd = lwd, 
+                  plottype = "loops", heights = h, lwdrange = c(0, 5), 
+                  main = sample, adj=0)
+        labelgenome(chromchr, start, end, side = 1, scipen = 20, 
+                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+        return(loplot)
     } else {
-        cs <- rep("black", n)
-    }
-    # Setup Dataframe for Plot
-    leftAnchor <- as.data.frame(objReg@anchors[objReg@interactions[, 
-        1]])[c(1, 2, 3)]
-    LA <- do.call("rbind", replicate(m, leftAnchor, simplify = FALSE))
-    rightAnchor <- as.data.frame(objReg@anchors[objReg@interactions[, 
-        2]])[c(1, 2, 3)]
-    RA <- do.call("rbind", replicate(m, rightAnchor, simplify = FALSE))
-    colnames(LA) <- c("chr_1", "start_1", "end_1")
-    colnames(RA) <- c("chr_2", "start_2", "end_2")
-    name <- rep(NA, n)
-    strand_1 <- rep(".", n * m)
-    strand_2 <- rep(".", n * m)
-    score <- matrix(objReg@counts, ncol = 1)
-    sample_id <- matrix(sapply(colnames(objReg@counts), function(x) rep(x, 
-        n)), ncol = 1)
-    bedPE <- data.frame(LA, RA, name, score, strand_1, strand_2, 
-        sample_id)
-    
-    # Plot
-    w <- loopWidth(objReg)
-    h <- sqrt(w/max(w))
-    
-    samples <- colnames(objReg@counts)
-    lwd <- 5 * (bedPE$score/max(bedPE$score))
-    
-    loplot <- recordPlot()
-
-    sample = samples[m]
-    idx <- which(bedPE$sample_id == sample)
-    plotBedpe(bedPE[idx, ], chrom, start, end, color = cs, lwd = lwd[idx], 
-        plottype = "loops", heights = h, lwdrange = c(0, 5), 
-        main = sample, adj=0)
-    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-        n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
-    
-    return(loplot)
-    } else {
-        return()
+        # Return dummy plot
+        loplot <- recordPlot()
+        plotBedpe(data.frame(), chrom, start, end, color = c("blue"), lwd = 0, 
+                  plottype = "loops", heights = 0, lwdrange = c(0, 0), 
+                  main = sample, adj=0)
+        labelgenome(chromchr, start, end, side = 1, scipen = 20, 
+                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+        return(loplot)   
     }
 }
 
