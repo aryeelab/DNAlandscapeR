@@ -27,7 +27,15 @@ function(input, output, session) {
 
     })  
   
-    observeEvent(input$clear, {
+    observeEvent(input$zoom.out, {
+        val$region <- padGRanges(val$region, pad = as.integer(width(val$region)/2))
+    })
+    
+     observeEvent(input$zoom.in, {
+        val$region <- padGRanges(val$region, pad = -1*as.integer(width(val$region)/4))
+    })
+     
+      observeEvent(input$clear, {
         val$region <- NULL
     })
 

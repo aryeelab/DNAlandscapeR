@@ -1,4 +1,5 @@
 # Global variables for both server.R and ui.R to reference
+library(tools)
 
 # From 0-1,000-- ChIA-PET loops objects
 c.full <- list.files("data/loops/")

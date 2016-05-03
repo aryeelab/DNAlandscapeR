@@ -14,6 +14,8 @@ pageWithSidebar(
     checkboxInput("showgenes", "Show Gene Annotation", value = TRUE, width = NULL),
     actionButton("plot.region", "Plot Region"), 
     actionButton("plot.gene", "Plot Gene"),
+    actionButton("zoom.in", "Zoom In"),
+    actionButton("zoom.out", "Zoom Out"),
     downloadButton("down", "Download Plot"),
     actionButton("clear", "Clear")
   ),
