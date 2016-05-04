@@ -1,10 +1,10 @@
 
 source("global.R")
 
-shinyUI(fluidPage(
-
-titlePanel("DNAlandscapeR"),
+shinyUI(navbarPage("DNAlandscapeR",
 theme = shinytheme("readable"),
+
+tabPanel("Visualize", 
 sidebarLayout(
   sidebarPanel(
     selectInput("tracks", label = h3("Tracks"), 
@@ -26,5 +26,9 @@ sidebarLayout(
   mainPanel(plotOutput("plot")),
   fluid = TRUE
 )
-)
-)
+),
+
+tabPanel("Upload",
+    verbatimTextOutput("Upload")
+  )
+))
