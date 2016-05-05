@@ -95,13 +95,16 @@ function(input, output, session) {
 
     volumes <- getVolumes()
     shinyFileChoose(input, 'file', roots=volumes, session=session, restrictions=system.file(package='base'))
-    output$filename <- renderPrint(as.character(parseFilePaths(volumes, input$file)$datapath))
-    
+    output$filename <- renderPrint({
+        fnc <- as.character(parseFilePaths(volumes, input$file)$datapath)
+        if(identical(fnc, character(0))){ "" } else { fnc }
+        })
+
     observeEvent(input$addFile, {
-        
-        #Quality assurance
-        #validate(need(input$datType == "Loops" & input$fileformat == "rds" , "Loops object must be a .rds file"))
-        
+        #validate(need(if(input$datType == "Loops") input$fileformat == "rds" , "Loops input must be a .rds file"))
+        #validate(need(if(input$datType == "Read.Depth") input$fileformat != "rds" , "Read.Depth cannot be a .rds file"))
+        #validate(need(if(input$datType == "Methyl") input$fileformat != "rds" , "Methyl cannot be a .rds file"))
+
         #Update files
         dynamic.val$curfil <- as.character(parseFilePaths(volumes, input$file)$datapath) 
         dynamic.val$alldat <- as.matrix(rbind(dynamic.val$alldat, cbind(dynamic.val$curfil, input$fileformat, input$datType)), ncol = 3)
