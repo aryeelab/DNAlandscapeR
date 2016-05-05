@@ -2,9 +2,8 @@
 source("global.R")
 
 shinyUI(navbarPage("DNAlandscapeR",
-theme = shinytheme("readable"),
-
 tabPanel("Visualize", 
+headerPanel('Visualize DNA Regions and Tracks'),
 sidebarLayout(
   sidebarPanel(
     selectInput("tracks", label = h3("Tracks"), 
@@ -21,7 +20,7 @@ sidebarLayout(
     actionButton("zoom.out", "Zoom Out"),
     downloadButton("down", "Download Plot"),
     actionButton("clear", "Clear")
-  ),
+  ), 
 
   mainPanel(plotOutput("plot")),
   fluid = TRUE
@@ -29,6 +28,27 @@ sidebarLayout(
 ),
 
 tabPanel("Upload",
-    verbatimTextOutput("Upload")
-  )
-))
+pageWithSidebar(
+    headerPanel(
+        'Add tracks from local files'
+        ),
+    sidebarPanel(
+        tags$h4('Select additional file to be imported.'),
+        shinyFiles::shinyFilesButton('file', 'File select', 'Please select a file', TRUE),
+        tags$p(),
+        tags$hr(),
+        tags$p('The file selection button allows the user to select one or
+               several files and get their absolute position communicated back
+               to the shiny server. In this example the button has been set to
+               single-file mode.'),
+        radioButtons('datType', 'Data Type', c(Loops = 'loops', Methylation='methyl', Read.Depth="readdepth"), "readdepth"),
+        radioButtons('fileformat', 'File Format', c(Bedgraph = 'bedgraph', BigWig='bigwig', rds="rds"), 'bigwig'),
+        tags$hr()
+        ),
+    mainPanel(
+        tags$h4('Current Specified File'),
+        verbatimTextOutput('filein'),
+        tags$hr()
+        )
+)
+)))

@@ -1,4 +1,3 @@
-
 source("helper.R")
 source("global.R")
 
@@ -76,4 +75,16 @@ function(input, output, session) {
     output$plot <- renderPlot({
         p1()
      }, height = 700)
+    
+    
+    ####UPLOAD TAB#####
+    volumes <- getVolumes()
+    shinyFileChoose(input, 'file', roots=volumes, session=session, restrictions=system.file(package='base'))
+    output$filepaths <- renderPrint(as.character(parseFilePaths(volumes, input$file)$datapath))
+    
+    #observeEvent(input$addFile, {
+    
+
+    #})
+
  }
