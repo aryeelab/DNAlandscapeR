@@ -10,6 +10,7 @@ library(foreach)
 library(rtracklayer)
 library(shinyFiles)
 library(DT)
+options(warn=-1)
 
 # Import locally hosted data file names
 c.full <- list.files("data/loops", full.names = TRUE)
@@ -33,7 +34,7 @@ if(length(t.bw.full) != 0){
 
 # From 2,001-3,000-- ReadDepth Tracks-- Bedgraph
 t.bg.full <- t.files[grep(".bedgraph", t.files, fixed=T)]
-if(length(t.bg.names) != 0){
+if(length(t.bg.full) != 0){
     t.bg.names <- basename(file_path_sans_ext(t.bg.full))
     t.bg.list <- as.list(seq(1, length(t.bg.names), by = 1) + 2000)
     names(t.bg.list) <- t.bg.names
