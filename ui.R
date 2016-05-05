@@ -39,14 +39,14 @@ pageWithSidebar(
         verbatimTextOutput('filename'),
         tags$hr(),
         tags$h4('Select input data formats.'),
-        radioButtons('datType', 'Data Type', c(Loops = 'Loops', Methylation='Methyl', Read.Depth="Read.Depth"), "Read.Depth"),
-        radioButtons('fileformat', 'File Format', c(Bedgraph = 'Bedgraph', BigWig='BigWig', rds="rds"), 'BigWig'),
+        radioButtons('datType', 'Data Type', c(Loops = 'Loops', Methylation='Methyl', Read.Depth="Read.Depth"), "Loops"),
+        radioButtons('fileformat', 'File Format', c(Bedgraph = 'Bedgraph', BigWig='BigWig', rds="rds"), 'rds'),
         tags$hr(),
         actionButton("addFile", "Add")
         ),
     mainPanel(
         tags$h4('List of uploaded files, formats, and types'),
-        tableOutput("filename.format.type"),
+        dataTableOutput('dt'),
         tags$hr()
         )
 )

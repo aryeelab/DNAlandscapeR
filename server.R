@@ -78,8 +78,6 @@ function(input, output, session) {
     
     output$trackoptions <- renderUI({selectInput("tracks", label = h3("Tracks"), choices = val$list.tracks, selectize = TRUE, multiple= TRUE, selected = 0)})
 
-    
-    ####UPLOAD TAB#####/Volumes/Macintosh HD/Jurkat_3_SMC1.rda
     volumes <- getVolumes()
     shinyFileChoose(input, 'file', roots=volumes, session=session, restrictions=system.file(package='base'))
     output$filename <- renderPrint(as.character(parseFilePaths(volumes, input$file)$datapath))
@@ -87,26 +85,32 @@ function(input, output, session) {
     observeEvent(input$addFile, {
         #Error handling
         #validate(need(input$datType == "Loops" & input$fileformat == "rds" , "Loops object must be a .rds file"))
-
+        
         #Update files
         val$curfil <- as.character(parseFilePaths(volumes, input$file)$datapath) 
-        val$alldat <- as.matrix(rbind(val$alldat, paste(val$curfil, input$fileformat, input$datType, sep = ", ")), ncol = 3)
-        output$filename.format.type <- renderTable(val$alldat)
+        val$alldat <- as.matrix(rbind(val$alldat, cbind(val$curfil, input$fileformat, input$datType)), ncol = 3)
+        colnames(val$alldat) <- c("File", "Format", "Data Type")
+        dt <- as.data.frame(val$alldat)
+        output$dt <- renderDataTable({dt})
 
-        #Add track
+        #Add track to global variables AND dynamic list option
         name <- basename(file_path_sans_ext(val$curfil))
         y <- val$list.tracks
         val <- 0
         if(input$datType == "Loops"){
             val <- as.list( max(unlist(y)[unlist(y) < 1000]) + 1 )
+        } else if (input$datType == "Read.Depth"){
+            val <- as.list( max(unlist(y)[unlist(y) < 2000]) + 1 )
+        } else { #Methylation
+            val <- as.list( max(unlist(y)[unlist(y) < 3000]) + 1 )
         }
         names(val) <- name
         val$list.tracks <- append(y, val)
         
+        #Output new list
         output$trackoptions <- renderUI({selectInput("tracks", label = h3("Tracks"), choices = val$list.tracks, selectize = TRUE, multiple= TRUE, selected = 0)})
-    #Now do stuff
-    #if((input$datType == "Loops") & (input$fileformat == "rds"))
 
-    })
+ })
 
- }
+    
+}
