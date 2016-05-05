@@ -15,7 +15,7 @@ options(warn=-1)
 # Import locally hosted data file names
 c.full <- list.files("data/loops", full.names = TRUE)
 t.files <- list.files("data/tracks", full.names = TRUE)
-m.files <- list.files("data/methylation/", full.names = TRUE)
+m.files <- list.files("data/methylation", full.names = TRUE)
 
 # From 1-1,000-- ChIA-PET loops objects
 if(length(c.full) != 0){
@@ -24,8 +24,9 @@ if(length(c.full) != 0){
     names(c.list) <- c.names
 } else { c.list <- list(); c.full <- list()}
 
+bigwig <- c(".bw", ".bigwig")
 # From 1,001-2,000-- ReadDepth Tracks-- bigwig
-t.bw.full <- t.files[grep(".bw", t.files, fixed=T)]
+t.bw.full <- t.files[rowSums(sapply(bigwig, grepl, t.files))]
 if(length(t.bw.full) != 0){
     t.bw.names <- basename(file_path_sans_ext(t.bw.full))
     t.bw.list <- as.list(seq(1, length(t.bw.names), by = 1) + 1000)
@@ -41,7 +42,7 @@ if(length(t.bg.full) != 0){
 } else { t.bg.list <- list(); t.bg.full <- list() }
 
 # From 3,001-4,000-- Methylation Tracks-- bigwig
-m.bw.full <- m.files[grep(".bw", m.files, fixed=T)]
+m.bw.full <- m.files[rowSums(sapply(bigwig, grepl, m.files))]
 if(length(m.bw.full) != 0){
     m.bw.names <- basename(file_path_sans_ext(m.bw.full))
     m.bw.list <- as.list(seq(1, length(m.bw.names), by = 1) + 3000)
