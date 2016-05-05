@@ -75,6 +75,7 @@ function(input, output, session) {
                 bigwig.bumpPlot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region)
             } else if (i < 5000){ # Methyl; Bedgraph
                 bedgraph.trackplot(dynamic.val$m.bg.full[[i-4000]], dynamic.val$region, "Methylation")
+                #bedgraph.bumpPlot(dynamic.val$m.bw.full[[i-4000]], dynamic.val$region)
             } else {return()}
         }
         if(input$showgenes) humanAnnotation(dynamic.val$region)
