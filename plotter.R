@@ -1,4 +1,27 @@
 library(readr)
+library(bumphunter)
+
+bigwig.bumpPlot <- function(file, region){
+    region.bed <- import.bw(file, which = addchr(region))
+    region.bedgraph <- data.frame(region.bed)
+    region.bedgraph <- region.bedgraph[,c(-4,-5)]
+
+    chrom <- as.character(seqnames(region))
+    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
+    start <- as.integer(start(ranges(range(region))))
+    end <- as.integer(end(ranges(range(region))))
+    sample <- basename(file_path_sans_ext(file))
+    
+    bumpplot <- recordPlot()
+    pos <- region.bedgraph$start
+    cluster_id <- clusterMaker(chr=chrom, pos=pos, maxGap = 100)
+    smooth <- locfitByCluster(x=pos, y=region.bedgraph[,4], cluster=cluster_id, bpSpan=50)
+    plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE)
+    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
+        n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+    mtext("Methylation",side=2,line=2.5,cex=1,font=2)
+    return(bumpplot)
+}
 
 # plots bigwig data for specified file/region; annotates 'ylab' 
 bigwig.trackplot <- function(file, region, ylab){

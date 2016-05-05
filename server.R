@@ -71,7 +71,8 @@ function(input, output, session) {
             } else if (i < 3000){ # Track; Bedgraph
                 bedgraph.trackplot(dynamic.val$t.bg.full[[i-2000]], dynamic.val$region, "Read Depth")
             } else if (i < 4000) { # Methyl; BigWig
-                bigwig.trackplot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region, "Methylation")
+                #bigwig.trackplot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region, "Methylation")
+                bigwig.bumpPlot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region)
             } else if (i < 5000){ # Methyl; Bedgraph
                 bedgraph.trackplot(dynamic.val$m.bg.full[[i-4000]], dynamic.val$region, "Methylation")
             } else {return()}
