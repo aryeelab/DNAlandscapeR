@@ -86,9 +86,6 @@ one.loopPlot <- function(file, y, colorLoops = TRUE) {
         strand_1 <- rep(".", n * 1)
         strand_2 <- rep(".", n * 1)
         score <- matrix(objReg@counts, ncol = 1)
-        sample_id <- matrix(sapply(colnames(objReg@counts),
-                                   function(x) rep(x,n)), ncol = 1)
-        
         bedPE <- data.frame(LA, RA, name, score, strand_1, strand_2, sample)
         
         w <- loopWidth(objReg)
