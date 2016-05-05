@@ -1,4 +1,4 @@
-source("helper.R")
+source("plotter.R")
 source("global.R")
 
 function(input, output, session) {
@@ -8,8 +8,10 @@ function(input, output, session) {
         alldat = NULL,
         list.tracks = f.list, 
         c.full = c.full,
-        e.full = e.full,
-        m.full = m.full
+        t.bw.full = t.bw.full,
+        t.bg.full = t.bg.full,
+        m.bw.full = m.bw.full,
+        m.bg.full = m.bg.full
         )
     
     observeEvent(input$plot.region, {
@@ -62,16 +64,20 @@ function(input, output, session) {
         par(mfrow=c(length(input$tracks)+input$showgenes, 1), oma = c(0, 0, 1, 0), mar = c(3, 5, 1, 1))
         for(i in input$tracks){
             i <- as.integer(i)
-            if (i < 1000){ #ChIA-PET from Data Source File
-                oneSampleLoopPlot(dynamic.val$c.full[[i]], dynamic.val$region)
-            } else if (i < 2000) { # BigWig Read Count Track
-                bw.trackplot(dynamic.val$e.full[[i-1000]], dynamic.val$region)
-            } else if (i < 3000){ #DNA Methylation
-                methyl.bedgraph.trackplot(dynamic.val$m.full[[i-2000]], dynamic.val$region)
+            if (i < 1000){ # ChIA-PET from rDS
+                one.loopPlot(dynamic.val$c.full[[i]], dynamic.val$region)
+            } else if (i < 2000) { # Track; BigWig
+                bigwig.trackplot(dynamic.val$t.bw.full[[i-1000]], dynamic.val$region, "Read Depth")
+            } else if (i < 3000){ # Track; Bedgraph
+                bedgraph.trackplot(dynamic.val$t.bg.full[[i-2000]], dynamic.val$region, "Read Depth")
+            } else if (i < 4000) { # Methyl; BigWig
+                bigwig.trackplot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region, "Methylation")
+            } else if (i < 5000){ # Methyl; Bedgraph
+                bedgraph.trackplot(dynamic.val$m.bg.full[[i-4000]], dynamic.val$region, "Methylation")
             } else {return()}
         }
         if(input$showgenes) humanAnnotation(dynamic.val$region)
-}
+    }
     output$down <- downloadHandler(
         filename <- function() {
             paste('plot-', Sys.Date(), '.pdf', sep='') },
@@ -83,11 +89,11 @@ function(input, output, session) {
       
     output$plot <- renderPlot({
         p1()
-     }, height = 700)
+     }, height = 1000)
     
     output$trackoptions <- renderUI({selectInput("tracks", label = h3("Tracks"), choices = dynamic.val$list.tracks, selectize = TRUE, multiple = TRUE, selected = 0)})
 
-        volumes <- getVolumes()
+    volumes <- getVolumes()
     shinyFileChoose(input, 'file', roots=volumes, session=session, restrictions=system.file(package='base'))
     output$filename <- renderPrint(as.character(parseFilePaths(volumes, input$file)$datapath))
     
@@ -109,15 +115,23 @@ function(input, output, session) {
         valu <- 0
         
         if(input$datType == "Loops"){
-            valu <- as.list( max(unlist(y)[unlist(y) < 1000]) + 1 )
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 1000]), 0)) + 1 )
             names(valu) <- name
             dynamic.val$c.full <- c(dynamic.val$c.full, dynamic.val$curfil)
-        } else if (input$datType == "Read.Depth"){
-            valu <- as.list( max(unlist(y)[unlist(y) < 2000]) + 1 )
+        } else if (input$datType == "Read.Depth" & input$fileformat == "BigWig") {
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 2000]), 0)) + 1 )
             names(valu) <- name
-            dynamic.val$e.full <- c(dynamic.val$e.full, dynamic.val$curfil)
-        } else { #Methylation
-            valu <- as.list( max(unlist(y)[unlist(y) < 3000]) + 1 )
+            dynamic.val$t.bw.full <- c(dynamic.val$t.bw.full, dynamic.val$curfil)
+        } else if (input$datType == "Read.Depth" & input$fileformat == "Bedgraph") {
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 3000]), 0)) + 1 )
+            names(valu) <- name
+            dynamic.val$t.bg.full <- c(dynamic.val$t.bg.full, dynamic.val$curfil)
+        } else if (input$datType == "Methyl" & input$fileformat == "BigWig") {
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 4000]), 0)) + 1 )
+            names(valu) <- name
+            dynamic.val$m.bw.full <- c(dynamic.val$m.bw.full, dynamic.val$curfil)
+        } else { #Methyl; Bedgraph
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 5000]), 0)) + 1 )
             names(valu) <- name
             dynamic.val$m.full <- c(dynamic.val$m.full, dynamic.val$curfil)
         }

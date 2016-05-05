@@ -1,8 +1,8 @@
 library(diffloop)
 
-load("/Users/lareauc/Desktop/Research/AryeeResearch/sarah-qual/output/valid_full-v1.0.rda")
-ctcf <- rmchr(padGRanges(bedToGRanges("/Users/lareauc/Desktop/Research/AryeeResearch/sarah-qual/input/CTCF-np_peaks.narrowPeak"), pad = 1000))
-h3k27ac <- rmchr(padGRanges(bedToGRanges("/Users/lareauc/Desktop/Research/AryeeResearch/sarah-qual/input/H3K27ac-np_peaks.narrowPeak"), pad = 1000))
+#load("/Users/lareauc/Desktop/Research/AryeeResearch/sarah-qual/output/valid_full-v1.0.rda")
+#ctcf <- rmchr(padGRanges(bedToGRanges("/Users/lareauc/Desktop/Research/AryeeResearch/sarah-qual/input/CTCF-np_peaks.narrowPeak"), pad = 1000))
+#h3k27ac <- rmchr(padGRanges(bedToGRanges("/Users/lareauc/Desktop/Research/AryeeResearch/sarah-qual/input/H3K27ac-np_peaks.narrowPeak"), pad = 1000))
 promoter <- padGRanges(getHumanTSS(), pad = 1000)
 vf_anno <- annotateLoops(valid_full, ctcf, h3k27ac, promoter)
 

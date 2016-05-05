@@ -28,14 +28,14 @@ sidebarLayout(
 tabPanel("Upload",
 pageWithSidebar(
     headerPanel(
-        'Add tracks from local files'
+        'Add local tracks'
         ),
     sidebarPanel(
         tags$h4('Choose File'),
         verbatimTextOutput('filename'),
         shinyFilesButton('file', 'File select', 'Please select a file', TRUE),
         tags$hr(),
-        tags$h4('Select input data formats.'),
+        tags$h4('Specify input data formats'),
         radioButtons('datType', 'Data Type', c(Loops = 'Loops', Methylation='Methyl', Read.Depth="Read.Depth"), "Loops"),
         radioButtons('fileformat', 'File Format', c(Bedgraph = 'Bedgraph', BigWig='BigWig', rds="rds"), 'rds'),
         tags$hr(),

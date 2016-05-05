@@ -1,8 +1,7 @@
 library(readr)
 
-# bwtrackplot is a fuction that plots the epigenetic tracks
-# from bigwig files. Axis shows "Read Depth". 
-bw.trackplot <- function(file, region){
+# plots bigwig data for specified file/region; annotates 'ylab' 
+bigwig.trackplot <- function(file, region, ylab){
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
     region.bedgraph <- region.bedgraph[,c(-4,-5)]
@@ -16,16 +15,15 @@ bw.trackplot <- function(file, region){
     trackplot <- recordPlot()
     plotBedgraph(region.bedgraph, chromchr, start, end, 
                  main = sample, adj=0)
-    mtext("Read Depth",side=2,line=2.5,cex=1,font=2)
+    mtext(ylab,side=2,line=2.5,cex=1,font=2)
     axis(side=2,las=2,tcl=.2)
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
                 n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     return(trackplot)
 }
 
-# bwtrackplot is a fuction that plots the epigenetic tracks
-# from bigwig files. 
-methyl.bedgraph.trackplot <- function(file, region){
+# plots bedgraph data for specified file/region; annotates 'ylab'
+bedgraph.trackplot <- function(file, region, ylab){
     region.bed <- read_delim(file, delim = " ")
     region.bedgraph <- data.frame(region.bed)
 
@@ -38,16 +36,16 @@ methyl.bedgraph.trackplot <- function(file, region){
     trackplot <- recordPlot()
     plotBedgraph(region.bedgraph, chromchr, start, end, 
                  main = sample, adj=0)
-    mtext("Methylation",side=2,line=2.5,cex=1,font=2)
+    mtext(ylab,side=2,line=2.5,cex=1,font=2)
     axis(side=2,las=2,tcl=.2)
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
                 n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     return(trackplot)
 }
 
-# oneSampleLoopPlot has some specialized features for plotting only 
+# one.loopPlot has some specialized features for plotting only 
 # one sample's loops in these plots. 
-oneSampleLoopPlot <- function(file, y, colorLoops = TRUE) {
+one.loopPlot <- function(file, y, colorLoops = TRUE) {
     # Load the RDS
     x <- readRDS(file)
     sample <- basename(file_path_sans_ext(file))
