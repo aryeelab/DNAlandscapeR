@@ -37,17 +37,18 @@ pageWithSidebar(
         shinyFiles::shinyFilesButton('file', 'File select', 'Please select a file', TRUE),
         tags$p(),
         tags$hr(),
-        tags$p('The file selection button allows the user to select one or
-               several files and get their absolute position communicated back
-               to the shiny server. In this example the button has been set to
-               single-file mode.'),
-        radioButtons('datType', 'Data Type', c(Loops = 'loops', Methylation='methyl', Read.Depth="readdepth"), "readdepth"),
-        radioButtons('fileformat', 'File Format', c(Bedgraph = 'bedgraph', BigWig='bigwig', rds="rds"), 'bigwig'),
-        tags$hr()
+        tags$h4('Current Specified File'),
+        verbatimTextOutput('filename'),
+        tags$hr(),
+        tags$h4('Select input data formats.'),
+        radioButtons('datType', 'Data Type', c(Loops = 'Loops', Methylation='Methyl', Read.Depth="Read.Depth"), "Read.Depth"),
+        radioButtons('fileformat', 'File Format', c(Bedgraph = 'Bedgraph', BigWig='BigWig', rds="rds"), 'BigWig'),
+        tags$hr(),
+        actionButton("addFile", "Add")
         ),
     mainPanel(
-        tags$h4('Current Specified File'),
-        verbatimTextOutput('filein'),
+        tags$h4('List of uploaded files, formats, and types'),
+        tableOutput("filename.format.type"),
         tags$hr()
         )
 )

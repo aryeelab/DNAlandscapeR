@@ -2,7 +2,7 @@ source("helper.R")
 source("global.R")
 
 function(input, output, session) {
-    val <- reactiveValues(region = NULL)
+    val <- reactiveValues(region = NULL, curfil = NULL, alldat = NULL)
     observeEvent(input$plot.region, {
         val$region <- GRanges(seqnames=c(input$chr),ranges=IRanges(start=c(as.numeric(input$start)),end=c(as.numeric(input$stop))))
         })
@@ -76,15 +76,22 @@ function(input, output, session) {
         p1()
      }, height = 700)
     
-    
+
     ####UPLOAD TAB#####
     volumes <- getVolumes()
     shinyFileChoose(input, 'file', roots=volumes, session=session, restrictions=system.file(package='base'))
-    output$filepaths <- renderPrint(as.character(parseFilePaths(volumes, input$file)$datapath))
-    
-    #observeEvent(input$addFile, {
-    
+    output$filename <- renderPrint(as.character(parseFilePaths(volumes, input$file)$datapath))
 
-    #})
+    observeEvent(input$addFile, {
+    val$curfil <- as.character(parseFilePaths(volumes, input$file)$datapath) 
+    val$alldat <- as.matrix(rbind(val$alldat, paste(val$curfil, input$fileformat, input$datType, sep = ", ")), ncol = 3)
+    output$filename.format.type <- renderTable(val$alldat)
+    #Error handling
+    #if((input$datType == "loops") & (input$fileformat != "rds")) stop("Loops object must be a .rds file")
+        
+    #Now do stuff
+    #if((input$datType == "loops") & (input$fileformat == "rds"))
+
+    })
 
  }

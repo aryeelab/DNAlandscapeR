@@ -29,3 +29,6 @@ m.list <- as.list(seq(1, length(m.names), by = 1) + 2000)
 names(m.list) <- m.names
 
 f.list <- append(c.list, append(e.list, m.list))
+
+# User inputted variables
+u.list <- ""
