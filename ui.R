@@ -6,9 +6,7 @@ tabPanel("Visualize",
 headerPanel('Visualize DNA Regions and Tracks'),
 sidebarLayout(
   sidebarPanel(
-    selectInput("tracks", label = h3("Tracks"), 
-        choices = f.list, 
-        selectize = TRUE, multiple= TRUE, selected = 0),
+    uiOutput("trackoptions"), 
     textInput("chr", "Chromsome", value = "12", width = NULL, placeholder = NULL),
     textInput("start", "Start", value = "12660203", width = NULL, placeholder = NULL),
     textInput("stop", "Stop", value = "12777226", width = NULL, placeholder = NULL),

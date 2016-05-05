@@ -2,7 +2,7 @@ source("helper.R")
 source("global.R")
 
 function(input, output, session) {
-    val <- reactiveValues(region = NULL, curfil = NULL, alldat = NULL)
+    val <- reactiveValues(region = NULL, curfil = NULL, alldat = NULL, list.tracks = f.list)
     observeEvent(input$plot.region, {
         val$region <- GRanges(seqnames=c(input$chr),ranges=IRanges(start=c(as.numeric(input$start)),end=c(as.numeric(input$stop))))
         })
@@ -76,21 +76,36 @@ function(input, output, session) {
         p1()
      }, height = 700)
     
+    output$trackoptions <- renderUI({selectInput("tracks", label = h3("Tracks"), choices = val$list.tracks, selectize = TRUE, multiple= TRUE, selected = 0)})
 
-    ####UPLOAD TAB#####
+    
+    ####UPLOAD TAB#####/Volumes/Macintosh HD/Jurkat_3_SMC1.rda
     volumes <- getVolumes()
     shinyFileChoose(input, 'file', roots=volumes, session=session, restrictions=system.file(package='base'))
     output$filename <- renderPrint(as.character(parseFilePaths(volumes, input$file)$datapath))
-
+    
     observeEvent(input$addFile, {
-    val$curfil <- as.character(parseFilePaths(volumes, input$file)$datapath) 
-    val$alldat <- as.matrix(rbind(val$alldat, paste(val$curfil, input$fileformat, input$datType, sep = ", ")), ncol = 3)
-    output$filename.format.type <- renderTable(val$alldat)
-    #Error handling
-    #if((input$datType == "loops") & (input$fileformat != "rds")) stop("Loops object must be a .rds file")
+        #Error handling
+        #validate(need(input$datType == "Loops" & input$fileformat == "rds" , "Loops object must be a .rds file"))
+
+        #Update files
+        val$curfil <- as.character(parseFilePaths(volumes, input$file)$datapath) 
+        val$alldat <- as.matrix(rbind(val$alldat, paste(val$curfil, input$fileformat, input$datType, sep = ", ")), ncol = 3)
+        output$filename.format.type <- renderTable(val$alldat)
+
+        #Add track
+        name <- basename(file_path_sans_ext(val$curfil))
+        y <- val$list.tracks
+        val <- 0
+        if(input$datType == "Loops"){
+            val <- as.list( max(unlist(y)[unlist(y) < 1000]) + 1 )
+        }
+        names(val) <- name
+        val$list.tracks <- append(y, val)
         
+        output$trackoptions <- renderUI({selectInput("tracks", label = h3("Tracks"), choices = val$list.tracks, selectize = TRUE, multiple= TRUE, selected = 0)})
     #Now do stuff
-    #if((input$datType == "loops") & (input$fileformat == "rds"))
+    #if((input$datType == "Loops") & (input$fileformat == "rds"))
 
     })
 
