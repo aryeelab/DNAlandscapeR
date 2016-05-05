@@ -48,11 +48,10 @@ methyl.bedgraph.trackplot <- function(file, region){
 # oneSampleLoopPlot has some specialized features for plotting only 
 # one sample's loops in these plots. 
 oneSampleLoopPlot <- function(file, y, colorLoops = TRUE) {
-    # Load the RDA
-    load(file)
+    # Load the RDS
+    x <- readRDS(file)
     sample <- basename(file_path_sans_ext(file))
-    x <- get(sample)
-    
+
     # Grab Regional Coordinates
     chrom <- as.character(seqnames(y))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")

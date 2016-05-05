@@ -31,12 +31,9 @@ pageWithSidebar(
         'Add tracks from local files'
         ),
     sidebarPanel(
-        tags$h4('Select additional file to be imported.'),
-        shinyFiles::shinyFilesButton('file', 'File select', 'Please select a file', TRUE),
-        tags$p(),
-        tags$hr(),
-        tags$h4('Current Specified File'),
+        tags$h4('Choose File'),
         verbatimTextOutput('filename'),
+        shinyFilesButton('file', 'File select', 'Please select a file', TRUE),
         tags$hr(),
         tags$h4('Select input data formats.'),
         radioButtons('datType', 'Data Type', c(Loops = 'Loops', Methylation='Methyl', Read.Depth="Read.Depth"), "Loops"),
@@ -45,7 +42,7 @@ pageWithSidebar(
         actionButton("addFile", "Add")
         ),
     mainPanel(
-        tags$h4('List of uploaded files, formats, and types'),
+        tags$h4('Data Frame of successfuly loaded user files'),
         dataTableOutput('dt'),
         tags$hr()
         )
