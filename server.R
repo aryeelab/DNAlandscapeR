@@ -61,7 +61,7 @@ function(input, output, session) {
     p1 <- function(){  
         if (is.null(dynamic.val$region)) return()
         if (length(input$tracks) == 0) return()
-        par(mfrow=c(length(input$tracks)+input$showgenes, 1), oma = c(0, 0, 1, 0), mar = c(3, 5, 1, 1))
+        par(mfrow=c(length(input$tracks)+input$showgenes+input$showctcf, 1), oma = c(0, 0, 1, 0), mar = c(3, 5, 1, 1))
         for(i in input$tracks){
             i <- as.integer(i)
             if (i < 1000){ # ChIA-PET from rDS
@@ -77,6 +77,7 @@ function(input, output, session) {
             } else {return()}
         }
         if(input$showgenes) humanAnnotation(dynamic.val$region)
+        if(input$showctcf) plotCTCFregions(dynamic.val$region)
     }
     output$down <- downloadHandler(
         filename <- function() {
@@ -89,7 +90,7 @@ function(input, output, session) {
       
     output$plot <- renderPlot({
         p1()
-     }, height = 1000)
+     }, height = 700)
     
     output$trackoptions <- renderUI({selectInput("tracks", label = h3("Tracks"), choices = dynamic.val$list.tracks, selectize = TRUE, multiple = TRUE, selected = 0)})
 

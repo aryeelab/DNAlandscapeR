@@ -132,3 +132,25 @@ humanAnnotation <- function(y) {
         line = 1)
     return(loplot)
 }
+
+
+plotCTCFregions <- function(y) {
+    chrom <- as.character(seqnames(y))
+    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
+    start <- as.integer(start(ranges(range(y))))
+    end <- as.integer(end(ranges(range(y))))
+    
+    ctcf <- data.frame(read_delim("data/CTCF-regions.bed", delim = "\t"))
+    ctcf.small <- ctcf[findOverlaps(GRanges(ctcf), addchr(y))@from,]
+    
+    loplot <- recordPlot()
+    pg = plotBed(beddata = ctcf.small, chrom = chromchr, chromstart = start, 
+        chromend = end, labeltext = TRUE)
+    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
+                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+    mtext(paste0("Region: ", chrom, ":", start, "-", end), outer = TRUE, 
+        line = 1)
+    mtext("CTCF Sites",side=2,line=2.5,cex=1,font=2)
+
+    return(loplot)
+}

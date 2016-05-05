@@ -12,6 +12,7 @@ sidebarLayout(
     textInput("stop", "Stop", value = "12777226", width = NULL, placeholder = NULL),
     textInput("Gene", "Gene", value = "AGO3", width = NULL, placeholder = NULL),
     checkboxInput("showgenes", "Show Gene Annotation", value = TRUE, width = NULL),
+    checkboxInput("showctcf", "Show CTCF Regions", value = FALSE, width = NULL),
     actionButton("plot.region", "Plot Region"), 
     actionButton("plot.gene", "Plot Gene"),
     actionButton("zoom.in", "Zoom In"),
