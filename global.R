@@ -10,6 +10,10 @@ library(foreach)
 library(rtracklayer)
 library(shinyFiles)
 library(DT)
+library(grid)
+library(readr)
+library(bumphunter)
+
 options(warn=-1)
 
 # Import locally hosted data file names

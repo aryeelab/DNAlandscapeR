@@ -79,7 +79,7 @@ function(input, output, session) {
             } else {return()}
         }
         if(input$showgenes) humanAnnotation(dynamic.val$region)
-        if(input$showctcf) plotCTCFregions(dynamic.val$region)
+        if(input$showctcf){plotCTCFregions(dynamic.val$region)}
     }
     output$down <- downloadHandler(
         filename <- function() {

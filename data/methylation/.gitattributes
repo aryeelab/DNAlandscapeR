@@ -1,0 +1,2 @@
+Naive_methylation.bw filter=lfs diff=lfs merge=lfs -text
+Primed_methylation.bw filter=lfs diff=lfs merge=lfs -text

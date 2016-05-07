@@ -1,5 +1,3 @@
-library(readr)
-library(bumphunter)
 
 bigwig.bumpPlot <- function(file, region, shade = TRUE){
     region.bed <- import.bw(file, which = addchr(region))
