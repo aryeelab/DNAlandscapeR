@@ -15,10 +15,10 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE){
     y <- region.bedgraph[,4]
     cluster_id <- clusterMaker(chr=chrom, pos=pos, maxGap = 100)
     smooth <- locfitByCluster(x=pos, y=y, cluster=cluster_id, bpSpan=50)
-    plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE, main = sample)
+    plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE, main = )
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
         n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
-    mtext("Methylation",side=2,line=2.5,cex=1,font=2)
+    mtext(sample,side=2,line=2.5,cex=1,font=2)
     if(shade) polygon(cbind(c(min(pos), pos, max(pos)), c(min(y), y, min(y))), border=NA, col="black")
     return(bumpplot)
 }
