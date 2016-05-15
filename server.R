@@ -1,6 +1,8 @@
 source("plotter.R")
 source("global.R")
 
+options(shiny.error=browser)
+
 function(input, output, session) {
     dynamic.val <- reactiveValues(
         region = NULL,
