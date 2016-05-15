@@ -1,8 +1,19 @@
 FROM rocker/shiny
 RUN apt-get update && apt-get install -y libxml2-dev
 
-# Install R package dependencies
-RUN Rscript -e 'source("https://bioconductor.org/biocLite.R"); \
+# Install DNAlandscapeR
+COPY . /srv/shiny-server/DNAlandscapeR
+
+# Install packrat packages
+RUN cd /srv/shiny-server/DNAlandscapeR && \
+    Rscript -e 'install.packages("packrat")'
+RUN apt-get install -y libssl-dev # For PKI
+RUN cd /srv/shiny-server/DNAlandscapeR && \
+    Rscript -e 'packrat::restore()'
+
+# Install other R package dependencies
+RUN cd /srv/shiny-server/DNAlandscapeR && \
+    Rscript -e 'source("https://bioconductor.org/biocLite.R"); \
              biocLite(c( "shiny", \
                 "shinythemes", \
                 "ggplot2", \
@@ -13,12 +24,9 @@ RUN Rscript -e 'source("https://bioconductor.org/biocLite.R"); \
                 "DT", \
                 "bumphunter"))'
 
-# Install DNAlandscapeR
-RUN rm -fr /srv/shiny-server/*
-COPY . /srv/shiny-server/
 
 # Temporary permissions hack
-RUN chmod -R 777 /srv/shiny-server
+RUN chmod -R 777 /srv/shiny-server/DNAlandscapeR
 
 # Start and expose shiny server
 EXPOSE 3838
