@@ -5,10 +5,13 @@ si <- Seqinfo(genome="hg19")
 #wigToBigWig("/Users/lareauc/Downloads/GSM1705251_20150206_3642.4518.rpm.WIG", seqinfo = si, dest = "../data/Naive-R1-H3K27ac.bw", clip = TRUE)
 #wigToBigWig("/Users/lareauc/Downloads/GSM1705260_20150206_3646.4478.rpm.WIG.gz", seqinfo = si, dest = "data/Primed-R1-H3K27ac.bw", clip = TRUE)
 #wigToBigWig("/Users/lareauc/Downloads/GSM1697882_20141230_3391.1796.rpm.WIG.gz", seqinfo = si, dest = "data/Jurkat-H3K27ac.bw", clip = TRUE)
-wigToBigWig("/Users/lareauc/Downloads/Naive_RNAseq.wig", seqinfo = si, dest = "data/Naive_RNAseq.bw")
-a<-import("/Users/lareauc/Downloads/Naive_RNAseq.wig", format = "WIG", seqinfo = si)
-gr1c <- as(as(slice(coverage(a), lower=1L, upper=1L), "GRanges"), "UCSCData")
-export(head(a[unique(findOverlaps(a,gr1c)@from)]), format = "BigWig",  "data/Naive_RNAseq.bw")
+#wigToBigWig("/Users/lareauc/Downloads/GSM1689152_20150124_3461.2844.rpm.WIG.gz", seqinfo = si, dest = "data/tracks/Jurkat-CTCF.bw", clip = TRUE)
+#wigToBigWig("/Users/lareauc/Downloads/GSM1705262_20150312_3568.4198.rpm.WIG.gz", seqinfo = si, dest = "data/tracks/Primed-R1-CTCF.bw", clip = TRUE)
+#wigToBigWig("/Users/lareauc/Downloads/GSM1705253_20150312_3569.4202.rpm.WIG.gz", seqinfo = si, dest = "data/tracks/Naive-R1-CTCF.bw", clip = TRUE)
+#wigToBigWig("/Users/lareauc/Downloads/Naive_RNAseq.wig", seqinfo = si, dest = "data/Naive_RNAseq.bw")
+#a<-import("/Users/lareauc/Downloads/Naive_RNAseq.wig", format = "WIG", seqinfo = si)
+#gr1c <- as(as(slice(coverage(a), lower=1L, upper=1L), "GRanges"), "UCSCData")
+#export(head(a[unique(findOverlaps(a,gr1c)@from)]), format = "BigWig",  "data/Naive_RNAseq.bw")
 
 
 ##### METHYLATION DATA FROM SERVER ####
