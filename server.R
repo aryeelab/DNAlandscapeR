@@ -19,7 +19,7 @@ function(input, output, session) {
         })
     
     updateRegionVals <- function(){
-        updateNumericInput(session, "chr", value = as.numeric(seqnames(dynamic.val$region)))       
+        updateNumericInput(session, "chr", value = data.frame(dynamic.val$region)[1,1])     
         updateNumericInput(session, "start", value = as.integer(start(ranges(range(dynamic.val$region)))))  
         updateNumericInput(session, "stop", value = as.integer(end(ranges(range(dynamic.val$region)))))     
     }
@@ -62,24 +62,7 @@ function(input, output, session) {
         if (is.null(dynamic.val$region)) return()
         if (length(input$tracks) == 0) return()
         par(mfrow=c(length(input$tracks)+input$showgenes+input$showctcf, 1), oma = c(0, 0, 1, 0), mar = c(3, 5, 1, 1))
-        for(i in input$tracks){
-            i <- as.integer(i)
-            if (i < 1000){ # ChIA-PET from rDS
-                one.loopPlot(dynamic.val$c.full[[i]], dynamic.val$region)
-            } else if (i < 2000) { # Track; BigWig
-                bigwig.trackplot(dynamic.val$t.bw.full[[i-1000]], dynamic.val$region, "Read Depth")
-            } else if (i < 3000){ # Track; Bedgraph
-                bedgraph.trackplot(dynamic.val$t.bg.full[[i-2000]], dynamic.val$region, "Read Depth")
-            } else if (i < 4000) { # Methyl; BigWig
-                #bigwig.trackplot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region, "Methylation")
-                bigwig.bumpPlot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region)
-            } else if (i < 5000){ # Methyl; Bedgraph
-                bedgraph.trackplot(dynamic.val$m.bg.full[[i-4000]], dynamic.val$region, "Methylation")
-                #bedgraph.bumpPlot(dynamic.val$m.bw.full[[i-4000]], dynamic.val$region)
-            } else {return()}
-        }
-        if(input$showgenes) humanAnnotation(dynamic.val$region)
-        if(input$showctcf){plotCTCFregions(dynamic.val$region)}
+        masterPlotter(input, dynamic.val)
     }
     output$down <- downloadHandler(
         filename <- function() {
