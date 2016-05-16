@@ -1,3 +1,122 @@
+masterPlotter <- function(input, dynamic.val){
+    
+    chia_pet_samples <- list() #Tracks samples linking with i
+    chia_pet_objects <- c() #Tracks subsetted objects
+    j <- 1 #Index of subsetted objects vector
+    map_chia_pet.indices <- c() #maps i to order in vector of subsetted objects
+    mc <- 1 #max counts
+    
+    #First loop initalizes the ChIA-PET max values
+    for(i in input$tracks){
+        i <- as.integer(i)
+        if (i < 1000){ # ChIA-PET from RDS
+            
+            #Import object and subset
+            x <- readRDS(dynamic.val$c.full[[i]])
+            sample <- basename(file_path_sans_ext(dynamic.val$c.full[[i]]))
+            objReg <- removeSelfLoops(subsetRegion(x, dynamic.val$region))
+            
+            #Update Max Counts
+            if(max(objReg@counts) > mc) mc <- max(objReg@counts)
+            
+            #Add sample name to list
+            valu_sample <- sample
+            names(valu_sample) <- as.character(i)
+            chia_pet_samples <- c(chia_pet_samples, valu_sample)
+            
+            #Add subsetted object to list
+            chia_pet_objects <- append(chia_pet_objects, objReg)
+            map_chia_pet.indices[j] <- i
+            j <- j + 1
+        }
+    }
+    
+    #Second loop does all the plotting
+    for(i in input$tracks){ 
+        i <- as.integer(i)
+        if (i < 1000) {
+            one.loopPlot(objReg = chia_pet_objects[[which(map_chia_pet.indices == i)]], y = dynamic.val$region,
+                         sample = chia_pet_samples[[as.character(i)]], max_counts = mc)
+        } else if (i < 2000) { # Track; BigWig
+            bigwig.trackplot(dynamic.val$t.bw.full[[i-1000]], dynamic.val$region, "Read Depth")
+        } else if (i < 3000){ # Track; Bedgraph
+            bedgraph.trackplot(dynamic.val$t.bg.full[[i-2000]], dynamic.val$region, "Read Depth")
+        } else if (i < 4000) { # Methyl; BigWig
+            #bigwig.trackplot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region, "Methylation")
+            bigwig.bumpPlot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region)
+        } else if (i < 5000){ # Methyl; Bedgraph
+            bedgraph.trackplot(dynamic.val$m.bg.full[[i-4000]], dynamic.val$region, "Methylation")
+            #bedgraph.bumpPlot(dynamic.val$m.bw.full[[i-4000]], dynamic.val$region)
+        } else {return()}
+    }
+    if(input$showgenes) humanAnnotation(dynamic.val$region)
+    if(input$showctcf) plotCTCFregions(dynamic.val$region)
+}
+
+# one.loopPlot has some specialized features for plotting only 
+# one sample's loops in these plots. The object is a loops object
+# without self loops generated from the master function to determine
+# the max_counts
+one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE) {
+
+    # Grab Regional Coordinates
+    chrom <- as.character(seqnames(y))
+    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
+    start <- as.integer(start(ranges(range(y))))
+    end <- as.integer(end(ranges(range(y))))
+    # Make sure loop object is non-empty
+    if(dim(objReg)[2] != 0){
+        res <- objReg@rowData
+        n <- dim(objReg@interactions)[1]  #number of interactions
+        
+        # Setup colors for plotting
+        cs <- 0
+        if(!is.null(res$loop.type) & colorLoops){
+            cs <- res$loop.type
+            cs <- gsub("e-p", "red", cs)
+            cs <- gsub("ctcf", "blue", cs)
+            cs <- gsub("none", "black", cs)
+        } else {
+            cs <- rep("black", n)
+        }
+        
+        # Setup Dataframe for Plot
+        leftAnchor <- as.data.frame(objReg@anchors[objReg@interactions[,1]])[c(1, 2, 3)]
+        LA <- do.call("rbind", replicate(1, leftAnchor, simplify = FALSE))
+        rightAnchor <- as.data.frame(objReg@anchors[objReg@interactions[,2]])[c(1, 2, 3)]
+        RA <- do.call("rbind", replicate(1, rightAnchor, simplify = FALSE))
+        colnames(LA) <- c("chr_1", "start_1", "end_1")
+        colnames(RA) <- c("chr_2", "start_2", "end_2")
+        name <- rep(NA, n)
+        strand_1 <- rep(".", n * 1)
+        strand_2 <- rep(".", n * 1)
+        score <- matrix(objReg@counts, ncol = 1)
+        bedPE <- data.frame(LA, RA, name, score, strand_1, strand_2, sample)
+        
+        w <- loopWidth(objReg)
+        h <- sqrt(w/max(w))
+        lwd <- 5 * (bedPE$score/max_counts)
+        
+        loplot <- recordPlot()
+        plotBedpe(bedPE, chrom, start, end, color = cs, lwd = lwd, 
+                  plottype = "loops", heights = h, lwdrange = c(0, 5), 
+                  main = sample, adj=0)
+        labelgenome(chromchr, start, end, side = 1, scipen = 20, 
+                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+        return(loplot)
+    } else {
+        # Return dummy plot
+        loplot <- recordPlot()
+        plotBedpe(data.frame(), chrom, start, end, color = c("blue"), lwd = 0, 
+                  plottype = "loops", heights = 0, lwdrange = c(0, 0), 
+                  main = sample, adj=0)
+        labelgenome(chromchr, start, end, side = 1, scipen = 20, 
+                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+        return(loplot)   
+    }
+}
+
+
 
 bigwig.bumpPlot <- function(file, region, shade = TRUE){
     region.bed <- import.bw(file, which = addchr(region))
@@ -87,74 +206,6 @@ bedgraph.trackplot <- function(file, region, ylab){
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
                 n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     return(trackplot)
-}
-
-# one.loopPlot has some specialized features for plotting only 
-# one sample's loops in these plots. 
-one.loopPlot <- function(file, y, colorLoops = TRUE) {
-    # Load the RDS
-    x <- readRDS(file)
-    sample <- basename(file_path_sans_ext(file))
-
-    # Grab Regional Coordinates
-    chrom <- as.character(seqnames(y))
-    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
-    start <- as.integer(start(ranges(range(y))))
-    end <- as.integer(end(ranges(range(y))))
-    
-    #  Restrict the loops object to the region
-    objReg <- removeSelfLoops(subsetRegion(x, y))
-    
-    # Make sure loop object is non-empty
-    if(dim(objReg)[2] != 0){
-        res <- objReg@rowData
-        n <- dim(objReg@interactions)[1]  #number of interactions
-        
-        # Setup colors for plotting
-        cs <- 0
-        if(!is.null(res$loop.type) & colorLoops){
-            cs <- res$loop.type
-            cs <- gsub("e-p", "red", cs)
-            cs <- gsub("ctcf", "blue", cs)
-            cs <- gsub("none", "black", cs)
-        } else {
-            cs <- rep("black", n)
-        }
-        
-        # Setup Dataframe for Plot
-        leftAnchor <- as.data.frame(objReg@anchors[objReg@interactions[,1]])[c(1, 2, 3)]
-        LA <- do.call("rbind", replicate(1, leftAnchor, simplify = FALSE))
-        rightAnchor <- as.data.frame(objReg@anchors[objReg@interactions[,2]])[c(1, 2, 3)]
-        RA <- do.call("rbind", replicate(1, rightAnchor, simplify = FALSE))
-        colnames(LA) <- c("chr_1", "start_1", "end_1")
-        colnames(RA) <- c("chr_2", "start_2", "end_2")
-        name <- rep(NA, n)
-        strand_1 <- rep(".", n * 1)
-        strand_2 <- rep(".", n * 1)
-        score <- matrix(objReg@counts, ncol = 1)
-        bedPE <- data.frame(LA, RA, name, score, strand_1, strand_2, sample)
-        
-        w <- loopWidth(objReg)
-        h <- sqrt(w/max(w))
-        lwd <- 5 * (bedPE$score/max(bedPE$score))
-        
-        loplot <- recordPlot()
-        plotBedpe(bedPE, chrom, start, end, color = cs, lwd = lwd, 
-                  plottype = "loops", heights = h, lwdrange = c(0, 5), 
-                  main = sample, adj=0)
-        labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
-        return(loplot)
-    } else {
-        # Return dummy plot
-        loplot <- recordPlot()
-        plotBedpe(data.frame(), chrom, start, end, color = c("blue"), lwd = 0, 
-                  plottype = "loops", heights = 0, lwdrange = c(0, 0), 
-                  main = sample, adj=0)
-        labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
-        return(loplot)   
-    }
 }
 
 # humanAnnotation plots the human gene tracks from the cached genome loci. 
