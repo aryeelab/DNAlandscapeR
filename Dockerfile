@@ -9,11 +9,6 @@ RUN cd /srv/shiny-server/DNAlandscapeR && \
     Rscript -e 'install.packages("packrat"); \
                 packrat::restore()'
 
-# Install other R package dependencies
-RUN cd /srv/shiny-server/DNAlandscapeR && \
-    Rscript -e 'source("https://bioconductor.org/biocLite.R"); \
-             biocLite(c( "shiny"))'
-
 # Temporary permissions hack
 RUN chmod -R 777 /srv/shiny-server/DNAlandscapeR
 
