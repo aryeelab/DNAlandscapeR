@@ -50,7 +50,7 @@ Package: DT
 Source: CRAN
 Version: 0.1
 Hash: 66d3d04d40c505e567c1328eae0409ee
-Requires: htmltools, htmlwidgets, magrittr
+Requires: magrittr, htmltools, htmlwidgets
 
 Package: GEOquery
 Source: Bioconductor
@@ -101,12 +101,6 @@ Source: CRAN
 Version: 1.2-6
 Hash: 6d5b4689f994e2af7e9cc11324c5cbeb
 Requires: lattice
-
-Package: PKI
-Source: CRAN
-Version: 0.1-3
-Hash: aca3e459c659b6d8266538520f72ba19
-Requires: base64enc
 
 Package: R6
 Source: CRAN
@@ -168,7 +162,7 @@ Package: Sushi
 Source: Bioconductor
 Version: 1.10.0
 Hash: 9ae2e1fe7d7c1f68c6f98978e684d690
-Requires: biomaRt, zoo
+Requires: zoo, biomaRt
 
 Package: XML
 Source: CRAN
@@ -196,11 +190,6 @@ Package: base64
 Source: CRAN
 Version: 1.1
 Hash: 5776d8d9472a017332f54e3326ecbca8
-
-Package: base64enc
-Source: CRAN
-Version: 0.1-3
-Hash: c590d29e555926af053055e23ee79efb
 
 Package: beanplot
 Source: CRAN
@@ -261,9 +250,9 @@ Package: diffloop
 Source: Bioconductor
 Version: 1.0.0
 Hash: a574bd7d1da67f3e588c5ce127c06430
-Requires: Biobase, GenomeInfoDb, GenomicRanges, IRanges, S4Vectors,
-    Sushi, biomaRt, dplyr, edgeR, foreach, ggplot2, locfit,
-    matrixStats, plyr, readr, reshape2, statmod
+Requires: matrixStats, statmod, Biobase, S4Vectors, plyr, readr,
+    foreach, locfit, edgeR, dplyr, IRanges, reshape2, GenomeInfoDb,
+    ggplot2, biomaRt, GenomicRanges, Sushi
 
 Package: digest
 Source: CRAN
@@ -315,7 +304,7 @@ Package: ggplot2
 Source: CRAN
 Version: 2.1.0
 Hash: 50e297b0191179c39c7dcae0eff72b51
-Requires: MASS, digest, gtable, plyr, reshape2, scales
+Requires: MASS, digest, gtable, plyr, scales, reshape2
 
 Package: gtable
 Source: CRAN
@@ -332,7 +321,7 @@ Package: htmlwidgets
 Source: CRAN
 Version: 0.6
 Hash: 267a36d738dd98cec3dc9c471becb717
-Requires: htmltools, jsonlite, yaml
+Requires: jsonlite, yaml, htmltools
 
 Package: httpuv
 Source: CRAN
@@ -496,21 +485,6 @@ Version: 1.2.4
 Hash: 4db0661fe95ab6eb3d6339495bf22003
 Requires: digest, pkgmaker, stringr
 
-Package: rsconnect
-Source: github
-Version: 0.4.1.11
-Hash: 886b6e456688b7773cab1c5cba2d8aad
-Requires: PKI, RCurl, RJSONIO, digest, packrat, rstudioapi, yaml
-GithubRepo: rsconnect
-GithubUsername: rstudio
-GithubRef: master
-GithubSha1: 0b72b17533521aa7276299ca53c742c4cf27eb1f
-
-Package: rstudioapi
-Source: CRAN
-Version: 0.5
-Hash: f942db72a8f51e968b061f28058e2c57
-
 Package: rtracklayer
 Source: Bioconductor
 Version: 1.32.0
@@ -523,13 +497,13 @@ Package: scales
 Source: CRAN
 Version: 0.4.0
 Hash: 84d11c33dd50fd84dedd251f73699fff
-Requires: RColorBrewer, Rcpp, dichromat, labeling, munsell, plyr
+Requires: RColorBrewer, Rcpp, dichromat, labeling, plyr, munsell
 
 Package: shiny
 Source: CRAN
 Version: 0.13.2
 Hash: 28d6903a44dc53bd4823fa43ccdc08e5
-Requires: R6, digest, htmltools, httpuv, jsonlite, mime, xtable
+Requires: R6, digest, jsonlite, mime, xtable, httpuv, htmltools
 
 Package: shinyFiles
 Source: CRAN
