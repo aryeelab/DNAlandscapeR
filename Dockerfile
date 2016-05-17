@@ -18,7 +18,8 @@ RUN Rscript -e 'install.packages("packrat"); \
                 packrat::restore()'
 
 # Temporary permissions hack
-RUN chown shiny:shiny -R packrat
+RUN chown shiny:shiny -R packrat && \
+    chown shiny:shiny .gitignore 
 
 # Start and expose shiny server
 EXPOSE 3838
