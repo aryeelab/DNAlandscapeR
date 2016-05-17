@@ -1,16 +1,24 @@
 FROM rocker/shiny
-RUN apt-get update && apt-get install -y libxml2-dev
+RUN apt-get update && apt-get install -y git=1:2.8.1-1 libxml2-dev=2.9.3+dfsg1-1
+
+# Install git lfs
+RUN wget https://github.com/github/git-lfs/releases/download/v1.2.0/git-lfs-linux-amd64-1.2.0.tar.gz && \
+    tar zxf git-lfs-linux-amd64-1.2.0.tar.gz && \
+    cd git-lfs-1.2.0 && \
+    ./install.sh
 
 # Install DNAlandscapeR
-COPY . /srv/shiny-server/DNAlandscapeR
+RUN cd /srv/shiny-server && \
+    git clone --depth=1 https://github.com/aryeelab/DNAlandscapeR.git
+
+WORKDIR /srv/shiny-server/DNAlandscapeR
 
 # Install packrat packages
-RUN cd /srv/shiny-server/DNAlandscapeR && \
-    Rscript -e 'install.packages("packrat"); \
+RUN Rscript -e 'install.packages("packrat"); \
                 packrat::restore()'
 
 # Temporary permissions hack
-RUN chmod -R 777 /srv/shiny-server/DNAlandscapeR
+RUN chown shiny:shiny -R packrat
 
 # Start and expose shiny server
 EXPOSE 3838
