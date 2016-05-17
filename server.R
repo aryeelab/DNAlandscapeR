@@ -46,6 +46,30 @@ function(input, output, session) {
         updateRegionVals()
     })
      
+    observeEvent(input$left.big, {
+        if (is.null(dynamic.val$region)) return()
+        dynamic.val$region <- shift(dynamic.val$region, -9*width(dynamic.val$region)/10)
+        updateRegionVals()
+    })
+
+    observeEvent(input$left.small, {
+        if (is.null(dynamic.val$region)) return()
+        dynamic.val$region <- shift(dynamic.val$region, -3*width(dynamic.val$region)/10)
+        updateRegionVals()
+    })
+
+    observeEvent(input$right.small, {
+        if (is.null(dynamic.val$region)) return()
+        dynamic.val$region <- shift(dynamic.val$region, 3*width(dynamic.val$region)/10)
+        updateRegionVals()
+    })
+
+    observeEvent(input$right.big, {
+        if (is.null(dynamic.val$region)) return()
+        dynamic.val$region <- shift(dynamic.val$region, 9*width(dynamic.val$region)/10)
+        updateRegionVals()
+    })
+     
       observeEvent(input$clear, {
         dynamic.val$region <- NULL
     })
