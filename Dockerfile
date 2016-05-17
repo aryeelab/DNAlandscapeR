@@ -21,6 +21,9 @@ RUN Rscript -e 'install.packages("packrat"); \
 RUN chown shiny:shiny -R packrat && \
     chown shiny:shiny .gitignore 
 
+# Add Google Analytics tracking code to the beginning of the "location /" section
+RUN sed -i '/location \/ {/a google_analytics_id UA-37764824-4;' /etc/shiny-server/shiny-server.conf
+
 # Start and expose shiny server
 EXPOSE 3838
 CMD ["/usr/bin/shiny-server.sh"]
