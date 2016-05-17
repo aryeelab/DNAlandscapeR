@@ -33,8 +33,8 @@ pageWithSidebar(
         ),
     sidebarPanel(
         tags$h4('Choose File'),
-        verbatimTextOutput('filename'),
-        shinyFilesButton('file', 'File select', 'Please select a file', TRUE),
+        textInput("path", "File:"),
+        actionButton("browse", "Browse"),
         tags$h4('Specify input data formats'),
         radioButtons('datType', 'Data Type', c(Loops = 'Loops', Methylation='Methyl', Read.Depth="Read.Depth"), "Loops"),
         radioButtons('fileformat', 'File Format', c(Bedgraph = 'Bedgraph', BigWig='BigWig', rds="rds"), 'rds'),

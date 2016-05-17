@@ -87,6 +87,13 @@ function(input, output, session) {
         fnc <- as.character(parseFilePaths(volumes, input$file)$datapath)
         if(identical(fnc, character(0))){ "" } else { fnc }
         })
+    
+    observe({
+        if (input$browse == 0) return()
+        f <- file.choose()
+        updateTextInput(session, "path",  value = f)
+        dynamic.val$curfil <- as.character(f)
+    })
 
     observeEvent(input$addFile, {
         #validate(need(if(input$datType == "Loops") input$fileformat == "rds" , "Loops input must be a .rds file"))
@@ -94,7 +101,7 @@ function(input, output, session) {
         #validate(need(if(input$datType == "Methyl") input$fileformat != "rds" , "Methyl cannot be a .rds file"))
 
         #Update files
-        dynamic.val$curfil <- as.character(parseFilePaths(volumes, input$file)$datapath) 
+        #dynamic.val$curfil <- as.character() 
         dynamic.val$alldat <- as.matrix(rbind(dynamic.val$alldat, cbind(dynamic.val$curfil, input$fileformat, input$datType)), ncol = 3)
         colnames(dynamic.val$alldat) <- c("File", "Format", "Data Type")
         dt <- as.data.frame(dynamic.val$alldat)
