@@ -90,6 +90,7 @@ function(input, output, session) {
         par(mfrow=c(length(input$tracks)+input$showgenes+input$showctcf, 1), oma = c(0, 0, 1, 0), mar = c(3, 5, 1, 1))
         masterPlotter(input, dynamic.val)
     }
+    
     output$down <- downloadHandler(
         filename <- function() {
             paste('plot-', Sys.Date(), '.pdf', sep='') },
@@ -114,7 +115,7 @@ function(input, output, session) {
     
     observe({
         if (input$browse == 0) return()
-        f <- file.choose()
+        f <- tryCatch(file.choose(), error = function(e) "") 
         updateTextInput(session, "path",  value = f)
         dynamic.val$curfil <- as.character(f)
     })
