@@ -12,6 +12,7 @@ library(DT)
 library(grid)
 library(readr)
 library(bumphunter)
+library(shinyFiles)
 
 options(warn=-1)
 
