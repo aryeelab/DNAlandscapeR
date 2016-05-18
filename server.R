@@ -15,7 +15,7 @@ function(input, output, session) {
         m.bw.full = m.bw.full,
         m.bg.full = m.bg.full
         )
-    
+
     observeEvent(input$plot.region, {
         dynamic.val$region <- GRanges(seqnames=c(input$chr),ranges=IRanges(start=c(as.numeric(input$start)),end=c(as.numeric(input$stop))))
         })
@@ -70,10 +70,28 @@ function(input, output, session) {
         updateRegionVals()
     })
      
-      observeEvent(input$clear, {
+    observeEvent(input$clear, {
         dynamic.val$region <- NULL
     })
       
+    observeEvent(input$plot_dblclick, {
+        brush <- input$plot_brush
+        if (!is.null(brush)) {
+            fulldist <- brush$domain$right - brush$domain$left
+            # Compute where the brush is occupying relative to window
+            startprop <- (brush$xmin - brush$domain$left)/fulldist
+            endprop <- (brush$xmax - brush$domain$left)/fulldist
+            
+            # Map that proportion to the GRanges width
+            s <- as.integer(width(dynamic.val$region) * startprop)
+            e <- as.integer(width(dynamic.val$region) * endprop)
+            dynamic.val$region <- GRanges(seqnames=c(data.frame(dynamic.val$region)[1,1]),
+                                          ranges=IRanges(start=c(data.frame(dynamic.val$region)[1,2]+s),
+                                          end=c(data.frame(dynamic.val$region)[1,2]+e)))
+            updateRegionVals()
+        } else { return() }
+    })
+
     observeEvent(input$down, {
         output$plotsave <- downloadHandler(
             filename = paste('plot-', Sys.Date(), '.pdf', sep=''),

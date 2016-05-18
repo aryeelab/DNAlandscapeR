@@ -28,7 +28,9 @@ sidebarLayout(
     actionButton("clear", "Clear")
   ), 
 
-  mainPanel(plotOutput("plot")),
+  mainPanel(plotOutput("plot", 
+    dblclick = "plot_dblclick",
+    brush = "plot_brush")),
   fluid = TRUE
 )
 ),
