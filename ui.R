@@ -1,58 +1,98 @@
 
 source("global.R")
 
-shinyUI(navbarPage("DNAlandscapeR",
+#Custom input style
+textInput3 <- function (inputId, label, value = "", ...){
+    div(
+    tags$label(label, `for` = inputId), 
+    tags$input(id = inputId, type = "text", value = value, ...))
+}
+
+shinyUI(navbarPage(HTML("<img src='harvard-logo.png'/>"),
+                   
+tabPanel("Welcome",
+fluidPage(
+    headerPanel(
+        HTML("<h2><b><P ALIGN=Center>Welcome to the DNAlandscapeR Epigenomics Browser</b></h2>
+             <h3><b><P ALIGN=Center>Aryee Lab</b></h3>")
+        ),
+    mainPanel(
+        tags$h3('About:'),
+        tags$h6('We designed DNAlandscapeR to 
+                provide a visualization of epigenetic data, particularly three-dimensional
+                chromatin structures in a computationally efficient framework. In particular, 
+                we utilize the R/Shiny environment to minimize the loaded data. If you use 
+                DNAlandscapeR in your research, please cite...'),
+        tags$h3('Descriptions of pre-loaded data'),
+        dataTableOutput('preloadedDataDescription'),
+        tags$hr(), 
+        width = 12
+        )
+)),
+                   
 tabPanel("Visualize", 
-headerPanel('Visualize Landscape'),
-sidebarLayout(
+headerPanel(tags$h1(tags$b('Human Landscape'))),
+  sidebarLayout(
   sidebarPanel(
     uiOutput("trackoptions"), 
-    textInput("chr", "Chromsome", value = "12", width = NULL, placeholder = NULL),
-    textInput("start", "Start", value = "12660203", width = NULL, placeholder = NULL),
-    textInput("stop", "Stop", value = "12777226", width = NULL, placeholder = NULL),
-    textInput("Gene", "Gene", value = "AGO3", width = NULL, placeholder = NULL),
+    tags$hr(),
+    textInput3("chr", HTML("<h5><b>Chr&nbsp;&nbsp;&nbsp;&nbsp;</b></h5>"), value = "12"),
+    textInput3("start", HTML("<h5><b>Start&nbsp;</b></h5>"), value = "12660203"),
+    textInput3("stop", HTML("<h5><b>Stop&nbsp;&nbsp;</b></h5>"), value = "12777226"),
+    actionButton("plot.region", "Plot Region", style='padding:10px; font-size:80%'), 
+    tags$hr(),
+    textInput3("Gene", HTML("<h5><b>Gene&nbsp;</b></h5>"), value = "AGO3"),
+    actionButton("plot.gene", "Plot Gene", style='padding:10px; font-size:80%'),
+    tags$hr(),
     checkboxInput("showgenes", "Show Gene Annotation", value = TRUE, width = NULL),
     checkboxInput("showctcf", "Show CTCF Regions", value = FALSE, width = NULL),
-    actionButton("plot.region", "Plot Region"), 
-    actionButton("plot.gene", "Plot Gene"),
+    actionButton("zoom.in", "Zoom In", style='padding:10px; font-size:80%'),
+    actionButton("zoom.out", "Zoom Out", style='padding:10px; font-size:80%'),
+    actionButton("clear", "Clear", style='padding:10px; font-size:80%'),
     tags$hr(),
-    actionButton("zoom.in", "Zoom In"),
-    actionButton("zoom.out", "Zoom Out"),
+    actionButton("left.big", "<<", style='padding:10px; font-size:100%'),
+    actionButton("left.small", "<", style='padding:10px; font-size:100%'),
+    actionButton("right.small", ">", style='padding:10px; font-size:100%'),
+    actionButton("right.big", ">>", style='padding:10px; font-size:100%'),
     tags$hr(),
-    actionButton("left.big", "<<"),
-    actionButton("left.small", "<"),
-    actionButton("right.small", ">"),
-    actionButton("right.big", ">>"),
-    tags$hr(),
-    downloadButton("down", "Download Plot"),
-    actionButton("clear", "Clear")
+    downloadButton("down", "Download Plot")
   ), 
 
-  mainPanel(plotOutput("plot", 
+  mainPanel(fluidRow(
+    column(12, textOutput("regiontotal"), align = 'center')),
+    plotOutput("plot", 
     dblclick = "plot_dblclick",
     brush = "plot_brush")),
   fluid = TRUE
-)
-),
+)),
 
 tabPanel("Upload",
 pageWithSidebar(
     headerPanel(
-        'Add local tracks'
+        tags$h1(tags$b('Add local tracks'))
         ),
     sidebarPanel(
-        tags$h4('Choose File'),
-        textInput("path", "File:"),
-        actionButton("browse", "Browse"),
-        tags$h4('Specify input data formats'),
-        radioButtons('datType', 'Data Type', c(Loops = 'Loops', Methylation='Methyl', Read.Depth="Read.Depth"), "Loops"),
-        radioButtons('fileformat', 'File Format', c(Bedgraph = 'Bedgraph', BigWig='BigWig', rds="rds"), 'rds'),
-        actionButton("addFile", "Add")
+        textInput("path", h5(tags$b("File:"))),
+        actionButton("browse", "Browse", style='padding:10px; font-size:80%'),
+        tags$hr(),
+        selectInput("datType", label = h5(tags$b("Data type:")), 
+            choices = list("Loops/.rds" = 1,
+                           "ReadDepth/BigWig" = 2,
+                           "ReadDepth/Bedgraph" = 3,
+                           "Methylation/BigWig" = 4,
+                           "Methylation/Bedgraph" = 5), 
+            selected = 1, width = "90%"),
+        actionButton("addFile", "Add", style='padding:10px; font-size:80%')
         ),
     mainPanel(
-        tags$h4('Data Frame of successfuly loaded user files'),
+        tags$h4('Successfuly loaded user files'),
         dataTableOutput('dt'),
         tags$hr()
         )
-)
-)))
+)),
+theme = shinytheme("cosmo"),
+footer = HTML('<P ALIGN=Center>DNAlandscapeR. Copyright &copy; <A HREF="mailto:caleblareau@g.harvard.edu">Caleb Lareau</A> & Martin Aryee'),
+collapsible = TRUE, 
+fluid = TRUE,
+windowTitle = "DNAlandscapeR"
+))

@@ -1,0 +1,3 @@
+Track	Organism	Description
+Jurkat_1_SMC1	human	ChIA-PET loops process through dnaloop and diffloop
+jurkat_450k	human	Methylation 450k from Encode project

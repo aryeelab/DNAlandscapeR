@@ -4,6 +4,13 @@ source("global.R")
 options(shiny.error=browser)
 
 function(input, output, session) {
+    
+    # Initialize Data Frame
+    dDF <- read.table("data/data-description.txt", header = TRUE, sep = "\t")
+    output$preloadedDataDescription <- renderDataTable({dDF})
+    output$regiontotal <- renderText(paste(paste(paste("chr", input$chr, sep = ""), input$start, sep = ":"), input$stop, sep = "-"))
+    
+    #Initialize Reactive variables
     dynamic.val <- reactiveValues(
         region = NULL,
         curfil = NULL,
@@ -17,7 +24,9 @@ function(input, output, session) {
         )
 
     observeEvent(input$plot.region, {
-        dynamic.val$region <- GRanges(seqnames=c(input$chr),ranges=IRanges(start=c(as.numeric(input$start)),end=c(as.numeric(input$stop))))
+        dynamic.val$region <- GRanges(seqnames=c(input$chr),
+                                      ranges=IRanges(start=c(as.numeric(input$start)),
+                                                     end=c(as.numeric(input$stop))))
         })
     
     updateRegionVals <- function(){
@@ -122,7 +131,9 @@ function(input, output, session) {
         p1()
      }, height = 700)
     
-    output$trackoptions <- renderUI({selectInput("tracks", label = h3("Tracks"), choices = dynamic.val$list.tracks, selectize = TRUE, multiple = TRUE, selected = 0)})
+    output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Tracks")),
+                                                 choices = dynamic.val$list.tracks, selectize = TRUE,
+                                                 multiple = TRUE, selected = 0)})
 
     volumes <- getVolumes()
     shinyFileChoose(input, 'file', roots=volumes, session=session, restrictions=system.file(package='base'))
@@ -139,14 +150,10 @@ function(input, output, session) {
     })
 
     observeEvent(input$addFile, {
-        #validate(need(if(input$datType == "Loops") input$fileformat == "rds" , "Loops input must be a .rds file"))
-        #validate(need(if(input$datType == "Read.Depth") input$fileformat != "rds" , "Read.Depth cannot be a .rds file"))
-        #validate(need(if(input$datType == "Methyl") input$fileformat != "rds" , "Methyl cannot be a .rds file"))
 
         #Update files
-        #dynamic.val$curfil <- as.character() 
-        dynamic.val$alldat <- as.matrix(rbind(dynamic.val$alldat, cbind(dynamic.val$curfil, input$fileformat, input$datType)), ncol = 3)
-        colnames(dynamic.val$alldat) <- c("File", "Format", "Data Type")
+        dynamic.val$alldat <- as.matrix(rbind(dynamic.val$alldat, cbind(dynamic.val$curfil)), ncol = 1)
+        colnames(dynamic.val$alldat) <- c("File")
         dt <- as.data.frame(dynamic.val$alldat)
         output$dt <- renderDataTable({dt})
 
@@ -155,23 +162,23 @@ function(input, output, session) {
         y <- dynamic.val$list.tracks
         valu <- 0
         
-        if(input$datType == "Loops"){
+        if(input$datType == 1){
             valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 1000]), 0)) + 1 )
             names(valu) <- name
             dynamic.val$c.full <- c(dynamic.val$c.full, dynamic.val$curfil)
-        } else if (input$datType == "Read.Depth" & input$fileformat == "BigWig") {
+        } else if (input$datType == 2) {
             valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 2000]), 0)) + 1 )
             names(valu) <- name
             dynamic.val$t.bw.full <- c(dynamic.val$t.bw.full, dynamic.val$curfil)
-        } else if (input$datType == "Read.Depth" & input$fileformat == "Bedgraph") {
+        } else if (input$datType == 3) {
             valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 3000]), 0)) + 1 )
             names(valu) <- name
             dynamic.val$t.bg.full <- c(dynamic.val$t.bg.full, dynamic.val$curfil)
-        } else if (input$datType == "Methyl" & input$fileformat == "BigWig") {
+        } else if (input$datType == 4) {
             valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 4000]), 0)) + 1 )
             names(valu) <- name
             dynamic.val$m.bw.full <- c(dynamic.val$m.bw.full, dynamic.val$curfil)
-        } else { #Methyl; Bedgraph
+        } else { #Methyl; Bedgraph; == 5
             valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 5000]), 0)) + 1 )
             names(valu) <- name
             dynamic.val$m.full <- c(dynamic.val$m.full, dynamic.val$curfil)
@@ -179,9 +186,8 @@ function(input, output, session) {
 
         #Output new list
         dynamic.val$list.tracks <- append(y, valu)
-        output$trackoptions <- renderUI({selectInput("tracks", label = h3("Tracks"), choices = dynamic.val$list.tracks, selectize = TRUE, multiple = TRUE, selected = 0)})
-
+        output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Tracks")),
+                                                     choices = dynamic.val$list.tracks,
+                                                     selectize = TRUE, multiple = TRUE, selected = 0)})
     })
-
-    
 }
