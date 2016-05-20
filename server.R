@@ -94,7 +94,9 @@ function(input, output, session) {
             # Map that proportion to the GRanges width
             s <- as.integer(width(dynamic.val$region) * startprop)
             e <- as.integer(width(dynamic.val$region) * endprop)
-            dynamic.val$region <- GRanges(seqnames=c(data.frame(dynamic.val$region)[1,1]),
+            chr_temp <- as.numeric(as.matrix(data.frame(dynamic.val$region)[1,1]))
+            print(chr_temp)
+            dynamic.val$region <- GRanges(seqnames=c(chr_temp),
                                           ranges=IRanges(start=c(data.frame(dynamic.val$region)[1,2]+s),
                                           end=c(data.frame(dynamic.val$region)[1,2]+e)))
             updateRegionVals()
@@ -129,7 +131,7 @@ function(input, output, session) {
       
     output$plot <- renderPlot({
         p1()
-     }, height = 700)
+     }, height = 800)
     
     output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Tracks")),
                                                  choices = dynamic.val$list.tracks, selectize = TRUE,

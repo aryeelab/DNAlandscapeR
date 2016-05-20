@@ -38,9 +38,9 @@ masterPlotter <- function(input, dynamic.val){
             one.loopPlot(objReg = chia_pet_objects[[which(map_chia_pet.indices == i)]], y = dynamic.val$region,
                          sample = chia_pet_samples[[as.character(i)]], max_counts = mc)
         } else if (i < 2000) { # Track; BigWig
-            bigwig.trackplot(dynamic.val$t.bw.full[[i-1000]], dynamic.val$region, "Read Depth")
+            bigwig.trackplot(dynamic.val$t.bw.full[[i-1000]], dynamic.val$region, "Depth")
         } else if (i < 3000){ # Track; Bedgraph
-            bedgraph.trackplot(dynamic.val$t.bg.full[[i-2000]], dynamic.val$region, "Read Depth")
+            bedgraph.trackplot(dynamic.val$t.bg.full[[i-2000]], dynamic.val$region, "Depth")
         } else if (i < 4000) { # Methyl; BigWig
             #bigwig.trackplot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region, "Methylation")
             bigwig.bumpPlot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region)
@@ -134,7 +134,7 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE){
     y <- region.bedgraph[,4]
     cluster_id <- clusterMaker(chr=chrom, pos=pos, maxGap = 100)
     smooth <- locfitByCluster(x=pos, y=y, cluster=cluster_id, bpSpan=50)
-    plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE, main = )
+    plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE, bty = "n",xaxs="i",yaxs="i", main = )
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
         n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     mtext(sample,side=2,line=2.5,cex=1,font=2)
