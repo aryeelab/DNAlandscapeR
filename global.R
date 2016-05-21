@@ -28,7 +28,7 @@ if(length(c.full) != 0){
     names(c.list) <- c.names
 } else { c.list <- list(); c.full <- list()}
 
-bigwig <- c(".bw", ".bigwig")
+bigwig <- c(".bw", ".bigwig", ".bigWig")
 # From 1,001-2,000-- ReadDepth Tracks-- bigwig
 t.bw.full <- t.files[as.logical(rowSums(sapply(bigwig, grepl, t.files)))]
 if(length(t.bw.full) != 0){

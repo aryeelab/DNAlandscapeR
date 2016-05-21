@@ -22,8 +22,11 @@ fluidPage(
                 provide a visualization of epigenetic data, particularly three-dimensional
                 chromatin structures in a computationally efficient framework. In particular, 
                 we utilize the R/Shiny environment to minimize the loaded data. If you use 
-                DNAlandscapeR in your research, please cite...'),
-        tags$h3('Descriptions of pre-loaded data'),
+                DNAlandscapeR in your research, please cite <REFERENCE?>...'),
+        tags$h3('A WORD OF CAUTION-- The DNase data from ENCODE takes a while to load. 
+                It will load though but slower than the other tracks. Be patient when
+                selecting this. I will work to smooth the bigwig to make it faster.'),
+        tags$h3('Descriptions of pre-loaded data:'),
         dataTableOutput('preloadedDataDescription'),
         tags$hr(), 
         width = 12
@@ -91,7 +94,7 @@ pageWithSidebar(
         )
 )),
 theme = shinytheme("cosmo"),
-footer = HTML('<P ALIGN=Center>DNAlandscapeR. Copyright &copy; <A HREF="mailto:caleblareau@g.harvard.edu">Caleb Lareau</A> & Martin Aryee'),
+footer = HTML('<P ALIGN=Center>DNAlandscapeR. &copy; <A HREF="mailto:caleblareau@g.harvard.edu">Caleb Lareau</A> & Martin Aryee'),
 collapsible = TRUE, 
 fluid = TRUE,
 windowTitle = "DNAlandscapeR"
