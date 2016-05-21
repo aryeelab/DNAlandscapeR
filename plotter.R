@@ -42,11 +42,9 @@ masterPlotter <- function(input, dynamic.val){
         } else if (i < 3000){ # Track; Bedgraph
             bedgraph.trackplot(dynamic.val$t.bg.full[[i-2000]], dynamic.val$region, "Depth")
         } else if (i < 4000) { # Methyl; BigWig
-            #bigwig.trackplot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region, "Methylation")
             bigwig.bumpPlot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region)
         } else if (i < 5000){ # Methyl; Bedgraph
             bedgraph.trackplot(dynamic.val$m.bg.full[[i-4000]], dynamic.val$region, "Methylation")
-            #bedgraph.bumpPlot(dynamic.val$m.bw.full[[i-4000]], dynamic.val$region)
         } else {return()}
     }
     if(input$showgenes) humanAnnotation(dynamic.val$region)
@@ -134,34 +132,11 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE){
     y <- region.bedgraph[,4]
     cluster_id <- clusterMaker(chr=chrom, pos=pos, maxGap = 100)
     smooth <- locfitByCluster(x=pos, y=y, cluster=cluster_id, bpSpan=50)
-    plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE, bty = "n",xaxs="i",yaxs="i", main = )
+    plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE, bty = "n",xaxs="i",yaxs="i")
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
         n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     mtext(sample,side=2,line=2.5,cex=1,font=2)
     if(shade) polygon(cbind(c(min(pos), pos, max(pos)), c(min(y), y, min(y))), border=NA, col="black")
-    return(bumpplot)
-}
-
-bedgraph.bumpPlot <- function(file, region){
-    region.bed <- read_delim(file, delim = " ")
-    bedg <- data.frame(region.bed)
-    region.bedgraph <- bedg[findOverlaps(GRanges(bedg), addchr(region))@from,]
-
-    chrom <- as.character(seqnames(region))
-    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
-    start <- as.integer(start(ranges(range(region))))
-    end <- as.integer(end(ranges(range(region))))
-    sample <- basename(file_path_sans_ext(file))
-    
-    bumpplot <- recordPlot()
-    pos <- region.bedgraph$start
-    cluster_id <- clusterMaker(chr=chrom, pos=pos, maxGap = 100)
-    smooth <- locfitByCluster(x=pos, y=region.bedgraph[,4], cluster=cluster_id, bpSpan=50)
-    plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE)
-    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-        n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
-    mtext("Methylation",side=2,line=2.5,cex=1,font=2)
-    points(pos, region.bedgraph[,4])
     return(bumpplot)
 }
 
