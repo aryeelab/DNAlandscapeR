@@ -9,6 +9,7 @@ K562-CTCF	human	Direct download from GSM1010820; replicate 1; processed by ENCOD
 K562-RNAseq	human	Direct download from ENCODE UCSC page. R2x75 Rep1V4
 K562-DNase	human	Direct download from GSE29692; replicate 1; processed by ENCODE
 K562-H3K27ac	human	Direct download from GSM733656; processed by ENCODE
+K562-H3K27me3	human	Direct download from GSM733658; processed by ENCODE
 MCF7-CTCF	human	Direct download from GSM1010734; replicate 1; processed by ENCODE
 MCF7-RNAseq	human	Direct download from ENCODE UCSC page. R2x75 Rep1V4
 MCF7-450k	human	Raw Methylation 450k Probeset downloaded from Encode project; processed with minfi v1.3
