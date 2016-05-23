@@ -9,7 +9,6 @@ textInput3 <- function (inputId, label, value = "", ...){
 }
 
 shinyUI(navbarPage(HTML("<img src='harvard-logo.png'/>"),
-                   
 tabPanel("Welcome",
 fluidPage(
     headerPanel(
