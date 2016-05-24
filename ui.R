@@ -57,6 +57,11 @@ headerPanel(tags$h1(tags$b('Human Landscape'))),
     actionButton("right.small", ">", style='padding:10px; font-size:100%'),
     actionButton("right.big", ">>", style='padding:10px; font-size:100%'),
     tags$hr(),
+    fileInput("skipRegions", "Upload Regions .bed File", multiple = FALSE, accept = NULL, width = NULL),
+    conditionalPanel(condition = "input.skipRegions != NULL", textOutput("regionDescription")),
+    actionButton("left.skip", "<<<", style='padding:10px; font-size:100%'),
+    actionButton("right.skip", ">>>", style='padding:10px; font-size:100%'),
+    tags$hr(),
     downloadButton("down", "Download Plot")
   ), 
 

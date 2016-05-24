@@ -20,7 +20,11 @@ function(input, output, session) {
         t.bw.full = t.bw.full,
         t.bg.full = t.bg.full,
         m.bw.full = m.bw.full,
-        m.bg.full = m.bg.full
+        m.bg.full = m.bg.full, 
+        i = 0,
+        regions.df = NULL,
+        fileAvail = FALSE,
+        nregions = 0
         )
 
     observeEvent(input$plot.region, {
@@ -105,7 +109,7 @@ function(input, output, session) {
 
     observeEvent(input$down, {
         output$plotsave <- downloadHandler(
-            filename = paste('plot-', Sys.Date(), '.pdf', sep=''),
+            filename = paste('DNAlandscapeR-', Sys.Date(), '-plot.pdf', sep=''),
             content = function(file){
                 pdf(file = file, width=8.5, height=11)
                 output$plot
@@ -113,6 +117,40 @@ function(input, output, session) {
             })
     })
     
+    observeEvent(input$skipRegions, {
+         if(is.null(input$skipRegions)){
+                dynamic.val$fileAvail <- FALSE
+            } else {
+                dynamic.val$fileAvail <- TRUE
+                dynamic.val$regions.df <- read.table(input$skipRegions$datapath)   
+                dynamic.val$nregions <- dim(dynamic.val$regions.df)[1]
+                output$regionDescription <- renderText(paste("Displaying region " , as.character(dynamic.val$i),
+                                                             " of ", as.character(dynamic.val$nregions), sep = ""))
+            }
+    })
+
+    observeEvent(input$left.skip, {
+        if (!dynamic.val$fileAvail | dynamic.val$i <= 1) return()
+        dynamic.val$i <- dynamic.val$i - 1
+        chr <- dynamic.val$regions.df[dynamic.val$i,1]
+        chr <- gsub("^chr(.*)$", "\\1", chr)
+        dynamic.val$region <- GRanges(seqnames=c(chr),
+                                          ranges=IRanges(start=c(dynamic.val$regions.df[dynamic.val$i,2]),
+                                          end=c(dynamic.val$regions.df[dynamic.val$i,3])))
+        updateRegionVals()
+    })
+    
+    observeEvent(input$right.skip, {
+        if (!dynamic.val$fileAvail | dynamic.val$i == dynamic.val$nregions) return()
+        dynamic.val$i <- dynamic.val$i + 1
+        chr <- dynamic.val$regions.df[dynamic.val$i,1]
+        chr <- gsub("^chr(.*)$", "\\1", chr)
+        dynamic.val$region <- GRanges(seqnames=c(chr),
+                                          ranges=IRanges(start=c(dynamic.val$regions.df[dynamic.val$i,2]),
+                                          end=c(dynamic.val$regions.df[dynamic.val$i,3])))
+        updateRegionVals()
+    })
+        
     p1 <- function(){  
         if (is.null(dynamic.val$region)) return()
         if (length(input$tracks) == 0) return()
