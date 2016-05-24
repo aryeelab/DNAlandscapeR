@@ -6,10 +6,9 @@ RUN wget https://github.com/github/git-lfs/releases/download/v1.2.0/git-lfs-linu
     tar zxf git-lfs-linux-amd64-1.2.0.tar.gz && \
     cd git-lfs-1.2.0 && \
     ./install.sh
-
+    
 # Install DNAlandscapeR
-RUN cd /srv/shiny-server && \
-    git clone --depth=1 https://github.com/aryeelab/DNAlandscapeR.git
+COPY . /srv/shiny-server/DNAlandscapeR
 
 WORKDIR /srv/shiny-server/DNAlandscapeR
 
@@ -26,5 +25,5 @@ RUN sed -i '/location \/ {/a google_analytics_id UA-37764824-4;' /etc/shiny-serv
 
 # Start and expose shiny server
 EXPOSE 3838
-CMD ["/usr/bin/shiny-server.sh"]
+CMD ["git lfs pull && /usr/bin/shiny-server.sh"]
 
