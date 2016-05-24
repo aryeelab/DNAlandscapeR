@@ -79,16 +79,13 @@ pageWithSidebar(
         tags$h1(tags$b('Add local tracks'))
         ),
     sidebarPanel(
-        textInput("path", h5(tags$b("File:"))),
-        actionButton("browse", "Browse", style='padding:10px; font-size:80%'),
+        fileInput("newTrack", h5(tags$b("Add new track:")), multiple = FALSE, accept = NULL, width = NULL),
+        tags$hr(),
+        textInput3("newTrackName", h5(tags$b("Specify track name:"), value = "")),
         tags$hr(),
         selectInput("datType", label = h5(tags$b("Data type:")), 
-            choices = list("Loops/.rds" = 1,
-                           "ReadDepth/BigWig" = 2,
-                           "ReadDepth/Bedgraph" = 3,
-                           "Methylation/BigWig" = 4,
-                           "Methylation/Bedgraph" = 5), 
-            selected = 1, width = "90%"),
+                choices = uploadchoices, #defined in global.R
+                            selected = 1, width = "90%"),
         actionButton("addFile", "Add", style='padding:10px; font-size:80%')
         ),
     mainPanel(

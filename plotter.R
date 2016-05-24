@@ -9,11 +9,11 @@ masterPlotter <- function(input, dynamic.val){
     #First loop initalizes the ChIA-PET max values
     for(i in input$tracks){
         i <- as.integer(i)
-        if (i < 1000){ # ChIA-PET from RDS
+        if (i < 1000000){ # ChIA-PET from RDS
             
             #Import object and subset
             x <- readRDS(dynamic.val$c.full[[i]])
-            sample <- basename(file_path_sans_ext(dynamic.val$c.full[[i]]))
+            sample <- names(dynamic.val$c.list)[i]
             objReg <- removeSelfLoops(subsetRegion(x, dynamic.val$region))
             
             #Update Max Counts
@@ -34,17 +34,25 @@ masterPlotter <- function(input, dynamic.val){
     #Second loop does all the plotting
     for(i in input$tracks){ 
         i <- as.integer(i)
-        if (i < 1000) {
+        if (i < 1000000) {
             one.loopPlot(objReg = chia_pet_objects[[which(map_chia_pet.indices == i)]], y = dynamic.val$region,
                          sample = chia_pet_samples[[as.character(i)]], max_counts = mc)
-        } else if (i < 2000) { # Track; BigWig
-            bigwig.trackplot(dynamic.val$t.bw.full[[i-1000]], dynamic.val$region, "Depth")
-        } else if (i < 3000){ # Track; Bedgraph
-            bedgraph.trackplot(dynamic.val$t.bg.full[[i-2000]], dynamic.val$region, "Depth")
-        } else if (i < 4000) { # Methyl; BigWig
-            bigwig.bumpPlot(dynamic.val$m.bw.full[[i-3000]], dynamic.val$region)
-        } else if (i < 5000){ # Methyl; Bedgraph
-            bedgraph.trackplot(dynamic.val$m.bg.full[[i-4000]], dynamic.val$region, "Methylation")
+        } else if (i < 2000000) { # Track; BigWig
+            t <- i - 1000000
+            sample <- names(dynamic.val$t.bw.list)[t]
+            bigwig.trackplot(dynamic.val$t.bw.full[[t]], dynamic.val$region, "Depth", sample = sample)
+        } else if (i < 3000000){ # Track; Bedgraph
+            t <- i - 2000000
+            sample <- names(dynamic.val$t.bg.list)[t]
+            bedgraph.trackplot(dynamic.val$t.bg.full[[t]], dynamic.val$region, "Depth", sample = sample)
+        } else if (i < 4000000) { # Methyl; BigWig
+            t <- i - 3000000
+            sample <- names(dynamic.val$m.bw.list)[t]
+            bigwig.bumpPlot(dynamic.val$m.bw.full[[t]], dynamic.val$region, sample = sample)
+        } else if (i < 5000000){ # Methyl; Bedgraph
+            t <- i - 4000000
+            sample <- names(dynamic.val$t.bg.list)[t]
+            bedgraph.trackplot(dynamic.val$m.bg.full[[t]], dynamic.val$region, "Methylation", sample = sample)
         } else {return()}
     }
     if(input$showgenes) humanAnnotation(dynamic.val$region)
@@ -116,7 +124,7 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE) {
 
 
 
-bigwig.bumpPlot <- function(file, region, shade = TRUE){
+bigwig.bumpPlot <- function(file, region, shade = TRUE, sample){
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
     region.bedgraph <- region.bedgraph[,c(-4,-5)]
@@ -125,8 +133,7 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE){
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(region))))
     end <- as.integer(end(ranges(range(region))))
-    sample <- basename(file_path_sans_ext(file))
-    
+
     bumpplot <- recordPlot()
     pos <- region.bedgraph$start
     y <- region.bedgraph[,4]
@@ -141,7 +148,7 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE){
 }
 
 # plots bigwig data for specified file/region; annotates 'ylab' 
-bigwig.trackplot <- function(file, region, ylab){
+bigwig.trackplot <- function(file, region, ylab, sample){
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
     region.bedgraph <- region.bedgraph[,c(-4,-5)]
@@ -150,8 +157,7 @@ bigwig.trackplot <- function(file, region, ylab){
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(region))))
     end <- as.integer(end(ranges(range(region))))
-    sample <- basename(file_path_sans_ext(file))
-    
+
     trackplot <- recordPlot()
     plotBedgraph(region.bedgraph, chromchr, start, end, 
                  main = sample, adj=0)
@@ -163,7 +169,7 @@ bigwig.trackplot <- function(file, region, ylab){
 }
 
 # plots bedgraph data for specified file/region; annotates 'ylab'
-bedgraph.trackplot <- function(file, region, ylab){
+bedgraph.trackplot <- function(file, region, ylab, sample){
     region.bed <- read_delim(file, delim = " ")
     region.bedgraph <- data.frame(region.bed)
 
@@ -171,8 +177,7 @@ bedgraph.trackplot <- function(file, region, ylab){
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(region))))
     end <- as.integer(end(ranges(range(region))))
-    sample <- basename(file_path_sans_ext(file))
-    
+
     trackplot <- recordPlot()
     plotBedgraph(region.bedgraph, chromchr, start, end, 
                  main = sample, adj=0)
