@@ -5,11 +5,13 @@ RUN apt-get update && apt-get install -y git=1:2.8.1-1 libxml2-dev=2.9.3+dfsg1-1
 RUN wget https://github.com/github/git-lfs/releases/download/v1.2.0/git-lfs-linux-amd64-1.2.0.tar.gz && \
     tar zxf git-lfs-linux-amd64-1.2.0.tar.gz && \
     cd git-lfs-1.2.0 && \
-    ./install.sh
+    ./install.sh && \
+    git lfs install --skip-smudge
     
 # Install DNAlandscapeR
-COPY . /srv/shiny-server/DNAlandscapeR
-
+RUN cd /srv/shiny-server && \
+    git clone --depth=1 https://github.com/aryeelab/DNAlandscapeR.git
+ 
 WORKDIR /srv/shiny-server/DNAlandscapeR
 
 # Install packrat packages
@@ -25,5 +27,5 @@ RUN sed -i '/location \/ {/a google_analytics_id UA-37764824-4;' /etc/shiny-serv
 
 # Start and expose shiny server
 EXPOSE 3838
-CMD ["git lfs pull && /usr/bin/shiny-server.sh"]
+CMD git lfs pull; /usr/bin/shiny-server.sh
 
