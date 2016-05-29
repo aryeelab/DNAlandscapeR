@@ -50,7 +50,7 @@ Package: DT
 Source: CRAN
 Version: 0.1
 Hash: 66d3d04d40c505e567c1328eae0409ee
-Requires: magrittr, htmltools, htmlwidgets
+Requires: htmltools, htmlwidgets, magrittr
 
 Package: GEOquery
 Source: Bioconductor
@@ -101,6 +101,12 @@ Source: CRAN
 Version: 1.2-6
 Hash: 6d5b4689f994e2af7e9cc11324c5cbeb
 Requires: lattice
+
+Package: PKI
+Source: CRAN
+Version: 0.1-3
+Hash: aca3e459c659b6d8266538520f72ba19
+Requires: base64enc
 
 Package: R6
 Source: CRAN
@@ -162,7 +168,7 @@ Package: Sushi
 Source: Bioconductor
 Version: 1.10.0
 Hash: 9ae2e1fe7d7c1f68c6f98978e684d690
-Requires: zoo, biomaRt
+Requires: biomaRt, zoo
 
 Package: XML
 Source: CRAN
@@ -191,6 +197,11 @@ Source: CRAN
 Version: 1.1
 Hash: 5776d8d9472a017332f54e3326ecbca8
 
+Package: base64enc
+Source: CRAN
+Version: 0.1-3
+Hash: c590d29e555926af053055e23ee79efb
+
 Package: beanplot
 Source: CRAN
 Version: 1.2
@@ -214,6 +225,12 @@ Hash: 1780cda5f338c54635ef586d2d8b797a
 Requires: AnnotationDbi, BiocGenerics, GenomeInfoDb, GenomicFeatures,
     GenomicRanges, IRanges, S4Vectors, doRNG, foreach, iterators,
     limma, locfit, matrixStats
+
+Package: caTools
+Source: CRAN
+Version: 1.17.1
+Hash: 97cb6f6293cd18d17df77a6383cc6763
+Requires: bitops
 
 Package: chron
 Source: CRAN
@@ -246,14 +263,6 @@ Source: CRAN
 Version: 2.0-0
 Hash: 08eed0c80510af29bb15f840ccfe37ce
 
-Package: diffloop
-Source: Bioconductor
-Version: 1.0.0
-Hash: a574bd7d1da67f3e588c5ce127c06430
-Requires: matrixStats, statmod, Biobase, S4Vectors, plyr, readr,
-    foreach, locfit, edgeR, dplyr, IRanges, reshape2, GenomeInfoDb,
-    ggplot2, biomaRt, GenomicRanges, Sushi
-
 Package: digest
 Source: CRAN
 Version: 0.6.9
@@ -277,11 +286,22 @@ Version: 3.14.0
 Hash: ec1c7848023cbd1b22a8ccfdce48649e
 Requires: limma
 
+Package: evaluate
+Source: CRAN
+Version: 0.9
+Hash: cf338d73ba4ee3a4fefec612cdfd38db
+Requires: stringr
+
 Package: foreach
 Source: CRAN
 Version: 1.4.3
 Hash: cd53ef4cf29dc59ce3f8c5c1af735fd1
 Requires: codetools, iterators
+
+Package: formatR
+Source: CRAN
+Version: 1.3
+Hash: 3fa669d00fb7d3307976a5d6df325f15
 
 Package: futile.logger
 Source: CRAN
@@ -304,12 +324,17 @@ Package: ggplot2
 Source: CRAN
 Version: 2.1.0
 Hash: 50e297b0191179c39c7dcae0eff72b51
-Requires: MASS, digest, gtable, plyr, scales, reshape2
+Requires: MASS, digest, gtable, plyr, reshape2, scales
 
 Package: gtable
 Source: CRAN
 Version: 0.2.0
 Hash: cd78381a9d3fea966ac39bd0daaf5554
+
+Package: highr
+Source: CRAN
+Version: 0.5.1
+Hash: 114ef5abcf58bebbf6ac083b9cacbbd8
 
 Package: htmltools
 Source: CRAN
@@ -321,7 +346,7 @@ Package: htmlwidgets
 Source: CRAN
 Version: 0.6
 Hash: 267a36d738dd98cec3dc9c471becb717
-Requires: jsonlite, yaml, htmltools
+Requires: htmltools, jsonlite, yaml
 
 Package: httpuv
 Source: CRAN
@@ -344,6 +369,12 @@ Package: jsonlite
 Source: CRAN
 Version: 0.9.19
 Hash: 4a983f753b6e88ae0f5a6ac152d8cc32
+
+Package: knitr
+Source: CRAN
+Version: 1.13
+Hash: 8d686cbee88c93b735281a22b2ca59dd
+Requires: digest, evaluate, formatR, highr, markdown, stringr, yaml
 
 Package: labeling
 Source: CRAN
@@ -380,6 +411,12 @@ Package: magrittr
 Source: CRAN
 Version: 1.5
 Hash: bdc4d48c3135e8f3b399536ddf160df4
+
+Package: markdown
+Source: CRAN
+Version: 0.7.7
+Hash: fea2343a1119d61b0cc5c0a950d103a3
+Requires: mime
 
 Package: matrixStats
 Source: CRAN
@@ -479,11 +516,32 @@ Version: 1.4.1
 Hash: d3251d4817e4764d53052db59b9ef86b
 Requires: Rcpp, plyr, stringr
 
+Package: rmarkdown
+Source: CRAN
+Version: 0.9.6
+Hash: c60250bb3dd9107d6d3ecf626e86d8a6
+Requires: caTools, htmltools, knitr, yaml
+
 Package: rngtools
 Source: CRAN
 Version: 1.2.4
 Hash: 4db0661fe95ab6eb3d6339495bf22003
 Requires: digest, pkgmaker, stringr
+
+Package: rsconnect
+Source: github
+Version: 0.4.1.11
+Hash: 886b6e456688b7773cab1c5cba2d8aad
+Requires: PKI, RCurl, RJSONIO, digest, packrat, rstudioapi, yaml
+GithubRepo: rsconnect
+GithubUsername: rstudio
+GithubRef: master
+GithubSha1: 0b72b17533521aa7276299ca53c742c4cf27eb1f
+
+Package: rstudioapi
+Source: CRAN
+Version: 0.5
+Hash: f942db72a8f51e968b061f28058e2c57
 
 Package: rtracklayer
 Source: Bioconductor
@@ -497,13 +555,18 @@ Package: scales
 Source: CRAN
 Version: 0.4.0
 Hash: 84d11c33dd50fd84dedd251f73699fff
-Requires: RColorBrewer, Rcpp, dichromat, labeling, plyr, munsell
+Requires: RColorBrewer, Rcpp, dichromat, labeling, munsell, plyr
 
 Package: shiny
 Source: CRAN
 Version: 0.13.2
 Hash: 28d6903a44dc53bd4823fa43ccdc08e5
-Requires: R6, digest, jsonlite, mime, xtable, httpuv, htmltools
+Requires: R6, digest, htmltools, httpuv, jsonlite, mime, xtable
+
+Package: shinyBS
+Source: CRAN
+Version: 0.61
+Requires: htmltools, shiny
 
 Package: shinyFiles
 Source: CRAN
