@@ -29,6 +29,11 @@ Source: Bioconductor
 Version: 0.18.0
 Hash: a7867e1dc7d96afd75a5d76053e495a6
 
+Package: BiocInstaller
+Source: Bioconductor
+Version: 1.22.2
+Hash: 6110c987dce593dd4d4ea07693ee8bc5
+
 Package: BiocParallel
 Source: Bioconductor
 Version: 1.6.0
@@ -262,6 +267,14 @@ Package: dichromat
 Source: CRAN
 Version: 2.0-0
 Hash: 08eed0c80510af29bb15f840ccfe37ce
+
+Package: diffloop
+Source: Bioconductor
+Version: 1.0.2
+Hash: 935fd3b1967066e85fde134e7d573d7d
+Requires: Biobase, GenomeInfoDb, GenomicRanges, IRanges, S4Vectors,
+    Sushi, biomaRt, dplyr, edgeR, foreach, ggplot2, locfit,
+    matrixStats, plyr, readr, reshape2, statmod
 
 Package: digest
 Source: CRAN
@@ -566,6 +579,7 @@ Requires: R6, digest, htmltools, httpuv, jsonlite, mime, xtable
 Package: shinyBS
 Source: CRAN
 Version: 0.61
+Hash: 4644935bd93e62a0b82686b26af7efc2
 Requires: htmltools, shiny
 
 Package: shinyFiles
