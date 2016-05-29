@@ -1,0 +1,27 @@
+---
+graphics: yes
+---
+# **DNAlandscapeR Guide**
+
+Features discussed in this page include:
+
+* Interactive zooming
+* Uploading Local Data
+* Creating .rds for ChIA-PET Visualization
+* Advanced plotting options
+
+
+```{r}
+2 + 2
+```
+<hr>
+### **Interactive Zooming**
+<img src="zoom1.png" width="50%" height="50%" />
+<br><br><br>
+After selecting a region, one can simply double click to zoom over the specified region. The boundaries of the shaded box will define the new x-coordinates in the updated plot. The y-coordinates of the box do not have an effect on the ensuing zoom. 
+<br><br><br>
+<img src="zoom2.png" width="50%" height="50%" /><br><br>
+The plot above shows the zoomed region after double-clicking. 
+<hr>
+### **Uploading Local Data**
+While **DNAlandscapeR** provides a wide variety of epigenetic data for both mouse and human, users may wish to include their own data to visualize in the browser. 

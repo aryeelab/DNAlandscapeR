@@ -1,5 +1,4 @@
-
-source("global.R")
+# DNAlandscapeR UI # 
 
 #Custom input style
 textInput3 <- function (inputId, label, value = "", ...){
@@ -33,52 +32,68 @@ fluidPage(
 )),
                    
 tabPanel("Visualize", 
-headerPanel(tags$h1(tags$b('Human Landscape'))),
+headerPanel(tags$h1(tags$b('DNA Landscape'))),
   sidebarLayout(
   sidebarPanel(
     uiOutput("trackoptions"), 
-    tags$hr(),
+    tags$br(),
     textInput3("chr", HTML("<h5><b>Chr&nbsp;&nbsp;&nbsp;&nbsp;</b></h5>"), value = "12"),
     textInput3("start", HTML("<h5><b>Start&nbsp;</b></h5>"), value = "12660203"),
     textInput3("stop", HTML("<h5><b>Stop&nbsp;&nbsp;</b></h5>"), value = "12777226"),
+    checkboxInput("showgenes", "Show Gene Annotation", value = TRUE, width = NULL),
+    #checkboxInput("showctcf", "Show CTCF Regions", value = FALSE, width = NULL),
     actionButton("plot.region", "Plot Region", style='padding:10px; font-size:80%'), 
     tags$hr(),
-    textInput3("Gene", HTML("<h5><b>Gene&nbsp;</b></h5>"), value = "AGO3"),
-    actionButton("plot.gene", "Plot Gene", style='padding:10px; font-size:80%'),
-    tags$hr(),
-    checkboxInput("showgenes", "Show Gene Annotation", value = TRUE, width = NULL),
-    checkboxInput("showctcf", "Show CTCF Regions", value = FALSE, width = NULL),
     actionButton("zoom.in", "Zoom In", style='padding:10px; font-size:80%'),
     actionButton("zoom.out", "Zoom Out", style='padding:10px; font-size:80%'),
     actionButton("clear", "Clear", style='padding:10px; font-size:80%'),
+    tags$br(),
+    tags$br(),
+    actionButton("left.big", HTML("&nbsp; << &nbsp;"), style='padding:10px; font-size:80%'),
+    actionButton("left.small", HTML("&nbsp; &nbsp; <  &nbsp; &nbsp;"), style='padding:10px; font-size:80%'),
+    actionButton("right.small", HTML("&nbsp; &nbsp; > &nbsp; &nbsp;"), style='padding:10px; font-size:80%'),
+    actionButton("right.big", HTML("&nbsp; >> &nbsp;"), style='padding:10px; font-size:80%'),
     tags$hr(),
-    actionButton("left.big", "<<", style='padding:10px; font-size:100%'),
-    actionButton("left.small", "<", style='padding:10px; font-size:100%'),
-    actionButton("right.small", ">", style='padding:10px; font-size:100%'),
-    actionButton("right.big", ">>", style='padding:10px; font-size:100%'),
-    tags$hr(),
-    fileInput("skipRegions", "Upload Regions .bed File", multiple = FALSE, accept = NULL, width = NULL),
+    fileInput("skipRegions", HTML("<h5><b>Upload Regions .bed File</b></h5>"), multiple = FALSE, accept = NULL, width = NULL),
     conditionalPanel(condition = "input.skipRegions != NULL", textOutput("regionDescription")),
     actionButton("left.skip", "<<<", style='padding:10px; font-size:100%'),
-    actionButton("right.skip", ">>>", style='padding:10px; font-size:100%'),
-    tags$hr(),
-    downloadButton("down", "Download Plot")
+    actionButton("right.skip", ">>>", style='padding:10px; font-size:100%')
   ), 
 
   mainPanel(fluidRow(
     column(12, textOutput("regiontotal"), align = 'center')),
     plotOutput("plot", 
     dblclick = "plot_dblclick",
-    brush = "plot_brush")),
+    brush = "plot_brush")
+    ),
   fluid = TRUE
+),
+bsCollapse(id = "collapseAdvancedPlotOptions", open = NULL,
+    bsCollapsePanel(title = HTML("<h4><b>Advanced options</b></h4>"), value = "Panel1",
+    fluidRow(
+       column(4, radioButtons("organism", HTML("<h4><b>Specify Organism</b></h4>"),
+                    choices = list("Human" = 1, "Mouse" = 2), 
+                    selected = 1),
+              checkboxInput("showSingleAnchors", "Show Single Anchors", value = FALSE, width = NULL)),
+       column(4, textInput("Gene", HTML("<h4><b>Plot Gene Region </b></h4>"), value = "AGO3"),
+                 actionButton("plot.gene", "Plot Gene", style='padding:10px; font-size:80%')),
+       column(4, uiOutput("specifiedGenes"))
+     ),
+    tags$hr(),
+    downloadButton("down", "Download Plot"),    
+    style = "default")
 )),
 
 tabPanel("Upload",
 pageWithSidebar(
     headerPanel(
-        tags$h1(tags$b('Add local tracks'))
+        tags$h1(tags$b('Add local data'))
         ),
     sidebarPanel(
+        radioButtons("organismUpload", HTML("<h5><b>Specify organism of new track:</b></h5>"),
+            choices = list("Human" = 1, "Mouse" = 2), 
+            selected = 1),
+        tags$hr(),
         fileInput("newTrack", h5(tags$b("Add new track:")), multiple = FALSE, accept = NULL, width = NULL),
         tags$hr(),
         textInput3("newTrackName", h5(tags$b("Specify track name:"), value = "")),
@@ -89,11 +104,14 @@ pageWithSidebar(
         actionButton("addFile", "Add", style='padding:10px; font-size:80%')
         ),
     mainPanel(
-        tags$h4('Successfuly loaded user files'),
+        HTML("<h4><b>Successfully loaded user files</b></h4>"),
         dataTableOutput('dt'),
         tags$hr()
         )
 )),
+tabPanel("Guide",
+    includeMarkdown("www/DNAlandscapeR-help.Rmd")
+),
 theme = shinytheme("cosmo"),
 footer = HTML('<P ALIGN=Center>DNAlandscapeR. &copy; <A HREF="mailto:caleblareau@g.harvard.edu">Caleb Lareau</A> & Martin Aryee'),
 collapsible = TRUE, 

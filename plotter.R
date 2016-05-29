@@ -1,3 +1,9 @@
+# Main functions for plotting the various tracks. A brief overview follows.
+
+# masterPlotter is called from the server.R script and performs these operations:
+# 1) subsets all ChIA-PET objects to determine the max counts for normalization
+# 2) plots tracks calling later functions based on the indices.
+
 masterPlotter <- function(input, dynamic.val){
     
     chia_pet_samples <- list() #Tracks samples linking with i
@@ -122,8 +128,7 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE) {
     }
 }
 
-
-
+# bigwig.bumpPlot is used for methylation
 bigwig.bumpPlot <- function(file, region, shade = TRUE, sample){
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
@@ -142,12 +147,12 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE, sample){
     plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE, bty = "n",xaxs="i",yaxs="i")
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
         n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
-    mtext(sample,side=2,line=2.5,cex=1,font=2)
+    # mtext(sample,side=2,line=2.5,cex=1,font=2)
     if(shade) polygon(cbind(c(min(pos), pos, max(pos)), c(min(y), y, min(y))), border=NA, col="black")
     return(bumpplot)
 }
 
-# plots bigwig data for specified file/region; annotates 'ylab' 
+# bigwig.trackplot is used for most epigenetic peaks
 bigwig.trackplot <- function(file, region, ylab, sample){
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
@@ -161,14 +166,14 @@ bigwig.trackplot <- function(file, region, ylab, sample){
     trackplot <- recordPlot()
     plotBedgraph(region.bedgraph, chromchr, start, end, 
                  main = sample, adj=0)
-    mtext(ylab,side=2,line=2.5,cex=1,font=2)
+    #mtext(ylab,side=2,line=2.5,cex=1,font=2)
     axis(side=2,las=2,tcl=.2)
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
                 n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     return(trackplot)
 }
 
-# plots bedgraph data for specified file/region; annotates 'ylab'
+# Primarily used for the 450k
 bedgraph.trackplot <- function(file, region, ylab, sample){
     region.bed <- read_delim(file, delim = " ")
     region.bedgraph <- data.frame(region.bed)
@@ -210,7 +215,7 @@ humanAnnotation <- function(y) {
     return(loplot)
 }
 
-
+# May want to write my own function here eventually.
 plotCTCFregions <- function(y) {
     chrom <- as.character(seqnames(y))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")

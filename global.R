@@ -1,6 +1,7 @@
 # Global variables for both server.R and ui.R to reference
 library(tools)
 library(shiny)
+library(shinyBS)
 library(shinythemes)
 library(ggplot2)
 library(GenomicRanges)
@@ -13,6 +14,8 @@ library(grid)
 library(readr)
 library(bumphunter)
 library(shinyFiles)
+library(markdown)
+library(knitr)
 
 uploadchoices <- list("Loops/.rds" = 1,
                       "ReadDepth/.bigWig" = 2,
@@ -20,60 +23,132 @@ uploadchoices <- list("Loops/.rds" = 1,
                       "Methylation/.bigWig" = 4,
                       "Methylation/.bedgraph" = 5)
 
+# Variable names are coded as follows
+# g_ is a global variable
+# h. is human; m. is mouse
+# c. is ChIA-PET data
+# t. and m. (in the third position) are track and methylation files; f. is full (all)
+# bw. and bw. are bigwig and bedgraph files
+# full is the path to the file
+#
+
+
+## HUMAN INITIALIZATION ##
+
 # Import locally hosted data file names
-c.full <- list.files("data/loops", full.names = TRUE)
-t.files <- list.files("data/tracks", full.names = TRUE)
-m.files <- list.files("data/methylation", full.names = TRUE)
+g_h.c.full <- list.files("data/human/loops", full.names = TRUE)
+g_h.t.files <- list.files("data/human/tracks", full.names = TRUE)
+g_h.m.files <- list.files("data/human/methylation", full.names = TRUE)
 
 # From 1-1,000,000-- ChIA-PET loops objects
-if(length(c.full) != 0){
-    c.names <- basename(file_path_sans_ext(c.full))
-    c.list <- as.list(seq(1, length(c.names), by = 1) + 0)
-    names(c.list) <- c.names
-} else { c.list <- list(); c.full <- list()}
+if(length(g_h.c.full) != 0){
+    g_h.c.names <- basename(file_path_sans_ext(g_h.c.full))
+    g_h.c.list <- as.list(seq(1, length(g_h.c.names), by = 1) + 0)
+    names(g_h.c.list) <- g_h.c.names
+} else { g_h.c.list <- list(); g_h.c.full <- list()}
 
 bigwig <- c(".bw", ".bigwig", ".bigWig")
 # From 1,000,001-2,000,000-- ReadDepth Tracks-- bigwig
-t.bw.full <- t.files[as.logical(rowSums(sapply(bigwig, grepl, t.files)))]
-if(length(t.bw.full) != 0){
-    t.bw.names <- basename(file_path_sans_ext(t.bw.full))
-    t.bw.list <- as.list(seq(1, length(t.bw.names), by = 1) + 1000000)
-    names(t.bw.list) <- t.bw.names
-} else { t.bw.list <- list(); t.bw.full <- list()}
+g_h.t.bw.full <- g_h.t.files[as.logical(rowSums(sapply(bigwig, grepl, g_h.t.files)))]
+if(length(g_h.t.bw.full) != 0){
+    g_h.t.bw.names <- basename(file_path_sans_ext(g_h.t.bw.full))
+    g_h.t.bw.list <- as.list(seq(1, length(g_h.t.bw.names), by = 1) + 1000000)
+    names(g_h.t.bw.list) <- g_h.t.bw.names
+} else { g_h.t.bw.list <- list(); g_h.t.bw.full <- list()}
 
 # From 2,000,001-3,000,000-- ReadDepth Tracks-- Bedgraph
-t.bg.full <- t.files[grep(".bedgraph", t.files, fixed=T)]
-if(length(t.bg.full) != 0){
-    t.bg.names <- basename(file_path_sans_ext(t.bg.full))
-    t.bg.list <- as.list(seq(1, length(t.bg.names), by = 1) + 2000000)
-    names(t.bg.list) <- t.bg.names
-} else { t.bg.list <- list(); t.bg.full <- list() }
+g_h.t.bg.full <- g_h.t.files[grep(".bedgraph", g_h.t.files, fixed=T)]
+if(length(g_h.t.bg.full) != 0){
+    g_h.t.bg.names <- basename(file_path_sans_ext(g_h.t.bg.full))
+    g_h.t.bg.list <- as.list(seq(1, length(g_h.t.bg.names), by = 1) + 2000000)
+    names(g_h.t.bg.list) <- g_h.t.bg.names
+} else { g_h.t.bg.list <- list(); g_h.t.bg.full <- list() }
 
 # From 3,000,001-4,000,000-- Methylation Tracks-- bigwig
-m.bw.full <- m.files[as.logical(rowSums(sapply(bigwig, grepl, m.files)))]
-if(length(m.bw.full) != 0){
-    m.bw.names <- basename(file_path_sans_ext(m.bw.full))
-    m.bw.list <- as.list(seq(1, length(m.bw.names), by = 1) + 3000000)
-    names(m.bw.list) <- m.bw.names
-} else { m.bw.list <- list(); m.bw.full <- list()}
+g_h.m.bw.full <- g_h.m.files[as.logical(rowSums(sapply(bigwig, grepl, g_h.m.files)))]
+if(length(g_h.m.bw.full) != 0){
+    g_h.m.bw.names <- basename(file_path_sans_ext(g_h.m.bw.full))
+    g_h.m.bw.list <- as.list(seq(1, length(g_h.m.bw.names), by = 1) + 3000000)
+    names(g_h.m.bw.list) <- g_h.m.bw.names
+} else { g_h.m.bw.list <- list(); g_h.m.bw.full <- list()}
 
 # From 4,000,001-5,000,000-- Methylation Tracks-- Bedgraph
-m.bg.full <- m.files[grep(".bedgraph", m.files, fixed=T)]
-if(length(m.bg.full) != 0){
-    m.bg.names <- basename(file_path_sans_ext(m.bg.full))
-    m.bg.list <- as.list(seq(1, length(m.bg.names), by = 1) + 4000000)
-    names(m.bg.list) <- m.bg.names
-} else { m.bg.list <- list(); m.bg.full <- list()}
+g_h.m.bg.full <- g_h.m.files[grep(".bedgraph", g_h.m.files, fixed=T)]
+if(length(g_h.m.bg.full) != 0){
+    g_h.m.bg.names <- basename(file_path_sans_ext(g_h.m.bg.full))
+    g_h.m.bg.list <- as.list(seq(1, length(g_h.m.bg.names), by = 1) + 4000000)
+    names(g_h.m.bg.list) <- g_h.m.bg.names
+} else { g_h.m.bg.list <- list(); g_h.m.bg.full <- list()}
 
-f.list <- append(c.list, append(append(t.bw.list, t.bg.list), append(m.bw.list, m.bg.list)))
+g_h.f.list <- append(g_h.c.list, append(append(g_h.t.bw.list, g_h.t.bg.list), append(g_h.m.bw.list, g_h.m.bg.list)))
 
 # Now order it
-d <- data.frame(unlist(f.list))
-d$names <- rownames(d)
-d <- d[order(rownames(d)), ]
-f.list <- list()
-for(k in 1:dim(d)[1]){
-    x <- list(d[k,1])
-    names(x) <- (d[k,2])
-    f.list <- append(f.list, x)
+h.d <- data.frame(unlist(g_h.f.list))
+h.d$names <- rownames(h.d)
+h.d <- h.d[order(rownames(h.d)), ]
+g_h.f.list <- list()
+for(k in 1:dim(h.d)[1]){
+    x <- list(h.d[k,1])
+    names(x) <- (h.d[k,2])
+    g_h.f.list <- append(g_h.f.list, x)
+}
+
+## MOUSE INITIALIZATION ##
+
+# Import locally hosted data file names
+g_m.c.full <- list.files("data/human/loops", full.names = TRUE)
+g_m.t.files <- list.files("data/human/tracks", full.names = TRUE)
+g_m.m.files <- list.files("data/human/methylation", full.names = TRUE)
+
+# From 1-1,000,000-- ChIA-PET loops objects
+if(length(g_m.c.full) != 0){
+    g_m.c.names <- basename(file_path_sans_ext(g_m.c.full))
+    g_m.c.list <- as.list(seq(1, length(g_m.c.names), by = 1) + 0)
+    names(g_m.c.list) <- g_m.c.names
+} else { g_m.c.list <- list(); g_m.c.full <- list()}
+
+bigwig <- c(".bw", ".bigwig", ".bigWig")
+# From 1,000,001-2,000,000-- ReadDepth Tracks-- bigwig
+g_m.t.bw.full <- g_m.t.files[as.logical(rowSums(sapply(bigwig, grepl, g_m.t.files)))]
+if(length(g_m.t.bw.full) != 0){
+    g_m.t.bw.names <- basename(file_path_sans_ext(g_m.t.bw.full))
+    g_m.t.bw.list <- as.list(seq(1, length(g_m.t.bw.names), by = 1) + 1000000)
+    names(g_m.t.bw.list) <- g_m.t.bw.names
+} else { g_m.t.bw.list <- list(); g_m.t.bw.full <- list()}
+
+# From 2,000,001-3,000,000-- ReadDepth Tracks-- Bedgraph
+g_m.t.bg.full <- g_m.t.files[grep(".bedgraph", g_m.t.files, fixed=T)]
+if(length(g_m.t.bg.full) != 0){
+    g_m.t.bg.names <- basename(file_path_sans_ext(g_m.t.bg.full))
+    g_m.t.bg.list <- as.list(seq(1, length(g_m.t.bg.names), by = 1) + 2000000)
+    names(g_m.t.bg.list) <- g_m.t.bg.names
+} else { g_m.t.bg.list <- list(); g_m.t.bg.full <- list() }
+
+# From 3,000,001-4,000,000-- Methylation Tracks-- bigwig
+g_m.m.bw.full <- g_m.m.files[as.logical(rowSums(sapply(bigwig, grepl, g_m.m.files)))]
+if(length(g_m.g_m.bw.full) != 0){
+    g_m.m.bw.names <- basename(file_path_sans_ext(g_m.m.bw.full))
+    g_m.m.bw.list <- as.list(seq(1, length(g_m.m.bw.names), by = 1) + 3000000)
+    names(g_m.m.bw.list) <- g_m.m.bw.names
+} else { g_m.m.bw.list <- list(); g_m.m.bw.full <- list()}
+
+# From 4,000,001-5,000,000-- Methylation Tracks-- Bedgraph
+g_m.m.bg.full <- g_m.m.files[grep(".bedgraph", g_m.m.files, fixed=T)]
+if(length(g_m.m.bg.full) != 0){
+    g_m.m.bg.names <- basename(file_path_sans_ext(g_m.m.bg.full))
+    g_m.m.bg.list <- as.list(seq(1, length(g_m.m.bg.names), by = 1) + 4000000)
+    names(g_m.m.bg.list) <- g_m.m.bg.names
+} else { g_m.m.bg.list <- list(); g_m.m.bg.full <- list()}
+
+g_m.f.list <- append(g_m.c.list, append(append(g_m.t.bw.list, g_m.t.bg.list), append(g_m.m.bw.list, g_m.m.bg.list)))
+
+# Now order it
+m.d <- data.frame(unlist(g_m.f.list))
+m.d$names <- rownames(m.d)
+m.d <- m.d[order(rownames(m.d)), ]
+m.f.list <- list()
+for(k in 1:dim(m.d)[1]){
+    x <- list(m.d[k,1])
+    names(x) <- (m.d[k,2])
+    g_m.f.list <- append(g_m.f.list, x)
 }
