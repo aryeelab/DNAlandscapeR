@@ -187,7 +187,7 @@ bedgraph.trackplot <- function(file, region, ylab, sample){
     trackplot <- recordPlot()
     plotBedgraph(region.bedgraph, chromchr, start, end, 
                  main = sample, adj=0)
-    mtext(ylab,side=2,line=2.5,cex=1,font=2)
+    #mtext(ylab,side=2,line=2.5,cex=1,font=2)
     axis(side=2,las=2,tcl=.2)
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
                 n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)

@@ -138,6 +138,7 @@ function(input, output, session) {
                                                      end=c(as.numeric(input$stop))))
         output$regiontotal <-renderText(paste(paste(paste("chr", input$chr, sep = ""),
                                         input$start, sep = ":"),input$stop, sep = "-"))
+        makePlot()
     })
   
     observeEvent(input$plot.gene, {
@@ -146,42 +147,49 @@ function(input, output, session) {
         t <- human.genes[mcols(human.genes)$id == as.character(input$Gene) ]
         dynamic.val$region <- padGRanges(t, pad = as.integer(width(t)/2))
         updateRegionVals()
+        makePlot()
     })  
   
     observeEvent(input$zoom.out, {
         if (is.null(dynamic.val$region)) return()
         dynamic.val$region <- padGRanges(dynamic.val$region, pad = as.integer(width(dynamic.val$region)/2))
         updateRegionVals()
+        makePlot()
     })
     
      observeEvent(input$zoom.in, {
         if (is.null(dynamic.val$region)) return()
         dynamic.val$region <- padGRanges(dynamic.val$region, pad = -1*as.integer(width(dynamic.val$region)/4))
         updateRegionVals()
+        makePlot()
     })
      
     observeEvent(input$left.big, {
         if (is.null(dynamic.val$region)) return()
         dynamic.val$region <- shift(dynamic.val$region, -9*width(dynamic.val$region)/10)
         updateRegionVals()
+        makePlot()
     })
 
     observeEvent(input$left.small, {
         if (is.null(dynamic.val$region)) return()
         dynamic.val$region <- shift(dynamic.val$region, -3*width(dynamic.val$region)/10)
         updateRegionVals()
+        makePlot()
     })
 
     observeEvent(input$right.small, {
         if (is.null(dynamic.val$region)) return()
         dynamic.val$region <- shift(dynamic.val$region, 3*width(dynamic.val$region)/10)
         updateRegionVals()
+        makePlot()
     })
 
     observeEvent(input$right.big, {
         if (is.null(dynamic.val$region)) return()
         dynamic.val$region <- shift(dynamic.val$region, 9*width(dynamic.val$region)/10)
         updateRegionVals()
+        makePlot()
     })
      
     observeEvent(input$clear, {
@@ -205,6 +213,7 @@ function(input, output, session) {
                                           ranges=IRanges(start=c(data.frame(dynamic.val$region)[1,2]+s),
                                           end=c(data.frame(dynamic.val$region)[1,2]+e)))
             updateRegionVals()
+            makePlot()
         } else { return() }
     })
 
@@ -228,6 +237,7 @@ function(input, output, session) {
                 output$regionDescription <- renderText(paste("Displaying region " , as.character(
                     dynamic.val$regionRow), " of ", as.character(dynamic.val$nregions), sep = ""))
             }
+        makePlot()
     })
 
     observeEvent(input$left.skip, {
@@ -239,6 +249,7 @@ function(input, output, session) {
                                 ranges=IRanges(start=c(dynamic.val$regions.df[dynamic.val$regionRow,2]),
                                 end=c(dynamic.val$regions.df[dynamic.val$regionRow,3])))
         updateRegionVals()
+        makePlot()
     })
     
     observeEvent(input$right.skip, {
@@ -250,21 +261,29 @@ function(input, output, session) {
                                 ranges=IRanges(start=c(dynamic.val$regions.df[dynamic.val$regionRow,2]),
                                 end=c(dynamic.val$regions.df[dynamic.val$regionRow,3])))
         updateRegionVals()
+        makePlot()
     })
     
     observeEvent(input$showgenes, {
         if(!input$showgenes){
              dynamic.val$acceptedGenes <- NULL
+        } else {
+             updateDisplayedGenes()
         }
     })
     
+    observeEvent(input$refresh, {
+        makePlot()
+    })
+    
+
     p1 <- function(){  
-        if (is.null(dynamic.val$region)) return()
-        if (length(input$tracks) == 0) return()
+        if (isolate(is.null(dynamic.val$region))) return()
+        if (length(isolate(input$tracks)) == 0) return()
         updateDisplayedGenes()
-        par(mfrow=c(length(input$tracks) + input$showgenes, 1),
+        par(mfrow=c(length(isolate(input$tracks)) + isolate(input$showgenes), 1),
                 oma = c(0, 0, 1, 0), mar = c(3, 5, 1, 1))
-        masterPlotter(input, dynamic.val)
+        masterPlotter(isolate(input), isolate(dynamic.val))
     }
     
     output$down <- downloadHandler(
@@ -275,18 +294,18 @@ function(input, output, session) {
             p1()
             dev.off()}
     )
-      
-    output$plot <- renderPlot({
-        p1()
-     }, height = 700)
+    
+    makePlot <- function(){ 
+        output$plot <- renderPlot({isolate(p1())}, height = 700)
+    }
     
     output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Select Tracks")),
                                                  choices = dynamic.val$list.tracks, selectize = TRUE,
                                                  multiple = TRUE, selected = 0)})
     
     output$specifiedGenes <- renderUI({selectInput("plotGenes", label = h4(tags$b("Displayed Genes")),
-                                                 choices = dynamic.val$acceptedGenes, selectize = TRUE,
-                                                 multiple = TRUE, selected = dynamic.val$acceptedGenes)})
+                                                 choices = sort(dynamic.val$acceptedGenes), selectize = TRUE,
+                                                 multiple = TRUE, selected = sort(dynamic.val$acceptedGenes))})
 
     #---------------------------------#
     # Code for input tab
@@ -297,7 +316,7 @@ function(input, output, session) {
     output$filename <- renderPrint({
         fnc <- as.character(parseFilePaths(volumes, input$file)$datapath)
         if(identical(fnc, character(0))){ "" } else { fnc }
-        })
+    })
     
     observeEvent(input$addFile, {
         if(is.null(input$newTrack)) return()
