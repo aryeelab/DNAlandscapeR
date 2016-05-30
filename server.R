@@ -1,3 +1,5 @@
+#Author: Caleb Lareau
+
 source("plotter.R")
 source("global.R")
 
