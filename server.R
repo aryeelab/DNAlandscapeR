@@ -21,6 +21,7 @@ function(input, output, session) {
     dynamic.val <- reactiveValues(
         region = NULL,
         alldat = NULL,
+        acceptedGenes = NULL, 
         
         # Initialize with human
         list.tracks = g_h.f.list, 
@@ -71,6 +72,7 @@ function(input, output, session) {
     # Define dynamic variables based on organism selection
     observe({
     if(input$organism == 1) {
+        dynamic.val$organism <- "human"
         dynamic.val$list.tracks <- dynamic.val$h.f.list 
         dynamic.val$c.full <- dynamic.val$h.c.full
         dynamic.val$t.bw.full <- dynamic.val$h.t.bw.full
@@ -82,7 +84,6 @@ function(input, output, session) {
         dynamic.val$t.bg.list <- dynamic.val$h.t.bg.list
         dynamic.val$m.bw.list <- dynamic.val$h.m.bw.list
         dynamic.val$m.bg.list <- dynamic.val$h.m.bg.list
-        dynamic.val$organism <- "human"
     }
     
     if(input$organism == 2) {
@@ -101,18 +102,7 @@ function(input, output, session) {
     }
     })
     
-    observeEvent(input$plot.region, {
-        dynamic.val$region <- GRanges(seqnames=c(input$chr),
-                                      ranges=IRanges(start=c(as.numeric(input$start)),
-                                                     end=c(as.numeric(input$stop))))
-        output$regiontotal <-renderText(paste(paste(paste("chr", input$chr, sep = ""),
-                                        input$start, sep = ":"),input$stop, sep = "-"))
-    })
-    
-    #---------------------------------#
-    # Code for various buttons
-    #---------------------------------#
-    
+    #Updates the text boxes of coordinates when a button is pressed.
     updateRegionVals <- function(){
         updateNumericInput(session, "chr", value = data.frame(dynamic.val$region)[1,1])     
         updateNumericInput(session, "start", value = as.integer(start(ranges(range(dynamic.val$region)))))  
@@ -120,6 +110,35 @@ function(input, output, session) {
         output$regiontotal <-renderText(paste(paste(paste("chr", input$chr, sep = ""),
                                         input$start, sep = ":"),input$stop, sep = "-"))
     }
+    
+    # Gets all gene names for the current region
+    updateDisplayedGenes <- function(){
+        if(input$showgenes){
+            chrom <- as.character(seqnames(dynamic.val$region))
+            chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
+            start <- as.integer(start(ranges(range(dynamic.val$region))))
+            end <- as.integer(end(ranges(range(dynamic.val$region))))
+            
+            geneinfo <- data.frame()
+            if(input$organism == 1) load("data/GenomeAnnotation/hg19/geneinfo.rda")
+            if(input$organism == 2) load("data/GenomeAnnotation/mm9/geneinfo.rda")
+            
+            geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
+            dynamic.val$acceptedGenes <- unique(geneinfo$gene)
+        }
+    }
+    
+    #---------------------------------#
+    # Code for various buttons
+    #---------------------------------#
+    
+    observeEvent(input$plot.region, {
+        dynamic.val$region <- GRanges(seqnames=c(input$chr),
+                                      ranges=IRanges(start=c(as.numeric(input$start)),
+                                                     end=c(as.numeric(input$stop))))
+        output$regiontotal <-renderText(paste(paste(paste("chr", input$chr, sep = ""),
+                                        input$start, sep = ":"),input$stop, sep = "-"))
+    })
   
     observeEvent(input$plot.gene, {
         rda<-paste(system.file('rda',package='diffloop'),'human.genes.rda',sep='/')
@@ -173,6 +192,7 @@ function(input, output, session) {
         brush <- input$plot_brush
         if (!is.null(brush)) {
             fulldist <- brush$domain$right - brush$domain$left
+            
             # Compute where the brush is occupying relative to window
             startprop <- (brush$xmin - brush$domain$left)/fulldist
             endprop <- (brush$xmax - brush$domain$left)/fulldist
@@ -232,13 +252,19 @@ function(input, output, session) {
         updateRegionVals()
     })
     
+    observeEvent(input$showgenes, {
+        if(!input$showgenes){
+             dynamic.val$acceptedGenes <- NULL
+        }
+    })
+    
     p1 <- function(){  
         if (is.null(dynamic.val$region)) return()
         if (length(input$tracks) == 0) return()
+        updateDisplayedGenes()
         par(mfrow=c(length(input$tracks) + input$showgenes, 1),
                 oma = c(0, 0, 1, 0), mar = c(3, 5, 1, 1))
         masterPlotter(input, dynamic.val)
-        dynamic.val$updatePlot <- FALSE
     }
     
     output$down <- downloadHandler(
@@ -258,10 +284,10 @@ function(input, output, session) {
                                                  choices = dynamic.val$list.tracks, selectize = TRUE,
                                                  multiple = TRUE, selected = 0)})
     
-    output$specifiedGenes <- renderUI({selectInput("whichgenes", label = h4(tags$b("IncompleteFeature")),
-                                                 choices = dynamic.val$list.tracks, selectize = TRUE,
-                                                 multiple = TRUE, selected = dynamic.val$list.tracks)})
-    
+    output$specifiedGenes <- renderUI({selectInput("plotGenes", label = h4(tags$b("Displayed Genes")),
+                                                 choices = dynamic.val$acceptedGenes, selectize = TRUE,
+                                                 multiple = TRUE, selected = dynamic.val$acceptedGenes)})
+
     #---------------------------------#
     # Code for input tab
     #---------------------------------#

@@ -62,8 +62,8 @@ masterPlotter <- function(input, dynamic.val){
         } else {return()}
     }
     
-    if(input$showgenes & input$organism == 1) geneAnnotation(dynamic.val$region, "human")
-    if(input$showgenes & input$organism == 2) geneAnnotation(dynamic.val$region, "mouse")
+    if(input$showgenes & input$organism == 1) geneAnnotation(dynamic.val$region, "human", input$plotGenes)
+    if(input$showgenes & input$organism == 2) geneAnnotation(dynamic.val$region, "mouse", input$plotGenes)
 }
 
 # one.loopPlot has some specialized features for plotting only 
@@ -195,7 +195,7 @@ bedgraph.trackplot <- function(file, region, ylab, sample){
 }
 
 # geneAnnotation plots the hg19/mm9 gene tracks from the cached genome loci. 
-geneAnnotation <- function(y, organism) {
+geneAnnotation <- function(y, organism, plotGenes) {
     chrom <- as.character(seqnames(y))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(y))))
@@ -208,6 +208,7 @@ geneAnnotation <- function(y, organism) {
     if(organism == "mouse") load("data/GenomeAnnotation/mm9/geneinfo.rda")
     
     geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
+    geneinfo <- geneinfo[geneinfo$gene %in% plotGenes, ]
 
     loplot <- recordPlot()
     if(dim(geneinfo)[1] == 0){
