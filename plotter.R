@@ -11,6 +11,7 @@ masterPlotter <- function(input, dynamic.val){
     j <- 1 #Index of subsetted objects vector
     map_chia_pet.indices <- c() #maps i to order in vector of subsetted objects
     mc <- 1 #max counts
+    one_anchor_samples <- list() #Tracks samples linking with i
     
     #First loop initalizes the ChIA-PET max values
     for(i in input$tracks){
@@ -21,6 +22,13 @@ masterPlotter <- function(input, dynamic.val){
             x <- readRDS(dynamic.val$c.full[[i]])
             sample <- names(dynamic.val$c.list)[i]
             objReg <- removeSelfLoops(subsetRegion(x, dynamic.val$region))
+            
+            #Grab loops with one anchor, in needed
+            if(input$showSingleAnchors){
+                oneAnchor <- subsetRegion(x, dynamic.val$region, nanchors = 1)
+                oneAnchors <- oneAnchor@anchors[findOverlaps(oneAnchor@anchors, dynamic.val$region)@from]
+                one_anchor_samples <- c(one_anchor_samples, oneAnchors)
+            }
             
             #Update Max Counts
             if(max(objReg@counts) > mc) mc <- max(objReg@counts)
@@ -34,6 +42,7 @@ masterPlotter <- function(input, dynamic.val){
             chia_pet_objects <- append(chia_pet_objects, objReg)
             map_chia_pet.indices[j] <- i
             j <- j + 1
+            
         }
     }
     
@@ -41,8 +50,12 @@ masterPlotter <- function(input, dynamic.val){
     for(i in input$tracks){ 
         i <- as.integer(i)
         if (i < 1000000) {
+            
+            oa <- try(one_anchor_samples[[which(map_chia_pet.indices == i)]], silent = TRUE)
+            if("try-error" %in% class(oa)) oa <- NULL
+            
             one.loopPlot(objReg = chia_pet_objects[[which(map_chia_pet.indices == i)]], y = dynamic.val$region,
-                         sample = chia_pet_samples[[as.character(i)]], max_counts = mc)
+                         sample = chia_pet_samples[[as.character(i)]], max_counts = mc, oneAnchor = oa)
         } else if (i < 2000000) { # Track; BigWig
             t <- i - 1000000
             sample <- names(dynamic.val$t.bw.list)[t]
@@ -70,7 +83,7 @@ masterPlotter <- function(input, dynamic.val){
 # one sample's loops in these plots. The object is a loops object
 # without self loops generated from the master function to determine
 # the max_counts
-one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE) {
+one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAnchor = NULL) {
 
     # Grab Regional Coordinates
     chrom <- as.character(seqnames(y))
@@ -105,10 +118,36 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE) {
         strand_2 <- rep(".", n * 1)
         score <- matrix(objReg@counts, ncol = 1)
         bedPE <- data.frame(LA, RA, name, score, strand_1, strand_2, sample)
-        
+
         w <- loopWidth(objReg)
         h <- sqrt(w/max(w))
         lwd <- 5 * (bedPE$score/max_counts)
+        
+        # Add single loops
+        if(!is.null(oneAnchor)){
+            
+            #Make new data frame
+            tdf <- data.frame(oneAnchor)
+            a1df <- data.frame(
+                chr_1 = tdf$seqnames, 
+                start_1 = tdf$start,
+                end_1 = tdf$start,
+                chr_2 = tdf$seqnames,
+                start_2 = tdf$end,
+                end_2 = tdf$end,
+                name = NA,
+                score = max_counts,
+                strand_1 = ".",
+                strand_2 = ".",
+                sample = sample
+            )
+            bedPE <- rbind(bedPE, a1df)
+            
+            #Update vectors
+            cs <- c(cs, rep("forestgreen", dim(a1df)[1]))
+            h <- c(h, rep(0.01, dim(a1df)[1]))
+            lwd <- c(lwd, rep(4, dim(a1df)[1]))
+        }
         
         loplot <- recordPlot()
         plotBedpe(bedPE, chrom, start, end, color = cs, lwd = lwd, 
