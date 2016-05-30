@@ -61,8 +61,9 @@ masterPlotter <- function(input, dynamic.val){
             bedgraph.trackplot(dynamic.val$m.bg.full[[t]], dynamic.val$region, "Methylation", sample = sample)
         } else {return()}
     }
-    if(input$showgenes) humanAnnotation(dynamic.val$region)
-    if(input$showctcf) plotCTCFregions(dynamic.val$region)
+    
+    if(input$showgenes & input$organism == 1) geneAnnotation(dynamic.val$region, "human")
+    if(input$showgenes & input$organism == 2) geneAnnotation(dynamic.val$region, "mouse")
 }
 
 # one.loopPlot has some specialized features for plotting only 
@@ -193,46 +194,34 @@ bedgraph.trackplot <- function(file, region, ylab, sample){
     return(trackplot)
 }
 
-# humanAnnotation plots the human gene tracks from the cached genome loci. 
-humanAnnotation <- function(y) {
+# geneAnnotation plots the hg19/mm9 gene tracks from the cached genome loci. 
+geneAnnotation <- function(y, organism) {
     chrom <- as.character(seqnames(y))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(y))))
     end <- as.integer(end(ranges(range(y))))
+    
+    geneinfo <- data.frame()
     
     # Use cache annotation
-    rda <- paste(system.file("rda", package = "diffloop"), "geneinfo.h.rda", sep = "/")
-    load(rda)
-    geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start - 10000 & geneinfo$stop < end + 10000,]
+    if(organism == "human") load("data/GenomeAnnotation/hg19/geneinfo.rda")
+    if(organism == "mouse") load("data/GenomeAnnotation/mm9/geneinfo.rda")
+    
+    geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
 
     loplot <- recordPlot()
-    pg = plotGenes(geneinfo = geneinfo, chrom = chromchr, chromstart = start, 
-        chromend = end, bheight = 0.1, plotgenetype = "box", 
-        bentline = FALSE, labeloffset = 0.4, fontsize = 1, arrowlength = 0.025, 
-        labeltext = TRUE)
+    if(dim(geneinfo)[1] == 0){
+        plotBedpe(data.frame(), chrom, start, end, color = c("blue"), lwd = 0, 
+                  plottype = "loops", heights = 0, lwdrange = c(0, 0), 
+                  main = "", adj=0)
+    } else {
+        pg <- plotGenes(geneinfo = geneinfo, chrom = chromchr, chromstart = start, 
+            chromend = end, bheight = 0.1, plotgenetype = "box", 
+            bentline = FALSE, labeloffset = 0.4, fontsize = 1, arrowlength = 0.025, 
+            labeltext = TRUE)
+    }
     mtext(paste0("Region: ", chrom, ":", start, "-", end), outer = TRUE, 
         line = 1)
     return(loplot)
 }
 
-# May want to write my own function here eventually.
-plotCTCFregions <- function(y) {
-    chrom <- as.character(seqnames(y))
-    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
-    start <- as.integer(start(ranges(range(y))))
-    end <- as.integer(end(ranges(range(y))))
-    
-    ctcf <- data.frame(read_delim("data/CTCF-regions.bed", delim = "\t"))
-    ctcf.small <- ctcf[findOverlaps(GRanges(ctcf), addchr(y))@from,]
-    
-    loplot <- recordPlot()
-    pg = plotBed(beddata = ctcf.small, chrom = chromchr, chromstart = start, 
-        chromend = end, labeltext = TRUE)
-    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
-    mtext(paste0("Region: ", chrom, ":", start, "-", end), outer = TRUE, 
-        line = 1)
-    mtext("CTCF Sites",side=2,line=2.5,cex=1,font=2)
-
-    return(loplot)
-}

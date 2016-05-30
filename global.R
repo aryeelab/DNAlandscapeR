@@ -126,7 +126,7 @@ if(length(g_m.t.bg.full) != 0){
 
 # From 3,000,001-4,000,000-- Methylation Tracks-- bigwig
 g_m.m.bw.full <- g_m.m.files[as.logical(rowSums(sapply(bigwig, grepl, g_m.m.files)))]
-if(length(g_m.g_m.bw.full) != 0){
+if(length(g_m.m.bw.full) != 0){
     g_m.m.bw.names <- basename(file_path_sans_ext(g_m.m.bw.full))
     g_m.m.bw.list <- as.list(seq(1, length(g_m.m.bw.names), by = 1) + 3000000)
     names(g_m.m.bw.list) <- g_m.m.bw.names

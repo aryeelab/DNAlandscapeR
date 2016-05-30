@@ -235,7 +235,7 @@ function(input, output, session) {
     p1 <- function(){  
         if (is.null(dynamic.val$region)) return()
         if (length(input$tracks) == 0) return()
-        par(mfrow=c(length(input$tracks) + input$showgenes + input$showctcf, 1),
+        par(mfrow=c(length(input$tracks) + input$showgenes, 1),
                 oma = c(0, 0, 1, 0), mar = c(3, 5, 1, 1))
         masterPlotter(input, dynamic.val)
         dynamic.val$updatePlot <- FALSE
