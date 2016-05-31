@@ -1,5 +1,5 @@
 FROM rocker/shiny
-RUN apt-get update && apt-get install -y git=1:2.8.1-1 libxml2-dev=2.9.3+dfsg1-1
+RUN apt-get update && apt-get install -y git=1:2.8.1-1 libxml2-dev=2.9.3+dfsg1-1 libssl-dev=1.0.2h-1
 
 # Install git lfs
 RUN wget https://github.com/github/git-lfs/releases/download/v1.2.0/git-lfs-linux-amd64-1.2.0.tar.gz && \
