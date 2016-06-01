@@ -16,17 +16,11 @@ fluidPage(
         ),
     mainPanel(
         tags$h3('About:'),
-        tags$h6('We designed DNAlandscapeR to 
+        tags$h5('We designed DNAlandscapeR to 
                 provide a visualization of epigenetic data, particularly three-dimensional
                 chromatin structures in a computationally efficient framework. In particular, 
                 we utilize the R/Shiny environment to minimize the loaded data. If you use 
                 DNAlandscapeR in your research, please cite <REFERENCE?>...'),
-        tags$h3('A WORD OF CAUTION-- The DNase data from ENCODE takes a while to load. 
-                It will load though but slower than the other tracks. Be patient when
-                selecting this. I will work to smooth the bigwig to make it faster.'),
-        tags$h3('Descriptions of pre-loaded data:'),
-        dataTableOutput('preloadedDataDescription'),
-        tags$hr(), 
         width = 12
         )
 )),
@@ -85,17 +79,30 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = NULL,
     style = "default")
 )),
 
+tabPanel("Data Descriptions",
+fluidPage(
+    headerPanel(
+        HTML("<h1><b>Preloaded Data Descriptions</b></h1>")
+        ),
+    mainPanel(
+        tags$hr(),
+        dataTableOutput('preloadedDataDescription'),
+        tags$hr(), 
+        width = 12
+        )
+)),
+
 tabPanel("Upload",
 pageWithSidebar(
     headerPanel(
         tags$h1(tags$b('Add local data'))
         ),
     sidebarPanel(
-        radioButtons("organismUpload", HTML("<h5><b>Specify organism of new track:</b></h5>"),
+        radioButtons("organismUpload", HTML("<h5><b>Specify organism:</b></h5>"),
             choices = list("Human" = 1, "Mouse" = 2), 
             selected = 1),
         tags$hr(),
-        fileInput("newTrack", h5(tags$b("Add new track:")), multiple = FALSE, accept = NULL, width = NULL),
+        fileInput("newTrack", h5(tags$b("Add file:")), multiple = FALSE, accept = NULL, width = NULL),
         tags$hr(),
         textInput3("newTrackName", h5(tags$b("Specify track name:"), value = "")),
         tags$hr(),

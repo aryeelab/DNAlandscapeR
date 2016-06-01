@@ -96,9 +96,9 @@ for(k in 1:dim(h.d)[1]){
 ## MOUSE INITIALIZATION ##
 
 # Import locally hosted data file names
-g_m.c.full <- list.files("data/human/loops", full.names = TRUE)
-g_m.t.files <- list.files("data/human/tracks", full.names = TRUE)
-g_m.m.files <- list.files("data/human/methylation", full.names = TRUE)
+g_m.c.full <- list.files("data/mouse/loops", full.names = TRUE)
+g_m.t.files <- list.files("data/mouse/tracks", full.names = TRUE)
+g_m.m.files <- list.files("data/mouse/methylation", full.names = TRUE)
 
 # From 1-1,000,000-- ChIA-PET loops objects
 if(length(g_m.c.full) != 0){
@@ -125,7 +125,8 @@ if(length(g_m.t.bg.full) != 0){
 } else { g_m.t.bg.list <- list(); g_m.t.bg.full <- list() }
 
 # From 3,000,001-4,000,000-- Methylation Tracks-- bigwig
-g_m.m.bw.full <- g_m.m.files[as.logical(rowSums(sapply(bigwig, grepl, g_m.m.files)))]
+#g_m.m.bw.full <- try(g_m.m.files[as.logical(rowSums(sapply(bigwig, grepl, g_m.m.files)))])
+g_m.m.bw.full <- ""
 if(length(g_m.m.bw.full) != 0){
     g_m.m.bw.names <- basename(file_path_sans_ext(g_m.m.bw.full))
     g_m.m.bw.list <- as.list(seq(1, length(g_m.m.bw.names), by = 1) + 3000000)

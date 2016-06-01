@@ -2,26 +2,85 @@
 graphics: yes
 ---
 # **DNAlandscapeR Guide**
-
-Features discussed in this page include:
-
-* Interactive zooming
-* Uploading Local Data
-* Creating .rds for ChIA-PET Visualization
-* Advanced plotting options
-
-
-```{r}
-2 + 2
-```
+#### **Contents:**
+* [Advanced plotting options](#apo)
+* [Interactive zooming](#iz)
+* [Visualizing Local Data](#uld)
+* [Creating .rds for ChIA-PET Visualization](#crL)
+* [FAQ](#faq)
 <hr>
+
+<a name="apo"></a>
+### **Advanced plotting options**
+Discuss each feature here. 
+<hr>
+<a name="iz"></a>
 ### **Interactive Zooming**
+As the **Zoom In** button increases the focuses in on the center part of the currently displayed, we describe how users can zoom on any region currently displayed. For example, consider the landscape of CTCF in 5 cell lines shown below. If a user is interested in further characterizing a particular peak, simply drag the mouse over the region of interest and define a shaded box. <br><br>
 <img src="zoom1.png" width="50%" height="50%" />
-<br><br><br>
-After selecting a region, one can simply double click to zoom over the specified region. The boundaries of the shaded box will define the new x-coordinates in the updated plot. The y-coordinates of the box do not have an effect on the ensuing zoom. 
+<br><br>
+After selecting a region, one can simply double click anywhere on the plot to zoom over the specified region. The boundaries of the shaded box will define the new x-coordinates in the updated plot. The y-coordinates of the box do not have an effect on the ensuing zoom. The plot below shows the shaded region after double-clicked
 <br><br><br>
 <img src="zoom2.png" width="50%" height="50%" /><br><br>
-The plot above shows the zoomed region after double-clicking. 
 <hr>
-### **Uploading Local Data**
-While **DNAlandscapeR** provides a wide variety of epigenetic data for both mouse and human, users may wish to include their own data to visualize in the browser. 
+
+<a name="uld"></a>
+### **Visualizing Local Data**
+While our browser provides a wide variety of epigenetic data for both mouse and human, users may wish to include their own data to visualize in the browser. **DNAlandscapeR** accepts the common data file formats (BedGraph, BigWig) for visualizing methylation, ChIP-Seq, RNA-Seq, and other quantiative regional data in addition to a new data format for ChIA-PET that we discuss [below](#crL) how to generate. The **Upload** tab contains the following input parameters to add local data to **DNAlandscapeR**:
+* Specify organism-- Choose which genome build (human/mouse) to visualize the new data alongside.
+* Add file-- Choose the local file to be uploaded to **DNAlandscapeR**. The selected file will not be imported into the browser until later input options are specified and the **Add** button is pressed. 
+* Specify track name-- The text entry will define the name of the added track both in the plotting and in the dropdown selection.
+* Data type-- Identify the file type (we do not infer the type from upload). ChIP-Seq, RNA-Seq, and other quantiative regional data should be specified as ReadDepth.
+* **Add**-- The local file will hosted in browser alongside the other pre-loaded datasets. A user can confirm the configuration of the local addition in the data frame listed on the main panel of the page. 
+
+<hr>
+<a name="crL"></a>
+### **Creating .rds for ChIA-PET Visualization**
+Here, we walkthrough the creation of a new data format for visualizing DNA loops from ChIA-PET experiments. Specifically, the browser plots S4 `loops` objects that are produced from the R package [diffloop](https://bioconductor.org/packages/release/bioc/html/diffloop.html). As diffloop does not process the raw .fastq reads, we recommend using the [mango](https://github.com/dphansti/mango) preprocessing pipeline. Here, we provide a working example of how the K562_1-POL2 track was generated from the [raw sequencing data](http://www.ncbi.nlm.nih.gov/sra?term=SRX107352).
+<br>
+First, one needs to download the .fastq files, which can achieved by installing the [SRA Toolkit](https://github.com/ncbi/sra-tools/wiki/HowTo:-Binary-Installation). Once this software is installed, the following command will download the paired end read .fastq files--
+```
+fastq-dump --split-files SRR372747
+```
+The following command executes the mango ChIA-PET preprocessing pipeline once all dependencies are installed and each of the four files below are in the local directory. 
+```
+Rscript mango.R --fastq1 SRR372747_1.fastq --fastq2 SRR372747_2.fastq --prefix K562_1-POL2 --argsfile encode.mango.argsfile
+```
+where the specified .argsfile that corresponds to this particular sample follows-- <br>
+`cat encode.mango.argsfile`
+```
+bowtieref         = ~/bowtie_index/hg19/hg19
+bedtoolsgenome    = ~/bedtoolsgenome/human.hg19.genome
+LinkerA           = GGCCGCGATATCGGATCCAAC
+LinkerB           = GGCCGCGATATATGATCCAAC
+chromexclude      = chrM,chrY
+verboseoutput     = FALSE
+reportallpairs    = TRUE
+minPETS           = 1
+```
+On a high-performance cluster, this pre-processing step should take ~1 hour to complete. Several files are generated alongside the mango output, but we'll use the K562_1-POL2.interactions.all.mango, which should look something like this-- <br>
+
+`head -3 K562_1-POL2.interactions.all.mango`
+```
+chr1	110438084	110439363	chr1	110443836	110445275	1	1
+chr1	110438084	110439363	chr1	110526778	110528641	1	1
+chr1	110443836	110445275	chr1	110452776	110454236	2	1
+```
+Add diffloop script and annotation files + awk commands
+<hr>
+<a name="faq"></a>
+### **FAQ**
+#### **What are the build of the genomes in DNAlandscapeR?**
+The current build of **DNAlandscapeR** is hg19 for human and mm9 for mouse. All epigenetic tracks and gene annotations pre-loaded in the browser utilize these coordinates.<br><br>
+
+#### **How do I access the data pre-loaded into the browser?**
+All datasets can be downloaded from our [open-source repository](https://github.com/aryeelab/DNAlandscapeR).<br><br>
+
+#### **I want to use a plot similar to what I made in DNAlandscapeR for a paper/presentation/etc., but I need greater control over the plot characteristics. What do I do?**
+Our browser makes extensive use of the [Sushi](https://www.bioconductor.org/packages/release/bioc/html/Sushi.html) package in rendering images. We recommend that users use our source code and data in a local R environment alongside this library to generate more specialized plots. <br><br>
+
+#### **What do the colors mean in the loop plots?**
+Consistent with [diffloop](https://bioconductor.org/packages/release/bioc/html/diffloop.html), blue loops are 'CTCF loops', red loops are 'Enhancer-Promoter loops', and black loops have no special annotation. Check out the [walkthrough](#crL) for and the diffloop vignette for a better description of how these loops are colored. We note that black loops could still have biological annotation but were not identifed as using the current data processing. The Data Descriptions tab contains details on how individual samples were annotated and processed.<br><br>
+
+#### **I'm tired of uploading my local data to visualize in the browser. Can I keep it in DNAlandscapeR permanently?**
+Sure! We ask that you realize that our browser is open source, so your data will thus be accessible to other users as well. If you want to add a track to **DNAlandscapeR**, either submit a [pull request](https://github.com/aryeelab/DNAlandscapeR/compare?expand=1) that adds the file to the appropriate data directory and adds sufficient text to the sample description or contact <A HREF="mailto:caleblareau@g.harvard.edu">Caleb</A> to arrange for the inclusion of more data.

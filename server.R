@@ -51,7 +51,7 @@ function(input, output, session) {
         h.m.bg.list = g_h.m.bg.list,
         
         # Initialize mouse values
-        h.f.list    = g_m.f.list,
+        m.f.list    = g_m.f.list,
         m.c.full    = g_m.c.full,
         m.t.bw.full = g_m.t.bw.full,
         m.t.bg.full = g_m.t.bg.full,
