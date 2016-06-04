@@ -10,7 +10,7 @@ options(warn=-1)
 function(input, output, session) {
     
     # Set up dataframe
-    dDF <- read.table("data/data-description.txt", header = TRUE, sep = "\t")
+    dDF <- read.table("http://textuploader.com/5buvy/raw", header = TRUE, sep = "\t")
     output$preloadedDataDescription <- renderDataTable({dDF})
     output$regiontotal <- renderText("")
     
@@ -19,7 +19,7 @@ function(input, output, session) {
     #---------------------------------#
     
     dynamic.val <- reactiveValues(
-        region = NULL,
+        region = GRanges(seqnames=c(default_chr),ranges=IRanges(start=c(default_start), end=c(default_end))),
         alldat = NULL,
         acceptedGenes = NULL, 
         

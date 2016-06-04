@@ -16,6 +16,12 @@ library(bumphunter)
 library(shinyFiles)
 library(markdown)
 library(knitr)
+library(gsubfn)    
+library(RCurl)
+
+default_chr <- "9"
+default_start <- 21912689
+default_end <- 22216233
 
 uploadchoices <- list("Loops/.rds" = 1,
                       "ReadDepth/.bigWig" = 2,
@@ -30,7 +36,13 @@ uploadchoices <- list("Loops/.rds" = 1,
 # t. and m. (in the third position) are track and methylation files; f. is full (all)
 # bw. and bw. are bigwig and bedgraph files
 # full is the path to the file
-#
+
+
+# Initialize data from Amazon
+amazon <- "http://s3.amazonaws.com/dnalandscaper"
+xmlDat <- getURL(amazon, ftp.use.epsv = FALSE, dirlistonly = TRUE)
+amazon.filenames <- gsubfn::strapplyc(xmlDat, "<Contents><Key>(.*?)</Key>", simplify = c)
+amazon.filenames <- paste(amazon, amazon.filenames, sep = "/")
 
 
 ## HUMAN INITIALIZATION ##
@@ -39,6 +51,10 @@ uploadchoices <- list("Loops/.rds" = 1,
 g_h.c.full <- list.files("data/human/loops", full.names = TRUE)
 g_h.t.files <- list.files("data/human/tracks", full.names = TRUE)
 g_h.m.files <- list.files("data/human/methylation", full.names = TRUE)
+
+# Append amazon data
+g_h.t.files <- c(g_h.t.files, amazon.filenames[grepl("data/human/tracks/.{1,}", amazon.filenames)])
+g_h.m.files <- c(g_h.m.files, amazon.filenames[grepl("data/human/methylation/.{1,}", amazon.filenames)])
 
 # From 1-1,000,000-- ChIA-PET loops objects
 if(length(g_h.c.full) != 0){
@@ -99,6 +115,11 @@ for(k in 1:dim(h.d)[1]){
 g_m.c.full <- list.files("data/mouse/loops", full.names = TRUE)
 g_m.t.files <- list.files("data/mouse/tracks", full.names = TRUE)
 g_m.m.files <- list.files("data/mouse/methylation", full.names = TRUE)
+
+# Append amazon data
+g_m.t.files <- c(g_m.t.files, amazon.filenames[grepl("data/mouse/tracks/.{1,}", amazon.filenames)])
+g_m.m.files <- c(g_m.m.files, amazon.filenames[grepl("data/mouse/methylation/.{1,}", amazon.filenames)])
+
 
 # From 1-1,000,000-- ChIA-PET loops objects
 if(length(g_m.c.full) != 0){

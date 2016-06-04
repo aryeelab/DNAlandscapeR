@@ -170,6 +170,7 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
 
 # bigwig.bumpPlot is used for methylation
 bigwig.bumpPlot <- function(file, region, shade = TRUE, sample){
+    print(file)
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
     region.bedgraph <- region.bedgraph[,c(-4,-5)]

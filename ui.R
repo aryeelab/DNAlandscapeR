@@ -1,4 +1,5 @@
 # DNAlandscapeR UI # 
+source("global.R")
 
 #Custom input style
 textInput3 <- function (inputId, label, value = "", ...){
@@ -31,9 +32,9 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
   sidebarPanel(
     uiOutput("trackoptions"), 
     tags$hr(),
-    textInput3("chr", HTML("<h5><b>Chr&nbsp;&nbsp;&nbsp;&nbsp;</b></h5>"), value = "9"),
-    textInput3("start", HTML("<h5><b>Start&nbsp;</b></h5>"), value = "21912689"),
-    textInput3("stop", HTML("<h5><b>Stop&nbsp;&nbsp;</b></h5>"), value = "22216233"),
+    textInput3("chr", HTML("<h5><b>Chr&nbsp;&nbsp;&nbsp;&nbsp;</b></h5>"), value = default_chr),
+    textInput3("start", HTML("<h5><b>Start&nbsp;</b></h5>"), value = default_start),
+    textInput3("stop", HTML("<h5><b>Stop&nbsp;&nbsp;</b></h5>"), value = default_end),
     actionButton("plot.region", "Plot Region", style='padding:10px; font-size:80%'), 
     tags$hr(),
     actionButton("zoom.in", "Zoom In", style='padding:10px; font-size:80%'),
@@ -47,7 +48,7 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
     actionButton("right.big", HTML("&nbsp; >> &nbsp;"), style='padding:10px; font-size:80%'),
     tags$hr(),
     fileInput("skipRegions", HTML("<h4><b>Upload Regions .bed File</b></h4>"), multiple = FALSE, accept = NULL, width = NULL),
-    conditionalPanel(condition = "input.skipRegions != NULL", textOutput("regionDescription")),
+    #conditionalPanel(condition = "input.skipRegions != NULL", textOutput("regionDescription")),
     actionButton("left.skip", "<<<", style='padding:10px; font-size:100%'),
     actionButton("right.skip", ">>>", style='padding:10px; font-size:100%'),
     tags$hr()
