@@ -339,6 +339,12 @@ Version: 2.1.0
 Hash: 50e297b0191179c39c7dcae0eff72b51
 Requires: MASS, digest, gtable, plyr, reshape2, scales
 
+Package: gsubfn
+Source: CRAN
+Version: 0.6-6
+Hash: cc1999b8ee76bbf10c968ac973290421
+Requires: proto
+
 Package: gtable
 Source: CRAN
 Version: 0.2.0
@@ -500,6 +506,11 @@ Package: preprocessCore
 Source: Bioconductor
 Version: 1.34.0
 Hash: 0b32d64e412e5521ee7dc18d1331c4b6
+
+Package: proto
+Source: CRAN
+Version: 0.3-10
+Hash: 05d7ad64db29a39d1b02c4b9f1f4edb2
 
 Package: quadprog
 Source: CRAN
