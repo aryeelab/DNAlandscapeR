@@ -19,7 +19,9 @@ masterPlotter <- function(input, dynamic.val){
         if (i < 1000000){ # ChIA-PET from RDS
             
             #Import object and subset
-            x <- readRDS(dynamic.val$c.full[[i]])
+            file.conn <- dynamic.val$c.full[[i]]
+            if(grepl("amazonaws", file.conn)){ x <- readRDS(gzcon(url(file.conn)))
+            } else { x <- readRDS(file.conn) }
             sample <- names(dynamic.val$c.list)[i]
             objReg <- removeSelfLoops(subsetRegion(x, dynamic.val$region))
             
@@ -50,16 +52,14 @@ masterPlotter <- function(input, dynamic.val){
     for(i in input$tracks){ 
         i <- as.integer(i)
         if (i < 1000000) {
-            
             oa <- try(one_anchor_samples[[which(map_chia_pet.indices == i)]], silent = TRUE)
             if("try-error" %in% class(oa)) oa <- NULL
-            
             one.loopPlot(objReg = chia_pet_objects[[which(map_chia_pet.indices == i)]], y = dynamic.val$region,
                          sample = chia_pet_samples[[as.character(i)]], max_counts = mc, oneAnchor = oa)
         } else if (i < 2000000) { # Track; BigWig
             t <- i - 1000000
             sample <- names(dynamic.val$t.bw.list)[t]
-            bigwig.trackplot(dynamic.val$t.bw.full[[t]], dynamic.val$region, "Depth", sample = sample)
+            bigwig.trackplot(dynamic.val$t.bw.full[[t]], dynamic.val$region, "Depth", sample = sample, log2 = input$log2BW)
         } else if (i < 3000000){ # Track; Bedgraph
             t <- i - 2000000
             sample <- names(dynamic.val$t.bg.list)[t]
@@ -70,13 +70,17 @@ masterPlotter <- function(input, dynamic.val){
             bigwig.bumpPlot(dynamic.val$m.bw.full[[t]], dynamic.val$region, sample = sample)
         } else if (i < 5000000){ # Methyl; Bedgraph
             t <- i - 4000000
-            sample <- names(dynamic.val$t.bg.list)[t]
+            sample <- names(dynamic.val$m.bg.list)[t]
             bedgraph.trackplot(dynamic.val$m.bg.full[[t]], dynamic.val$region, "Methylation", sample = sample)
+        } else if (i < 6000000){ # HiC Plot
+            t <- i - 5000000
+            sample <- names(dynamic.val$i.list)[t]
+            hic.plot(dynamic.val$i.full[[t]], dynamic.val$region, sample = sample)
         } else {return()}
     }
-    
-    if(input$showgenes & input$organism == 1) geneAnnotation(dynamic.val$region, "human", input$plotGenes)
-    if(input$showgenes & input$organism == 2) geneAnnotation(dynamic.val$region, "mouse", input$plotGenes)
+    e <- ifelse(input$showgenes == 2, TRUE, FALSE)
+    if(input$showgenes > 0 & input$organism == 1) geneAnnotation(dynamic.val$region, "human", input$plotGenes, exons = e)
+    if(input$showgenes > 0 & input$organism == 2) geneAnnotation(dynamic.val$region, "mouse", input$plotGenes, exons = e)
 }
 
 # one.loopPlot has some specialized features for plotting only 
@@ -100,6 +104,8 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
         if(!is.null(res$loop.type) & colorLoops){
             cs <- res$loop.type
             cs <- gsub("e-p", "red", cs)
+            cs <- gsub("p-p", "orange", cs)
+            cs <- gsub("e-e", "mediumpurple1", cs)
             cs <- gsub("ctcf", "blue", cs)
             cs <- gsub("none", "black", cs)
         } else {
@@ -124,8 +130,8 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
         lwd <- 5 * (bedPE$score/max_counts)
         
         # Add single loops
-        if(!is.null(oneAnchor)){
-            
+        if(!is.null(oneAnchor) ){
+          if(dim(data.frame(oneAnchor))[1] != 0){
             #Make new data frame
             tdf <- data.frame(oneAnchor)
             a1df <- data.frame(
@@ -147,6 +153,7 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
             cs <- c(cs, rep("forestgreen", dim(a1df)[1]))
             h <- c(h, rep(0.01, dim(a1df)[1]))
             lwd <- c(lwd, rep(4, dim(a1df)[1]))
+          }
         }
         
         loplot <- recordPlot()
@@ -170,7 +177,6 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
 
 # bigwig.bumpPlot is used for methylation
 bigwig.bumpPlot <- function(file, region, shade = TRUE, sample){
-    print(file)
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
     region.bedgraph <- region.bedgraph[,c(-4,-5)]
@@ -185,7 +191,7 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE, sample){
     y <- region.bedgraph[,4]
     cluster_id <- clusterMaker(chr=chrom, pos=pos, maxGap = 100)
     smooth <- locfitByCluster(x=pos, y=y, cluster=cluster_id, bpSpan=50)
-    plot(pos, smooth$fitted, type="l", xaxt='n', ann=FALSE, bty = "n",xaxs="i",yaxs="i")
+    plot(pos, smooth$fitted, type="l", xaxt='n',bty = "n",xaxs="i",yaxs="i",main=sample,adj=0,ylab="")
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
         n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     # mtext(sample,side=2,line=2.5,cex=1,font=2)
@@ -194,10 +200,11 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE, sample){
 }
 
 # bigwig.trackplot is used for most epigenetic peaks
-bigwig.trackplot <- function(file, region, ylab, sample){
+bigwig.trackplot <- function(file, region, ylab, sample, log2){
     region.bed <- import.bw(file, which = addchr(region))
     region.bedgraph <- data.frame(region.bed)
     region.bedgraph <- region.bedgraph[,c(-4,-5)]
+    if(log2) region.bedgraph$score <- log2(region.bedgraph$score)
     
     chrom <- as.character(seqnames(region))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
@@ -225,17 +232,72 @@ bedgraph.trackplot <- function(file, region, ylab, sample){
     end <- as.integer(end(ranges(range(region))))
 
     trackplot <- recordPlot()
-    plotBedgraph(region.bedgraph, chromchr, start, end, 
-                 main = sample, adj=0)
-    #mtext(ylab,side=2,line=2.5,cex=1,font=2)
+    plotBedgraph(region.bedgraph, chromchr, start, end, main = sample, adj=0)
     axis(side=2,las=2,tcl=.2)
     labelgenome(chromchr, start, end, side = 1, scipen = 20, 
                 n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     return(trackplot)
 }
 
+hic.plot <- function(file, region, sample){
+    if(grepl("amazonaws", file)){ x <- readRDS(gzcon(url(file)))
+    } else { x <- readRDS(file) }
+    
+    chrom <- as.character(seqnames(region))
+    chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
+    start <- as.integer(start(ranges(range(region))))
+    end <- as.integer(end(ranges(range(region))))
+    
+    hicdata <- x[[chromchr]]
+    
+    # Hacked Sushi HiC Plot Function
+    palette <- SushiColors(6)
+    rows <- as.numeric(rownames(hicdata))
+    cols <- as.numeric(colnames(hicdata))
+    
+    hicregion <- hicdata[which(rows >= start & rows <= end), which(cols >= start & cols <= end)]
+    hicregion[upper.tri(hicregion)] <- NA
+    
+    # determine number of bins
+    nbins <- nrow(hicregion)
+    stepsize <- abs(start - end)/(2 * nbins)
+    max_z <- max(hicregion, na.rm = TRUE)
+    min_z <- min(hicregion, na.rm = TRUE)    
+        
+    # map to colors
+    breaks <- seq(min(hicregion, na.rm = TRUE), max(hicregion, na.rm = TRUE), length.out = 100)
+    cols <- palette(length(breaks) + 1)
+    hicmcol <- matrix(as.character(cut(hicregion, c(-Inf, breaks, Inf), labels = cols)), nrow = nrow(hicregion))
+
+    # make an empty plot
+    plot(1, 1, xlim = c(start, end), ylim = c(0, 20), type = "n", xaxs = "i", yaxs = "i",
+         bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = sample, adj = 0)
+
+    # fill plot
+    for (rownum in (1:nrow(hicregion))) {
+        y = -0.5
+        x = start + (rownum * 2 * stepsize) - (stepsize * 2)
+        for (colnum in (rownum:ncol(hicregion))) {
+            x = x + stepsize
+            y = y + 0.5
+            if(colnum != rownum){ # Square
+                xs = c(x - stepsize, x, x + stepsize, x, x - stepsize)
+                ys = c(y, y + 0.5, y, y - 0.5, y)
+            } else { #triangle
+                xs = c(x - stepsize, x, x + stepsize)
+                ys = c(y, y + 0.5, y)
+            }
+            polygon(xs, ys, border = NA, col = hicmcol[colnum, rownum])
+        }
+    }
+    labelgenome(chromchr, start, end, n=4, scale="Mb",edgeblankfraction=0.20)
+    addlegend(c(min_z, max_z), palette = palette, title="", side="right",
+        bottominset=0.4, topinset=0, xoffset=-.035, labelside="left",
+        width=0.025, title.offset=0.035)
+}
+
 # geneAnnotation plots the hg19/mm9 gene tracks from the cached genome loci. 
-geneAnnotation <- function(y, organism, plotGenes) {
+geneAnnotation <- function(y, organism, plotGenes, exons = FALSE) {
     chrom <- as.character(seqnames(y))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(y))))
@@ -244,8 +306,10 @@ geneAnnotation <- function(y, organism, plotGenes) {
     geneinfo <- data.frame()
     
     # Use cache annotation
-    if(organism == "human") load("data/GenomeAnnotation/hg19/geneinfo.rda")
-    if(organism == "mouse") load("data/GenomeAnnotation/mm9/geneinfo.rda")
+    if(organism == "human" & exons) load("data/GenomeAnnotation/hg19/geneinfo-exon.rda")
+    if(organism == "mouse" & exons) load("data/GenomeAnnotation/mm9/geneinfo-exon.rda")
+    if(organism == "human" & !exons) load("data/GenomeAnnotation/hg19/geneinfo.rda")
+    if(organism == "mouse" & !exons) load("data/GenomeAnnotation/mm9/geneinfo.rda")
     
     geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
     geneinfo <- geneinfo[geneinfo$gene %in% plotGenes, ]
@@ -261,8 +325,7 @@ geneAnnotation <- function(y, organism, plotGenes) {
             bentline = FALSE, labeloffset = 0.4, fontsize = 1, arrowlength = 0.025, 
             labeltext = TRUE)
     }
-    mtext(paste0("Region: ", chrom, ":", start, "-", end), outer = TRUE, 
-        line = 1)
+    #mtext(paste0("Region: ", chrom, ":", start, "-", end), outer = TRUE, line = 1)
     return(loplot)
 }
 

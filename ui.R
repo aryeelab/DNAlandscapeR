@@ -16,7 +16,7 @@ fluidPage(
              <h3><b><P ALIGN=Center>Aryee Lab</b></h3>")
         ),
     mainPanel(
-        tags$h3('About:'),
+        HTML("<h3><b>About</b></h3>"),
         tags$h5('We designed DNAlandscapeR to 
                 provide a visualization of epigenetic data, particularly three-dimensional
                 chromatin structures in a computationally efficient framework. In particular, 
@@ -35,6 +35,7 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
     textInput3("chr", HTML("<h5><b>Chr&nbsp;&nbsp;&nbsp;&nbsp;</b></h5>"), value = default_chr),
     textInput3("start", HTML("<h5><b>Start&nbsp;</b></h5>"), value = default_start),
     textInput3("stop", HTML("<h5><b>Stop&nbsp;&nbsp;</b></h5>"), value = default_end),
+    tags$br(),
     actionButton("plot.region", "Plot Region", style='padding:10px; font-size:80%'), 
     tags$hr(),
     actionButton("zoom.in", "Zoom In", style='padding:10px; font-size:80%'),
@@ -48,27 +49,28 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
     actionButton("right.big", HTML("&nbsp; >> &nbsp;"), style='padding:10px; font-size:80%'),
     tags$hr(),
     fileInput("skipRegions", HTML("<h4><b>Upload Regions .bed File</b></h4>"), multiple = FALSE, accept = NULL, width = NULL),
-    #conditionalPanel(condition = "input.skipRegions != NULL", textOutput("regionDescription")),
     actionButton("left.skip", "<<<", style='padding:10px; font-size:100%'),
     actionButton("right.skip", ">>>", style='padding:10px; font-size:100%'),
-    tags$hr()
+    tags$hr(),
+    selectInput("showgenes", label=HTML("<h4><b>Genome Annotation</b></h4>"),
+                choices = list("Gene Bodies" = 1, "Detailed Gene Annotation" = 2, "None" = 0), selected = 1)
   ), 
 
-  mainPanel(fluidRow(
-    column(12, textOutput("regiontotal"), align = 'center')),
+  mainPanel(
+    #fluidRow(column(12, textOutput("regiontotal"), align = 'center')),
     plotOutput("plot", 
     dblclick = "plot_dblclick",
     brush = "plot_brush")
     ),
   fluid = TRUE
 ),
-bsCollapse(id = "collapseAdvancedPlotOptions", open = NULL,
+bsCollapse(id = "collapseAdvancedPlotOptions", open = "Panel1",
     bsCollapsePanel(title = HTML("<h4><b>Advanced options</b></h4>"), value = "Panel1",
     fluidRow(
        column(4, radioButtons("organism", HTML("<h4><b>Specify Organism</b></h4>"),
                     choices = list("Human" = 1, "Mouse" = 2), 
                     selected = 1),
-              checkboxInput("showgenes", "Show Gene Annotation", value = FALSE, width = NULL),
+              checkboxInput("log2BW", "log2 Transform .bigwigs", value = FALSE, width = NULL),
               checkboxInput("showSingleAnchors", "Show Single Anchors", value = FALSE, width = NULL)),
        column(4, textInput("Gene", HTML("<h4><b>Plot Gene Region </b></h4>"), value = "AGO3"),
                  actionButton("plot.gene", "Plot Gene", style='padding:10px; font-size:80%')),

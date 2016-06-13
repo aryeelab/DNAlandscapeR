@@ -30,11 +30,13 @@ function(input, output, session) {
         t.bg.full = g_h.t.bg.full,
         m.bw.full = g_h.m.bw.full,
         m.bg.full = g_h.m.bg.full, 
+        i.full    = g_h.i.full,
         c.list    = g_h.c.list,
         t.bw.list = g_h.t.bw.list,
         t.bg.list = g_h.t.bg.list,
         m.bw.list = g_h.m.bw.list,
         m.bg.list = g_h.m.bg.list,
+        i.list    = g_h.i.list,
         organism = "human",
         
         # Initialize human values
@@ -43,12 +45,14 @@ function(input, output, session) {
         h.t.bw.full = g_h.t.bw.full,
         h.t.bg.full = g_h.t.bg.full,
         h.m.bw.full = g_h.m.bw.full,
-        h.m.bg.full = g_h.m.bg.full, 
+        h.m.bg.full = g_h.m.bg.full,
+        h.i.full    = g_h.i.full,
         h.c.list    = g_h.c.list,
         h.t.bw.list = g_h.t.bw.list,
         h.t.bg.list = g_h.t.bg.list,
         h.m.bw.list = g_h.m.bw.list,
         h.m.bg.list = g_h.m.bg.list,
+        h.i.list    = g_h.i.list,
         
         # Initialize mouse values
         m.f.list    = g_m.f.list,
@@ -56,12 +60,14 @@ function(input, output, session) {
         m.t.bw.full = g_m.t.bw.full,
         m.t.bg.full = g_m.t.bg.full,
         m.m.bw.full = g_m.m.bw.full,
-        m.m.bg.full = g_m.m.bg.full, 
+        m.m.bg.full = g_m.m.bg.full,
+        m.i.full    = g_m.i.full,
         m.c.list    = g_m.c.list,
         m.t.bw.list = g_m.t.bw.list,
         m.t.bg.list = g_m.t.bg.list,
         m.m.bw.list = g_m.m.bw.list,
         m.m.bg.list = g_m.m.bg.list,
+        m.i.list    = g_m.i.list,
         
         regionRow = 0,
         regions.df = NULL,
@@ -113,7 +119,7 @@ function(input, output, session) {
     
     # Gets all gene names for the current region
     updateDisplayedGenes <- function(){
-        if(input$showgenes){
+        if(input$showgenes == 1){
             chrom <- as.character(seqnames(dynamic.val$region))
             chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
             start <- as.integer(start(ranges(range(dynamic.val$region))))
@@ -122,6 +128,18 @@ function(input, output, session) {
             geneinfo <- data.frame()
             if(input$organism == 1) load("data/GenomeAnnotation/hg19/geneinfo.rda")
             if(input$organism == 2) load("data/GenomeAnnotation/mm9/geneinfo.rda")
+            
+            geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
+            dynamic.val$acceptedGenes <- unique(geneinfo$gene)
+        } else if(input$showgenes == 2){
+                        chrom <- as.character(seqnames(dynamic.val$region))
+            chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
+            start <- as.integer(start(ranges(range(dynamic.val$region))))
+            end <- as.integer(end(ranges(range(dynamic.val$region))))
+            
+            geneinfo <- data.frame()
+            if(input$organism == 1) load("data/GenomeAnnotation/hg19/geneinfo-exon.rda")
+            if(input$organism == 2) load("data/GenomeAnnotation/mm9/geneinfo-exon.rda")
             
             geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
             dynamic.val$acceptedGenes <- unique(geneinfo$gene)
@@ -142,10 +160,11 @@ function(input, output, session) {
     })
   
     observeEvent(input$plot.gene, {
-        rda<-paste(system.file('rda',package='diffloop'),'human.genes.rda',sep='/')
-        load(rda)
-        t <- human.genes[mcols(human.genes)$id == as.character(input$Gene) ]
-        dynamic.val$region <- padGRanges(t, pad = as.integer(width(t)/2))
+        if(input$organism == 1) load("data/GenomeAnnotation/hg19/geneinfo.rda")
+        if(input$organism == 2) load("data/GenomeAnnotation/mm9/geneinfo.rda")
+        t <- geneinfo[toupper(geneinfo$gene) == toupper(as.character(input$Gene))]
+        t.gr <- GRanges(t[c(1,2,3,4)])
+        dynamic.val$region <- padGRanges(t.gr, pad = as.integer(width(t.gr)/2))
         updateRegionVals()
         makePlot()
     })  
@@ -216,16 +235,6 @@ function(input, output, session) {
             makePlot()
         } else { return() }
     })
-
-    observeEvent(input$down, {
-        output$plotsave <- downloadHandler(
-            filename = paste('DNAlandscapeR-', Sys.Date(), '-plot.pdf', sep=''),
-            content = function(file){
-                pdf(file = file, width=8.5, height=11)
-                output$plot
-                dev.off()
-            })
-    })
     
     observeEvent(input$skipRegions, {
          if(is.null(input$skipRegions)){
@@ -265,7 +274,7 @@ function(input, output, session) {
     })
     
     observeEvent(input$showgenes, {
-        if(!input$showgenes){
+        if(input$showgenes == 0){
              dynamic.val$acceptedGenes <- NULL
         } else {
              updateDisplayedGenes()
@@ -281,8 +290,9 @@ function(input, output, session) {
         if (isolate(is.null(dynamic.val$region))) return()
         if (length(isolate(input$tracks)) == 0) return()
         updateDisplayedGenes()
-        par(mfrow=c(length(isolate(input$tracks)) + isolate(input$showgenes), 1),
-                oma = c(0, 0, 1, 0), mar = c(3, 5, 1, 1))
+        sg <- ifelse(isolate(input$showgenes) == 0, 0, 1)
+        par(mfrow=c(length(isolate(input$tracks)) + sg, 1),
+                oma = c(0, 1, 3, 0), mar = c(3, 5, 1, 1))
         masterPlotter(isolate(input), isolate(dynamic.val))
     }
     
@@ -296,7 +306,7 @@ function(input, output, session) {
     )
     
     makePlot <- function(){ 
-        output$plot <- renderPlot({isolate(p1())}, height = 700)
+        output$plot <- renderPlot({isolate(p1())}, height = 890)
     }
     
     output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Select Tracks")),

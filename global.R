@@ -33,6 +33,7 @@ uploadchoices <- list("Loops/.rds" = 1,
 # g_ is a global variable
 # h. is human; m. is mouse
 # c. is ChIA-PET data
+# i. is HiC data
 # t. and m. (in the third position) are track and methylation files; f. is full (all)
 # bw. and bw. are bigwig and bedgraph files
 # full is the path to the file
@@ -51,10 +52,14 @@ amazon.filenames <- paste(amazon, amazon.filenames, sep = "/")
 g_h.c.full <- list.files("data/human/loops", full.names = TRUE)
 g_h.t.files <- list.files("data/human/tracks", full.names = TRUE)
 g_h.m.files <- list.files("data/human/methylation", full.names = TRUE)
+g_h.i.full <- list.files("data/human/hic", full.names = TRUE)
 
 # Append amazon data
+g_h.c.full <- c(g_h.t.files, amazon.filenames[grepl("data/human/loops/.{1,}", amazon.filenames)])
 g_h.t.files <- c(g_h.t.files, amazon.filenames[grepl("data/human/tracks/.{1,}", amazon.filenames)])
 g_h.m.files <- c(g_h.m.files, amazon.filenames[grepl("data/human/methylation/.{1,}", amazon.filenames)])
+g_h.i.full <- c(g_h.i.full,  amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)])
+
 
 # From 1-1,000,000-- ChIA-PET loops objects
 if(length(g_h.c.full) != 0){
@@ -96,7 +101,14 @@ if(length(g_h.m.bg.full) != 0){
     names(g_h.m.bg.list) <- g_h.m.bg.names
 } else { g_h.m.bg.list <- list(); g_h.m.bg.full <- list()}
 
-g_h.f.list <- append(g_h.c.list, append(append(g_h.t.bw.list, g_h.t.bg.list), append(g_h.m.bw.list, g_h.m.bg.list)))
+# From 5,000,001-6,000,000-- HiC Tracks-- .rds
+if(length(g_h.i.full) != 0){
+    g_h.i.names <- basename(file_path_sans_ext(g_h.i.full))
+    g_h.i.list <- as.list(seq(1, length(g_h.i.names), by = 1) + 5000000)
+    names(g_h.i.list) <- g_h.i.names
+} else {g_h.i.list <- list()}
+
+g_h.f.list <- append(g_h.c.list, append(append(g_h.t.bw.list, g_h.t.bg.list), append(append(g_h.m.bw.list, g_h.m.bg.list), g_h.i.list)))
 
 # Now order it
 h.d <- data.frame(unlist(g_h.f.list))
@@ -109,16 +121,23 @@ for(k in 1:dim(h.d)[1]){
     g_h.f.list <- append(g_h.f.list, x)
 }
 
+
+
+
 ## MOUSE INITIALIZATION ##
+#Currently does not support HiC
 
 # Import locally hosted data file names
 g_m.c.full <- list.files("data/mouse/loops", full.names = TRUE)
 g_m.t.files <- list.files("data/mouse/tracks", full.names = TRUE)
 g_m.m.files <- list.files("data/mouse/methylation", full.names = TRUE)
+g_m.i.full  <- list.files("data/mouse/hic", full.names = TRUE)
 
 # Append amazon data
+g_m.c.full <- c(g_m.c.full, amazon.filenames[grepl("data/mouse/loops/.{1,}", amazon.filenames)])
 g_m.t.files <- c(g_m.t.files, amazon.filenames[grepl("data/mouse/tracks/.{1,}", amazon.filenames)])
 g_m.m.files <- c(g_m.m.files, amazon.filenames[grepl("data/mouse/methylation/.{1,}", amazon.filenames)])
+g_m.i.full <- c(g_m.i.full, amazon.filenames[grepl("data/mouse/hic/.{1,}", amazon.filenames)])
 
 
 # From 1-1,000,000-- ChIA-PET loops objects
@@ -146,8 +165,10 @@ if(length(g_m.t.bg.full) != 0){
 } else { g_m.t.bg.list <- list(); g_m.t.bg.full <- list() }
 
 # From 3,000,001-4,000,000-- Methylation Tracks-- bigwig
-#g_m.m.bw.full <- try(g_m.m.files[as.logical(rowSums(sapply(bigwig, grepl, g_m.m.files)))])
-g_m.m.bw.full <- ""
+# workaround for no methylation bigwigs
+g_m.m.bw.full <- list()
+temp <- sapply(bigwig, grepl, g_m.m.files)
+if(!is.null(dim(temp))) g_m.m.bw.full <- try(g_m.m.files[as.logical(rowSums(temp))])
 if(length(g_m.m.bw.full) != 0){
     g_m.m.bw.names <- basename(file_path_sans_ext(g_m.m.bw.full))
     g_m.m.bw.list <- as.list(seq(1, length(g_m.m.bw.names), by = 1) + 3000000)
@@ -162,7 +183,15 @@ if(length(g_m.m.bg.full) != 0){
     names(g_m.m.bg.list) <- g_m.m.bg.names
 } else { g_m.m.bg.list <- list(); g_m.m.bg.full <- list()}
 
-g_m.f.list <- append(g_m.c.list, append(append(g_m.t.bw.list, g_m.t.bg.list), append(g_m.m.bw.list, g_m.m.bg.list)))
+# From 5,000,001-6,000,000-- HiC Tracks-- .rds
+if(length(g_m.i.full) != 0){
+    g_m.i.names <- basename(file_path_sans_ext(g_m.i.full))
+    g_m.i.list <- as.list(seq(1, length(g_m.i.names), by = 1) + 5000000)
+    names(g_m.i.list) <- g_h.i.names
+} else {g_m.i.list <- list()}
+
+
+g_m.f.list <- append(g_m.c.list, append(append(g_m.t.bw.list, g_m.t.bg.list), append(append(g_m.m.bw.list, g_m.m.bg.list), g_m.i.list)))
 
 # Now order it
 m.d <- data.frame(unlist(g_m.f.list))
@@ -174,3 +203,4 @@ for(k in 1:dim(m.d)[1]){
     names(x) <- (m.d[k,2])
     g_m.f.list <- append(g_m.f.list, x)
 }
+
