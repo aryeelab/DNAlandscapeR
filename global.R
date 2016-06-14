@@ -27,7 +27,8 @@ uploadchoices <- list("Loops/.rds" = 1,
                       "ReadDepth/.bigWig" = 2,
                       "ReadDepth/.bedgraph" = 3,
                       "Methylation/.bigWig" = 4,
-                      "Methylation/.bedgraph" = 5)
+                      "Methylation/.bedgraph" = 5,
+                      "HiC (Individual Chromosome)/.rds" = 6)
 
 # Variable names are coded as follows
 # g_ is a global variable
@@ -58,7 +59,8 @@ g_h.i.full <- list.files("data/human/hic", full.names = TRUE)
 g_h.c.full <- c(g_h.t.files, amazon.filenames[grepl("data/human/loops/.{1,}", amazon.filenames)])
 g_h.t.files <- c(g_h.t.files, amazon.filenames[grepl("data/human/tracks/.{1,}", amazon.filenames)])
 g_h.m.files <- c(g_h.m.files, amazon.filenames[grepl("data/human/methylation/.{1,}", amazon.filenames)])
-g_h.i.full <- c(g_h.i.full,  amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)])
+i.temp <- amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)]
+g_h.i.full <- c(g_h.i.full,  i.temp[!grepl(".rds", i.temp)])
 
 
 # From 1-1,000,000-- ChIA-PET loops objects

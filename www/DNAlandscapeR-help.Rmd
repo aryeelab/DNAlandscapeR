@@ -84,17 +84,16 @@ Add diffloop script and annotation files + awk commands
 <hr>
 <a name="hic"></a>
 ### **Creating .rds for HiC Visualization**
-As HiC data, depending on the resolution, can vastly exceed the file sizes of other tracks, we compress the typical output of processed HiC data into a list of matrices where each element of the list is a chromosome and the matrix contains the interaction scores for the particular chromosome. The coordinates of each chromosome are index in the row and column names. This list of matrices is saved/loaded in a .rds file for fast data access. We note that **DNAlandscapeR** utilizes only the lower triangle of the data matrix when plotting interaction scores. Below is a sample R script that was used to take output from [HiC-Pro](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x) and convert the GM12878 HiC data at 1Mb resolution to an .rds object that **DNAlandscapeR** can plot. 
+As HiC data, depending on the resolution, can vastly exceed the file sizes of other tracks, we compress the typical output of processed HiC data into a several matrices where each .rds contains one chromosome and the matrix values are the interaction scores for the particular chromosome. The coordinates of each chromosome are index in the row and column names. These matrices are saved/loaded in a .rds file for fast data access. We note that **DNAlandscapeR** utilizes only the lower triangle of the data matrix when plotting interaction scores. Below is a sample R script that was used to take output from [HiC-Pro](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x) and convert the GM12878 HiC data at 1Mb resolution to an .rds object that **DNAlandscapeR** can plot. 
 ```
 library(readr)
 library(GenomicRanges)
 library(reshape2)
 library(tools)
 
-matrix.file <- "gm12878_1000000.matrix"
+matrix.file <- "gm12878_1000000_iced.matrix"
 bed.file <- "gm12878_1000000_abs.bed"
-out.pre <-  basename(file_path_sans_ext(matrix.file))
-out.file <- paste(out.pre, ".rds", sep = "")
+out.pre <-  "gm12878_1000000"
 
 bed.GRanges <- GRanges(data.frame(read_tsv(bed.file, col_names = c("chr", "start", "stop", "region"))))
 dat.long <- read_tsv(matrix.file, col_names = c("idx1", "idx2", "region"))
@@ -102,7 +101,8 @@ dat.long <- read_tsv(matrix.file, col_names = c("idx1", "idx2", "region"))
 core_chrom <- paste("chr", seq(1,22,1), sep = "")
 core_chrom <- c(core_chrom, "chrX")
 
-HiC.list <- lapply(core_chrom, function(chr){
+dir.create(out.pre)
+lapply(core_chrom, function(chr){
     cur.chrom <- bed.GRanges[seqnames(bed.GRanges) == chr]
     vals <- mcols(cur.chrom)$region
     dat.chrom <- dat.long[dat.long$idx1 %in% vals & dat.long$idx2 %in% vals,]
@@ -115,13 +115,10 @@ HiC.list <- lapply(core_chrom, function(chr){
 
     rownames(mat.chrom) <- unname(starts[row.names])
     colnames(mat.chrom) <- unname(starts[colnames(mat.chrom)])
-    as.matrix(mat.chrom)
+    saveRDS(as.matrix(mat.chrom), file = paste(out.pre, "/", out.pre, "-", chr, ".rds", sep=""))
 })
-
-names(HiC.list) <- core_chrom
-saveRDS(HiC.list, file = out.file)
-
 ```
+Due to the prohibitive size of HiC data, the local upload supports adding only one chromosome of local data at a time. Each chromosome will then appear as its own track, which can cause problems if looking at different chromosomal regions in a session (e.g. displaying the chromosome 9 local HiC track while looking at chromosome 7). While the pre-loaded HiC data do not have this problem, users should proceed with caution when uploading local HiC data or contact <A HREF="mailto:caleblareau@g.harvard.edu">Caleb</A> to facilitate permanent file storage in the browser. 
 <hr>
 <a name="faq"></a>
 ### **FAQ**
@@ -129,9 +126,9 @@ saveRDS(HiC.list, file = out.file)
 The current build of **DNAlandscapeR** is hg19 for human and mm9 for mouse. All epigenetic tracks and gene annotations pre-loaded in the browser utilize these coordinates.<br><br>
 
 #### **How do I access the data pre-loaded into the browser?**
-All data can be downloaded from our Amazon S3 instance using `wget`. For example, accessing the .rds of the GM12878 ChIA-PET data at 1Mb resolution could be achieved by running the following command--
+All data can be downloaded from our Amazon S3 instance using `wget`. For example, accessing the .bw of the HCT116  whole genome bisulfite sequencing data could be achieved by running the following command--
 ```
-wget http://s3.amazonaws.com/data/human/hic/GM12878_100000.rds
+wget http://s3.amazonaws.com/dnalandscaper/data/human/methylation/HCT116-wgbs.bw
 ```
 Each dataset is [indexed](http://s3.amazonaws.com/dnalandscaper) on the site. However, it may be easier to find the file by parsing the HTML to see the filenames. The following code performs this parsing in the `R` environment. Each track name in the browser had an identical file prefix indexed by the type of track that it displays.
 ```
@@ -155,4 +152,4 @@ Each epigenetic track is shown on it's own scale, which can be determined on the
 Consistent with [diffloop](https://bioconductor.org/packages/release/bioc/html/diffloop.html), blue loops are 'CTCF loops', purple loops are "Enhancer-Enhancer loops", orange loops are "Promoter-Promoter loops", red loops are 'Enhancer-Promoter loops', and black loops have no special annotation. Check out the [walkthrough](#crL) for and the diffloop vignette for a better description of how these loops are colored. Loops that fit multiple classifications were prioritzed based on the folowing hierarchy: E-P > P-P > E-E > CTCF > none. We note that black loops could still have biological annotation but were not identifed as using the current data processing. The Data Descriptions tab contains details on how individual samples were annotated and processed. Additionally, the mouse loops have not been specially annotated and thus are all black. <br><br>
 
 #### **I'm tired of uploading my local data to visualize in the browser. Can I keep it in DNAlandscapeR permanently?**
-Sure! We remind you that our browser is open source, so your data will thus be accessible to other users as well. If you want to add a track to **DNAlandscapeR**,  contact <A HREF="mailto:caleblareau@g.harvard.edu">Caleb</A> to arrange for the inclusion of more data. We may have you process your data in a certain format to keep our data storage costs on Amazon low. 
+Sure! We remind you that our browser is open source, so your data will thus be accessible to other users as well. If you want to add a track to **DNAlandscapeR**, contact <A HREF="mailto:caleblareau@g.harvard.edu">Caleb</A> to arrange for the inclusion of more data. We may have you process your data in a certain format to keep our data storage costs on Amazon low. 

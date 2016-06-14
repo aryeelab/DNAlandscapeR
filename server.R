@@ -4,7 +4,7 @@ source("plotter.R")
 source("global.R")
 
 options(shiny.error=browser)
-options(shiny.maxRequestSize=10*1024^3) #10 GB Max file size
+options(shiny.maxRequestSize=1*1024^3) #1 GB Max file size
 options(warn=-1)
 
 function(input, output, session) {
@@ -403,7 +403,7 @@ function(input, output, session) {
             }
             
         # Append bedgraph methylation file
-        } else { 
+        } else if (input$datType == 5) {
             valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 5000000]), 0)) + 1 )
             names(valu) <- name
             if(input$organismUpload == 1){
@@ -412,6 +412,18 @@ function(input, output, session) {
             } else {
                 dynamic.val$m.m.bg.full <- c(dynamic.val$m.m.bg.full, curfile)
                 dynamic.val$m.m.bg.list <- append(dynamic.val$m.m.bg.list, valu)
+            }
+            
+        #Hi C data
+        } else {
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 6000000]), 0)) + 1 )
+            names(valu) <- name
+            if(input$organismUpload == 1){
+                dynamic.val$h.i.full <- c(dynamic.val$h.i.full, curfile)
+                dynamic.val$h.i.list <- append(dynamic.val$h.i.list, valu)
+            } else {
+                dynamic.val$m.i.full <- c(dynamic.val$m.i.full, curfile)
+                dynamic.val$m.i.list <- append(dynamic.val$m.i.list, valu)
             }
         }
         

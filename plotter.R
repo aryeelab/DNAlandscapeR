@@ -239,16 +239,18 @@ bedgraph.trackplot <- function(file, region, ylab, sample){
     return(trackplot)
 }
 
-hic.plot <- function(file, region, sample){
-    if(grepl("amazonaws", file)){ x <- readRDS(gzcon(url(file)))
-    } else { x <- readRDS(file) }
-    
+hic.plot <- function(base, region, sample){
     chrom <- as.character(seqnames(region))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(region))))
     end <- as.integer(end(ranges(range(region))))
     
-    hicdata <- x[[chromchr]]
+    if(grepl("amazonaws", base)){
+        file <- paste(base, sample, "-", chromchr, ".rds", sep = "")
+        hicdata <- readRDS(gzcon(url(file)))
+    } else {
+        hicdata <- readRDS(base)
+    }
     
     # Hacked Sushi HiC Plot Function
     palette <- SushiColors(6)
@@ -256,8 +258,7 @@ hic.plot <- function(file, region, sample){
     cols <- as.numeric(colnames(hicdata))
     
     hicregion <- hicdata[which(rows >= start & rows <= end), which(cols >= start & cols <= end)]
-    hicregion[upper.tri(hicregion)] <- NA
-    
+
     # determine number of bins
     nbins <- nrow(hicregion)
     stepsize <- abs(start - end)/(2 * nbins)
@@ -269,7 +270,7 @@ hic.plot <- function(file, region, sample){
     cols <- palette(length(breaks) + 1)
     hicmcol <- matrix(as.character(cut(hicregion, c(-Inf, breaks, Inf), labels = cols)), nrow = nrow(hicregion))
 
-    # make an empty plot
+    # initialize plot
     plot(1, 1, xlim = c(start, end), ylim = c(0, 20), type = "n", xaxs = "i", yaxs = "i",
          bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = sample, adj = 0)
 
