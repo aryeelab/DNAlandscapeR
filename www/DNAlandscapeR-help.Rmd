@@ -4,6 +4,7 @@ graphics: yes
 # **DNAlandscapeR Guide**
 <br>
 #### **Contents:**
+* [Basic User Guide](#bug)
 * [Advanced plotting options](#apo)
 * [Interactive zooming](#iz)
 * [Visualizing Local Data](#uld)
@@ -12,14 +13,27 @@ graphics: yes
 * [FAQ](#faq)
 <hr>
 
+<a name="bug"></a>
+### **Basic User Guide**
+The browser for **DNAlandscapeR** is housed on the "Visualize" tab. The side panel contains the basic functionality for the browser. Under "Select Tracks", the user can specify which tracks and in what order they will be stacked. We note that this window is searchable, meaning a user can start to type "CTCF" and the selection field will be narrowed to only tracks with "CTCF" in the name description. 
+
+After selecting tracks, the genomic coordinates can be specified for the region of interest. Currently, we support all autosomal chromosomes in addition to chromosome X. By default, the human genome is displayed, but we also support the mouse genome (see advanced options). 
+
+Other buttoms below the "Plot Region" option behave intuitively. These options allow the user to zoom in and out, shift left and right, and wipe the environment before reselecting options to plot. Check out the [interactive zooming](#iz) guide to more easily specify a specific region of interest. 
+
+Finally, we note one other configuration option on the sidebar that allows users to upload a regions .bed file with the "<<<" and ">>>" buttons to toggle between regions. This option allows users to quickly jump between regions of interest, such as a list of known oncogene coordinates.
+<hr>
+
 <a name="apo"></a>
 ### **Advanced plotting options**
-Though listed in the main sidebar, the **Genome Annotation** drop-down box supports a basic gene body annotation as well as more advanced track. In the default gene bodies track, only protein-coding genes whose entire transcription body is present in the specified region will be displayed. The second track, "Detailed Gene Annotation", displays exon-level resolution of gene bodies that are not necessarily protein coding genes. Additionally, genes only partially present in the region are displayed. Other features in the **Advanced Options** box include:
-* **log2 Transform .bigwig files--** When this box is checked, the scores associated with epigenetic peaks will be log2 transformed. This only applies to ReadDepth tracks (e.g. RNA-Seq, DNase, ChIP-Seq, etc.) and does NOT apply to methylation.
-* **Display single anchors--** **DNAlandscapeR** only plots loops that have both anchors in the specified region. When this option is selected, small green bumps will be displayed in areas where one side of a loop anchors in the region. Consider zooming out to see the full loop.
+Though listed in the main sidebar, the **Genome Annotation** drop-down box supports a basic gene body annotation as well as more advanced track. In the default gene bodies track, only protein-coding genes whose entire transcription body is present in the specified region will be displayed. The second track, "Detailed Gene Annotation", displays exon-level resolution of gene bodies that are not necessarily protein coding genes. Additionally, genes only partially present in the region are displayed. While the "Detailed Gene Annotation" track is often more useful for small regions displayed in the browser, we note that displaying large regions with this option selected can dramatically slow the browser down. We recommend looking at the Detailed Annotation in regions less than 100kb. 
+
+Other features in the **Advanced Options** box include:
+* **Organism selection--** Allows for the toggling back and forth between the landscape of mouse and human. 
 * **Plot gene region--** This option allows users to display a region based on gene name where the entire gene body will be displayed as well as a buffer region on either side of the gene body. 
-* **Displayed genes--** As large landscapes can have many genes displayed, this configuration enables users to remove genes that they do not wish to be displayed on the gene annotation track. 
-Finally, we note one other configuration option on the sidebar that allows users to upload a regions .bed file with the "<<<" and ">>>" buttons to toggle between regions. This option allows users to quickly jump between regions of interest, such as a list of known oncogene coordinates. 
+* **log2 Transform .bigwig files--** When this box is checked, the scores associated with epigenetic peaks will be log2 transformed. This only applies to ReadDepth tracks (e.g. RNA-Seq, DNase, ChIP-Seq, etc.) and does NOT apply to methylation.
+* **Display single anchors--** **DNAlandscapeR** only plots loops that have both anchors in the specified region. When this option is selected, small green bumps will be displayed in areas where one side of a loop anchors in the region. Consider zooming out to see the full loop. We note that turning this
+
 <hr>
 
 <a name="iz"></a>
@@ -80,7 +94,7 @@ chr1	32705184	32708527	chr1	32712484	32715408	4	1
 chr1	32705184	32708527	chr1	32755920	32759477	3	1
 chr1	32705184	32708527	chr1	32799616	32803060	6	1
 ```
-Add diffloop script and annotation files + awk commands
+**Add diffloop script and annotation files + awk commands**
 <hr>
 <a name="hic"></a>
 ### **Creating .rds for HiC Visualization**
@@ -146,7 +160,7 @@ paste(amazon, amazon.filenames, sep = "/")
 Our browser makes extensive use of the [Sushi](https://www.bioconductor.org/packages/release/bioc/html/Sushi.html) package in rendering images. We recommend that users use our source code and data in a local R environment alongside this library to generate more specialized plots. <br><br>
 
 #### **Are the individual tracks normalized?**
-Each epigenetic track is shown on it's own scale, which can be determined on the left side of the plot. Currently, loop widths are normalized between plots. Thus, the boldest loop that is displayed across all tracks is supported by the most PETs from that particular sequencing experiment. HiC data are normalized/displayed within each track, and the scale is noted on the right side of the track plot. <br><br>
+Each epigenetic track is shown on its own scale, which can be determined on the left side of the plot. Currently, loop widths are normalized between plots. Thus, the boldest loop that is displayed across all tracks is supported by the most PETs from that particular sequencing experiment. HiC data are normalized/displayed within each track, and the scale is noted on the right side of the track plot. <br><br>
 
 #### **What do the colors mean in the loop plots?**
 Consistent with [diffloop](https://bioconductor.org/packages/release/bioc/html/diffloop.html), blue loops are 'CTCF loops', purple loops are "Enhancer-Enhancer loops", orange loops are "Promoter-Promoter loops", red loops are 'Enhancer-Promoter loops', and black loops have no special annotation. Check out the [walkthrough](#crL) for and the diffloop vignette for a better description of how these loops are colored. Loops that fit multiple classifications were prioritzed based on the folowing hierarchy: E-P > P-P > E-E > CTCF > none. We note that black loops could still have biological annotation but were not identifed as using the current data processing. The Data Descriptions tab contains details on how individual samples were annotated and processed. Additionally, the mouse loops have not been specially annotated and thus are all black. <br><br>

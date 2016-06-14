@@ -21,8 +21,7 @@ function(input, output, session) {
     dynamic.val <- reactiveValues(
         region = GRanges(seqnames=c(default_chr),ranges=IRanges(start=c(default_start), end=c(default_end))),
         alldat = NULL,
-        acceptedGenes = NULL, 
-        
+
         # Initialize with human
         list.tracks = g_h.f.list, 
         c.full    = g_h.c.full,
@@ -116,35 +115,7 @@ function(input, output, session) {
         output$regiontotal <-renderText(paste(paste(paste("chr", input$chr, sep = ""),
                                         input$start, sep = ":"),input$stop, sep = "-"))
     }
-    
-    # Gets all gene names for the current region
-    updateDisplayedGenes <- function(){
-        if(input$showgenes == 1){
-            chrom <- as.character(seqnames(dynamic.val$region))
-            chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
-            start <- as.integer(start(ranges(range(dynamic.val$region))))
-            end <- as.integer(end(ranges(range(dynamic.val$region))))
-            
-            geneinfo <- data.frame()
-            if(input$organism == 1) load("data/GenomeAnnotation/hg19/geneinfo.rda")
-            if(input$organism == 2) load("data/GenomeAnnotation/mm9/geneinfo.rda")
-            
-            geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
-            dynamic.val$acceptedGenes <- unique(geneinfo$gene)
-        } else if(input$showgenes == 2){
-                        chrom <- as.character(seqnames(dynamic.val$region))
-            chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
-            start <- as.integer(start(ranges(range(dynamic.val$region))))
-            end <- as.integer(end(ranges(range(dynamic.val$region))))
-            
-            geneinfo <- data.frame()
-            if(input$organism == 1) load("data/GenomeAnnotation/hg19/geneinfo-exon.rda")
-            if(input$organism == 2) load("data/GenomeAnnotation/mm9/geneinfo-exon.rda")
-            
-            geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
-            dynamic.val$acceptedGenes <- unique(geneinfo$gene)
-        }
-    }
+
     
     #---------------------------------#
     # Code for various buttons
@@ -273,14 +244,6 @@ function(input, output, session) {
         makePlot()
     })
     
-    observeEvent(input$showgenes, {
-        if(input$showgenes == 0){
-             dynamic.val$acceptedGenes <- NULL
-        } else {
-             updateDisplayedGenes()
-        }
-    })
-    
     observeEvent(input$refresh, {
         makePlot()
     })
@@ -289,7 +252,6 @@ function(input, output, session) {
     p1 <- function(){  
         if (isolate(is.null(dynamic.val$region))) return()
         if (length(isolate(input$tracks)) == 0) return()
-        updateDisplayedGenes()
         sg <- ifelse(isolate(input$showgenes) == 0, 0, 1)
         par(mfrow=c(length(isolate(input$tracks)) + sg, 1),
                 oma = c(0, 1, 3, 0), mar = c(3, 5, 1, 1))
@@ -306,16 +268,12 @@ function(input, output, session) {
     )
     
     makePlot <- function(){ 
-        output$plot <- renderPlot({isolate(p1())}, height = 880)
+        output$plot <- renderPlot({isolate(p1())}, height = 850)
     }
     
     output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Select Tracks")),
                                                  choices = dynamic.val$list.tracks, selectize = TRUE,
                                                  multiple = TRUE, selected = 0)})
-    
-    output$specifiedGenes <- renderUI({selectInput("plotGenes", label = h4(tags$b("Displayed Genes")),
-                                                 choices = sort(dynamic.val$acceptedGenes), selectize = TRUE,
-                                                 multiple = TRUE, selected = sort(dynamic.val$acceptedGenes))})
 
     #---------------------------------#
     # Code for input tab

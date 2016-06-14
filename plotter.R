@@ -79,8 +79,8 @@ masterPlotter <- function(input, dynamic.val){
         } else {return()}
     }
     e <- ifelse(input$showgenes == 2, TRUE, FALSE)
-    if(input$showgenes > 0 & input$organism == 1) geneAnnotation(dynamic.val$region, "human", input$plotGenes, exons = e)
-    if(input$showgenes > 0 & input$organism == 2) geneAnnotation(dynamic.val$region, "mouse", input$plotGenes, exons = e)
+    if(input$showgenes > 0 & input$organism == 1) geneAnnotation(dynamic.val$region, "human", exons = e)
+    if(input$showgenes > 0 & input$organism == 2) geneAnnotation(dynamic.val$region, "mouse", exons = e)
 }
 
 # one.loopPlot has some specialized features for plotting only 
@@ -298,7 +298,7 @@ hic.plot <- function(base, region, sample){
 }
 
 # geneAnnotation plots the hg19/mm9 gene tracks from the cached genome loci. 
-geneAnnotation <- function(y, organism, plotGenes, exons = FALSE) {
+geneAnnotation <- function(y, organism, exons = FALSE) {
     chrom <- as.character(seqnames(y))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(y))))
@@ -313,10 +313,9 @@ geneAnnotation <- function(y, organism, plotGenes, exons = FALSE) {
     if(organism == "mouse" & !exons) load("data/GenomeAnnotation/mm9/geneinfo.rda")
     
     geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
-    geneinfo <- geneinfo[geneinfo$gene %in% plotGenes, ]
 
     loplot <- recordPlot()
-    if(dim(geneinfo)[1] == 0){
+    if(dim(geneinfo)[1] == 0){ #Dummy plot
         plotBedpe(data.frame(), chrom, start, end, color = c("blue"), lwd = 0, 
                   plottype = "loops", heights = 0, lwdrange = c(0, 0), 
                   main = "", adj=0)
