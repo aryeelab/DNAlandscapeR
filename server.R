@@ -4,7 +4,7 @@ source("plotter.R")
 source("global.R")
 
 options(shiny.error=browser)
-options(shiny.maxRequestSize=250*1024^2) #250 MB Max file size; can reparameterize if needed
+options(shiny.maxRequestSize=10*1024^3) #10 GB Max file size
 options(warn=-1)
 
 function(input, output, session) {
