@@ -18,6 +18,7 @@ library(markdown)
 library(knitr)
 library(gsubfn)    
 library(RCurl)
+library(Matrix)
 
 default_chr <- "9"
 default_start <- 21912689

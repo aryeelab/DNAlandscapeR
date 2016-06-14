@@ -257,16 +257,16 @@ hic.plot <- function(base, region, sample){
     rows <- as.numeric(rownames(hicdata))
     cols <- as.numeric(colnames(hicdata))
     
-    hicregion <- hicdata[which(rows >= start & rows <= end), which(cols >= start & cols <= end)]
+    hicregion <- as.matrix(hicdata[which(rows >= start & rows <= end), which(cols >= start & cols <= end)])
 
     # determine number of bins
     nbins <- nrow(hicregion)
     stepsize <- abs(start - end)/(2 * nbins)
     max_z <- max(hicregion, na.rm = TRUE)
-    min_z <- min(hicregion, na.rm = TRUE)    
+    min_z <- min(hicregion[hicregion > 0], na.rm = TRUE)    
         
     # map to colors
-    breaks <- seq(min(hicregion, na.rm = TRUE), max(hicregion, na.rm = TRUE), length.out = 100)
+    breaks <- seq(min_z, max_z, length.out = 100)
     cols <- palette(length(breaks) + 1)
     hicmcol <- matrix(as.character(cut(hicregion, c(-Inf, breaks, Inf), labels = cols)), nrow = nrow(hicregion))
 
@@ -281,14 +281,19 @@ hic.plot <- function(base, region, sample){
         for (colnum in (rownum:ncol(hicregion))) {
             x = x + stepsize
             y = y + 0.5
-            if(colnum != rownum){ # Square
-                xs = c(x - stepsize, x, x + stepsize, x, x - stepsize)
-                ys = c(y, y + 0.5, y, y - 0.5, y)
-            } else { #triangle
-                xs = c(x - stepsize, x, x + stepsize)
-                ys = c(y, y + 0.5, y)
+            if(y <= 20){
+                if(colnum != rownum & y!=20){ # Square
+                    xs = c(x - stepsize, x, x + stepsize, x, x - stepsize)
+                    ys = c(y, y + 0.5, y, y - 0.5, y)
+                } else if(y == 20){ #upside down triangle
+                    xs = c(x - stepsize, x, x + stepsize)
+                    ys = c(y, y - 0.5, y)
+                } else {
+                    xs = c(x - stepsize, x, x + stepsize)
+                    ys = c(y, y + 0.5, y)
+                }
+                polygon(xs, ys, border = NA, col = hicmcol[colnum, rownum])
             }
-            polygon(xs, ys, border = NA, col = hicmcol[colnum, rownum])
         }
     }
     labelgenome(chromchr, start, end, n=4, scale="Mb",edgeblankfraction=0.20)
