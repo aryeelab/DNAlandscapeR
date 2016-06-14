@@ -306,7 +306,7 @@ function(input, output, session) {
     )
     
     makePlot <- function(){ 
-        output$plot <- renderPlot({isolate(p1())}, height = 890)
+        output$plot <- renderPlot({isolate(p1())}, height = 880)
     }
     
     output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Select Tracks")),
