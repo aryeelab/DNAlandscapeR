@@ -15,8 +15,8 @@ Requires: Biobase, BiocGenerics, DBI, IRanges, RSQLite, S4Vectors
 
 Package: BH
 Source: CRAN
-Version: 1.60.0-1
-Hash: 889445e87a2acd4cc58440957f3b0d1a
+Version: 1.60.0-2
+Hash: be2967bcff307e561d9ba17faf03205c
 
 Package: Biobase
 Source: Bioconductor
@@ -28,11 +28,6 @@ Package: BiocGenerics
 Source: Bioconductor
 Version: 0.18.0
 Hash: a7867e1dc7d96afd75a5d76053e495a6
-
-Package: BiocInstaller
-Source: Bioconductor
-Version: 1.22.2
-Hash: 6110c987dce593dd4d4ea07693ee8bc5
 
 Package: BiocParallel
 Source: Bioconductor
@@ -59,9 +54,9 @@ Requires: htmltools, htmlwidgets, magrittr
 
 Package: GEOquery
 Source: Bioconductor
-Version: 2.37.0
-Hash: 402e62038fb9e3efda846ce421e1802c
-Requires: Biobase, RCurl, XML
+Version: 2.38.4
+Hash: 711229fc3f9ba172f59fe406f7f1f6cf
+Requires: Biobase, RCurl, XML, httr
 
 Package: GenomeInfoDb
 Source: Bioconductor
@@ -78,8 +73,8 @@ Requires: BiocGenerics, BiocParallel, Biostrings, GenomeInfoDb,
 
 Package: GenomicFeatures
 Source: Bioconductor
-Version: 1.23.31
-Hash: 32339db020ac126cea89785198f3c322
+Version: 1.24.2
+Hash: 51d37bf31c8fecf542a939a87da639a4
 Requires: AnnotationDbi, Biobase, BiocGenerics, Biostrings, DBI,
     GenomeInfoDb, GenomicRanges, IRanges, RCurl, RSQLite, S4Vectors,
     XVector, biomaRt, rtracklayer
@@ -182,16 +177,6 @@ Version: 0.12.0
 Hash: 6b3dc0045adaff34ee1f959bbecd5786
 Requires: BiocGenerics, IRanges, S4Vectors, zlibbioc
 
-Package: addinexamples
-Source: github
-Version: 0.1.0
-Hash: caa2833f3916119d7f418e4cda1fbb96
-Requires: formatR, miniUI, rstudioapi, shiny
-GithubRepo: addinexamples
-GithubUsername: rstudio
-GithubRef: master
-GithubSha1: fae960911302ed2ca3139b47500e7606233e1390
-
 Package: annotate
 Source: Bioconductor
 Version: 1.50.0
@@ -205,8 +190,9 @@ Hash: 0afb92b59b02593c70ff8046700ba9d3
 
 Package: base64
 Source: CRAN
-Version: 1.1
-Hash: 5776d8d9472a017332f54e3326ecbca8
+Version: 2.0
+Hash: 9738470a6872ea046c6aea5154b33362
+Requires: openssl
 
 Package: base64enc
 Source: CRAN
@@ -284,14 +270,14 @@ Hash: 08eed0c80510af29bb15f840ccfe37ce
 Package: diffloop
 Source: github
 Version: 1.1.1
-Hash: 1ec8a1cf10c35ae7eeba198ffe7fe6b6
+Hash: 0a8fd82903f1410529ddbcd59f49b6bf
 Requires: Biobase, GenomeInfoDb, GenomicRanges, IRanges, S4Vectors,
     Sushi, biomaRt, data.table, dplyr, edgeR, foreach, ggplot2, locfit,
     matrixStats, plyr, readr, reshape2, rtracklayer, statmod
 GithubRepo: diffloop
 GithubUsername: aryeelab
 GithubRef: master
-GithubSha1: 7a111a7c07d25b929d4c6098514fad9349ce2f23
+GithubSha1: dbc4cc24ab62081f16a97e3097f4c769670f9353
 
 Package: digest
 Source: CRAN
@@ -307,7 +293,7 @@ Requires: foreach, iterators, pkgmaker, rngtools
 Package: dplyr
 Source: CRAN
 Version: 0.4.3
-Hash: aa21bdb13a30ae9292b0159122a3745a
+Hash: e6d3a09516f2018080e4737423aadfa6
 Requires: BH, DBI, R6, Rcpp, assertthat, lazyeval, magrittr
 
 Package: edgeR
@@ -346,8 +332,8 @@ Hash: 4f24cbf581681c263186b9425f05ba3e
 
 Package: genefilter
 Source: Bioconductor
-Version: 1.54.0
-Hash: 24ef6f975c9a7e57785b127edc332925
+Version: 1.54.2
+Hash: 05f4fd2ac819aa360d06b6157ef97162
 Requires: AnnotationDbi, Biobase, S4Vectors, annotate, survival
 
 Package: ggplot2
@@ -374,8 +360,8 @@ Hash: cd78381a9d3fea966ac39bd0daaf5554
 
 Package: highr
 Source: CRAN
-Version: 0.5.1
-Hash: 114ef5abcf58bebbf6ac083b9cacbbd8
+Version: 0.6
+Hash: aa3d5b7912b5fed4b546ed5cd2a1760b
 
 Package: htmltools
 Source: CRAN
@@ -414,8 +400,8 @@ Hash: 488b93c2a4166db0d15f1e8d882cb1d4
 
 Package: jsonlite
 Source: CRAN
-Version: 0.9.21
-Hash: 4715435f79ce983ec7e041f6be4742f4
+Version: 0.9.20
+Hash: 7c342f33735452ef1f1512af8bcca066
 
 Package: knitr
 Source: CRAN
@@ -440,13 +426,13 @@ Hash: d7158cf4e63e8c12cb227738076b37d8
 
 Package: lazyeval
 Source: CRAN
-Version: 0.1.10
-Hash: 9679f1ac7f6bc07bc79755f34cd15e1f
+Version: 0.2.0
+Hash: 3d6e7608e65bbf5cb170dab1e3c9ed8b
 
 Package: limma
 Source: Bioconductor
-Version: 3.28.6
-Hash: 846a300f3cf45bc179f23002dd4baf34
+Version: 3.28.8
+Hash: 6f77b5f4b6dbb5bae01d0908f4d88cec
 
 Package: locfit
 Source: CRAN
@@ -488,8 +474,8 @@ Hash: b08c52dae92a0a11e64a4deea032ec33
 
 Package: minfi
 Source: Bioconductor
-Version: 1.18.0
-Hash: f3b59622a7b00f133f331a4d16634f2f
+Version: 1.18.2
+Hash: c2e743e1ae49f8ef002692be1bf98ab0
 Requires: Biobase, BiocGenerics, Biostrings, GEOquery, GenomeInfoDb,
     GenomicRanges, IRanges, MASS, RColorBrewer, S4Vectors,
     SummarizedExperiment, beanplot, bumphunter, data.table, genefilter,
@@ -516,8 +502,8 @@ Requires: colorspace
 
 Package: nlme
 Source: CRAN
-Version: 3.1-127
-Hash: 83b8955e90c53730f8701425bad144b2
+Version: 3.1-128
+Hash: 72d50aad85f45456d60ded8ee47a8454
 Requires: lattice
 
 Package: nor1mix
@@ -565,7 +551,7 @@ Hash: 69000b7dc41b09977dcf781f909d235c
 Package: readr
 Source: CRAN
 Version: 0.2.2
-Hash: 8d2b314a56a052a81377d07f574b1d75
+Hash: 26f8572dee39ace757753fa5c4286569
 Requires: BH, Rcpp, curl
 
 Package: registry
@@ -598,14 +584,10 @@ Hash: 4db0661fe95ab6eb3d6339495bf22003
 Requires: digest, pkgmaker, stringr
 
 Package: rsconnect
-Source: github
-Version: 0.4.1.11
-Hash: 886b6e456688b7773cab1c5cba2d8aad
+Source: CRAN
+Version: 0.4.3
+Hash: 72014f20a28de36f205f269ccc4b1a32
 Requires: PKI, RCurl, RJSONIO, digest, packrat, rstudioapi, yaml
-GithubRepo: rsconnect
-GithubUsername: rstudio
-GithubRef: master
-GithubSha1: 0b72b17533521aa7276299ca53c742c4cf27eb1f
 
 Package: rstudioapi
 Source: CRAN
@@ -614,8 +596,8 @@ Hash: f942db72a8f51e968b061f28058e2c57
 
 Package: rtracklayer
 Source: Bioconductor
-Version: 1.32.0
-Hash: 90df1b2324b386ecacccedb676f3ecc6
+Version: 1.32.1
+Hash: 2c5b0e60cc9283c85ee442d627cbc217
 Requires: BiocGenerics, Biostrings, GenomeInfoDb, GenomicAlignments,
     GenomicRanges, IRanges, RCurl, Rsamtools, S4Vectors, XML, XVector,
     zlibbioc
@@ -679,8 +661,8 @@ Requires: magrittr, stringi
 
 Package: survival
 Source: CRAN
-Version: 2.39-2
-Hash: 46808767daa3f40733fb003b5d7f305a
+Version: 2.39-4
+Hash: 16b71d32b9a873a3ee93dd59d07ce4bc
 Requires: Matrix
 
 Package: whisker

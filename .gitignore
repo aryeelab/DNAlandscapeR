@@ -1,6 +1,4 @@
 packrat/lib*/
 .Rproj.user
 *.Rproj
-*.Rdata
-*.Rhistory
-*.Rprofile
+
