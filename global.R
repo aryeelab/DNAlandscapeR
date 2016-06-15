@@ -32,8 +32,7 @@ uploadchoices <- list("Loops/.rds" = 1,
                       "ReadDepth/.bigWig" = 2,
                       "ReadDepth/.bedgraph" = 3,
                       "Methylation/.bigWig" = 4,
-                      "Methylation/.bedgraph" = 5,
-                      "HiC (Individual Chromosome)/.rds" = 6)
+                      "Methylation/.bedgraph" = 5)
 
 # Variable names are coded as follows
 # g_ is a global variable
@@ -211,3 +210,25 @@ for(k in 1:dim(m.d)[1]){
     g_m.f.list <- append(g_m.f.list, x)
 }
 
+
+## Useful Functions ##
+
+.subsetRegion.quick <- function(loops, region, nanchors = 2) {
+    
+    g <- findOverlaps(region, loops@anchors)@to
+
+    if(nanchors == 2) { cc <- loops@interactions[,1] %in% g & loops@interactions[,2] %in% g
+    } else { cc <- xor(loops@interactions[,1] %in% g, loops@interactions[,2] %in% g) }
+    
+    ni <- matrix(loops@interactions[cc,], ncol = 2)
+    colnames(ni) <- c("left", "right")
+    
+    nc <- matrix(loops@counts[cc,], ncol = dim(loops@counts)[2])
+    colnames(nc) <- colnames(loops@counts)
+
+    slot(loops, "interactions", check = TRUE) <- ni
+    slot(loops, "counts", check = TRUE) <- nc
+    slot(loops, "rowData", check = TRUE) <- loops@rowData[cc,]
+    
+    return(loops)
+}

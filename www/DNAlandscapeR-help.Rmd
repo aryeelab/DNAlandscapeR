@@ -9,7 +9,7 @@ graphics: yes
 * [Interactive zooming](#iz)
 * [Visualizing Local Data](#uld)
 * [Creating .rds for ChIA-PET Visualization](#crL)
-* [Creating .rds for HiC Visualization](#hic)
+* [HiC Visualization](#hic)
 * [FAQ](#faq)
 <hr>
 
@@ -97,42 +97,8 @@ chr1	32705184	32708527	chr1	32799616	32803060	6	1
 **Add diffloop script and annotation files + awk commands**
 <hr>
 <a name="hic"></a>
-### **Creating .rds for HiC Visualization**
-As HiC data, depending on the resolution, can vastly exceed the file sizes of other tracks, we compress the typical output of processed HiC data into a several matrices where each .rds contains one chromosome and the matrix values are the interaction scores for the particular chromosome. The coordinates of each chromosome are index in the row and column names. These matrices are saved/loaded in a .rds file for fast data access. We note that **DNAlandscapeR** utilizes only the lower triangle of the data matrix when plotting interaction scores. Below is a sample R script that was used to take output from [HiC-Pro](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x) and convert the GM12878 HiC data at 1Mb resolution to an .rds object that **DNAlandscapeR** can plot. 
-```
-library(readr)
-library(GenomicRanges)
-library(reshape2)
-library(tools)
-
-matrix.file <- "gm12878_1000000_iced.matrix"
-bed.file <- "gm12878_1000000_abs.bed"
-out.pre <-  "gm12878_1000000"
-
-bed.GRanges <- GRanges(data.frame(read_tsv(bed.file, col_names = c("chr", "start", "stop", "region"))))
-dat.long <- read_tsv(matrix.file, col_names = c("idx1", "idx2", "region"))
-
-core_chrom <- paste("chr", seq(1,22,1), sep = "")
-core_chrom <- c(core_chrom, "chrX")
-
-dir.create(out.pre)
-lapply(core_chrom, function(chr){
-    cur.chrom <- bed.GRanges[seqnames(bed.GRanges) == chr]
-    vals <- mcols(cur.chrom)$region
-    dat.chrom <- dat.long[dat.long$idx1 %in% vals & dat.long$idx2 %in% vals,]
-    mat.chrom <- dcast(data = dat.chrom, formula = idx2 ~ idx1, value.var = "region", fill = NA)
-    row.names <- as.character(mat.chrom[,1])
-    mat.chrom <- mat.chrom[,-1]
-
-    starts <- start(cur.chrom)
-    names(starts) <- as.character(vals)
-
-    rownames(mat.chrom) <- unname(starts[row.names])
-    colnames(mat.chrom) <- unname(starts[colnames(mat.chrom)])
-    saveRDS(as.matrix(mat.chrom), file = paste(out.pre, "/", out.pre, "-", chr, ".rds", sep=""))
-})
-```
-Due to the prohibitive size of HiC data, the local upload supports adding only one chromosome of local data at a time. Each chromosome will then appear as its own track, which can cause problems if looking at different chromosomal regions in a session (e.g. displaying the chromosome 9 local HiC track while looking at chromosome 7). While the pre-loaded HiC data do not have this problem, users should proceed with caution when uploading local HiC data or contact <A HREF="mailto:caleblareau@g.harvard.edu">Caleb</A> to facilitate permanent file storage in the browser. 
+### **HiC Visualization**
+Due to the prohibitive size of HiC data, we've created our own compression format that is optimally designed to be used in **DNAlandscapeR**. For example, a 24 gigabyte normalize output from [HiC-Pro](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x) was compressed to only 44 megabytes from the GM12878 cell line at 20kb resolution. While we are eager to get additional HiC data into the browser, we currently do not support users uploading their data locally due to the highly-specialized format. Thus, we ask that you please contact <A HREF="mailto:caleblareau@g.harvard.edu">Caleb</A> to facilitate the processing and addition of new HiC data into our browser. 
 <hr>
 <a name="faq"></a>
 ### **FAQ**

@@ -23,11 +23,10 @@ masterPlotter <- function(input, dynamic.val){
             if(grepl("amazonaws", file.conn)){ x <- readRDS(gzcon(url(file.conn)))
             } else { x <- readRDS(file.conn) }
             sample <- names(dynamic.val$c.list)[i]
-            objReg <- removeSelfLoops(subsetRegion(x, dynamic.val$region))
-            print(sample)
+            objReg <- removeSelfLoops(.subsetRegion.quick(x, dynamic.val$region, nanchors = 2))
             #Grab loops with one anchor, in needed
             if(input$showSingleAnchors){
-                oneAnchor <- subsetRegion(x, dynamic.val$region, nanchors = 1)
+                oneAnchor <- .subsetRegion.quick(x, dynamic.val$region, nanchors = 1)
                 oneAnchors <- oneAnchor@anchors[findOverlaps(oneAnchor@anchors, dynamic.val$region)@from]
                 one_anchor_samples <- c(one_anchor_samples, oneAnchors)
             }
@@ -44,15 +43,12 @@ masterPlotter <- function(input, dynamic.val){
             chia_pet_objects <- append(chia_pet_objects, objReg)
             map_chia_pet.indices[j] <- i
             j <- j + 1
-            print("done")
-            
         }
     }
     
     #Second loop does all the plotting
     for(i in input$tracks){ 
         i <- as.integer(i)
-        print(i)
         if (i < 1000000) {
             oa <- try(one_anchor_samples[[which(map_chia_pet.indices == i)]], silent = TRUE)
             if("try-error" %in% class(oa)) oa <- NULL
@@ -61,7 +57,7 @@ masterPlotter <- function(input, dynamic.val){
         } else if (i < 2000000) { # Track; BigWig
             t <- i - 1000000
             sample <- names(dynamic.val$t.bw.list)[t]
-            bigwig.trackplot(dynamic.val$t.bw.full[[t]], dynamic.val$region, input$smoother,"Depth", sample = sample, log2 = input$log2BW)
+            bigwig.trackplot(dynamic.val$t.bw.full[[t]], dynamic.val$region, input$smoother, FUN = input$FUN, "Depth", sample = sample, log2 = input$log2BW)
         } else if (i < 3000000){ # Track; Bedgraph
             t <- i - 2000000
             sample <- names(dynamic.val$t.bg.list)[t]
@@ -69,7 +65,7 @@ masterPlotter <- function(input, dynamic.val){
         } else if (i < 4000000) { # Methyl; BigWig
             t <- i - 3000000
             sample <- names(dynamic.val$m.bw.list)[t]
-            bigwig.bumpPlot(dynamic.val$m.bw.full[[t]], dynamic.val$region, smoother = input$smoother, sample = sample)
+            bigwig.bumpPlot(dynamic.val$m.bw.full[[t]], dynamic.val$region, sample = sample)
         } else if (i < 5000000){ # Methyl; Bedgraph
             t <- i - 4000000
             sample <- names(dynamic.val$m.bg.list)[t]
@@ -203,7 +199,7 @@ bigwig.bumpPlot <- function(file, region, smoother = 0, shade = TRUE, sample){
 }
 
 # bigwig.trackplot is used for most epigenetic peaks
-bigwig.trackplot <- function(file, region, smoother, ylab, sample, log2){
+bigwig.trackplot <- function(file, region, smoother, FUN, ylab, sample, log2){
     region.bed <- import.bw(file, which = addchr(region))
     # smooth
     if(smoother != 0){
@@ -211,7 +207,7 @@ bigwig.trackplot <- function(file, region, smoother, ylab, sample, log2){
         ovl <- findOverlaps(tile, region.bed)
         qh <- queryHits(ovl) 
         sh <- subjectHits(ovl) 
-        values.t <- as.data.frame(tapply(mcols(region.bed[sh])$score, qh, mean))
+        values.t <- as.data.frame(tapply(mcols(region.bed[sh])$score, qh, get(FUN)))
         
         #A lot of extra effort to handle regions with no values
         colnames(values.t) <- "bwvalues"

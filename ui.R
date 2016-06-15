@@ -15,18 +15,7 @@ fluidPage(
         HTML("<h2><b><P ALIGN=Center>Welcome to the DNAlandscapeR Epigenomics Browser</b></h2>
              <h3><b><P ALIGN=Center>Aryee Lab</b></h3>")
         ),
-    mainPanel(
-        HTML("<h3><b>About</b></h3>"),
-        HTML("<h5> We designed <b>DNAlandscapeR</b> to provide a visualization of epigenetic data,
-             particularly three-dimensional chromatin structures from ChIA-PET and HiC experiments,
-             in a computationally efficient framework. These tracks can be viewed immediately alongside
-             other epigenetic tracks, such as DNA methylation, transcription binding intensities, and
-             RNA expression.<br><br>Check out our <b>Guide</b> tab for more details on the user experience. </h5>"),
-        HTML("<h3><b>What's new</b></h3>"),
-        HTML("<h5><b>2016 June 14</b><br> *Added support for HiC data plotting</h5>"),
-        HTML("<h3><b>Citation</b></h3>"),
-        HTML("<h5>Coming Soon!</h5>"),
-        width = 12)
+    mainPanel(includeHTML("www/welcome.html"), width = 12)
 )),
                    
 tabPanel("Visualize", 
@@ -72,15 +61,16 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = "Panel1",
     bsCollapsePanel(title = HTML("<h4><b>Advanced options</b></h4>"), value = "Panel1",
     fluidRow(
        column(4, radioButtons("organism", HTML("<h4><b>Specify Organism</b></h4>"),
-                    choices = list("Human" = 1, "Mouse" = 2), selected = 1)
+                    choices = list("Human" = 1, "Mouse" = 2), selected = 1),
+              checkboxInput("showSingleAnchors", "Show Single Anchors", value = FALSE, width = NULL),
+              checkboxInput("log2BW", "log2 Transform .bigwigs", value = FALSE, width = NULL)
               ),
        column(4, textInput("Gene", HTML("<h4><b>Plot Gene Region </b></h4>"), value = "AGO3"),
                  actionButton("plot.gene", "Plot Gene", style='padding:10px; font-size:80%')),
-       column(4, HTML("<h4><b>Track configuration </b></h4>"),
-              checkboxInput("showSingleAnchors", "Show Single Anchors", value = FALSE, width = NULL),
-              checkboxInput("log2BW", "log2 Transform .bigwigs", value = FALSE, width = NULL),
-              sliderInput("smoother", HTML("<h4><b>Smooth .bigwigs</b></h4>"), min=0, max=5000, value=0, step= 50),
-              HTML("<h5>Select number of basepair to smooth region over</h5>"))
+       column(4, HTML("<h4><b>Smooth Epigenetic Peaks</b></h4>"),
+              sliderInput("smoother", HTML("<h4><b>Smoothing Window Size</b></h4>"), min=0, max=5000, value=100, step=50),
+              selectInput("FUN", label=HTML("<h4><b>Function to Smooth</b></h4>"),
+              choices = list("Mean"="mean", "Max"="max", "Median"="median"), selected = "mean"))
      ),
     tags$hr(),
     actionButton("refresh", "Refresh Plot"),
