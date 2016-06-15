@@ -77,8 +77,10 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = "Panel1",
        column(4, textInput("Gene", HTML("<h4><b>Plot Gene Region </b></h4>"), value = "AGO3"),
                  actionButton("plot.gene", "Plot Gene", style='padding:10px; font-size:80%')),
        column(4, HTML("<h4><b>Track configuration </b></h4>"),
+              checkboxInput("showSingleAnchors", "Show Single Anchors", value = FALSE, width = NULL),
               checkboxInput("log2BW", "log2 Transform .bigwigs", value = FALSE, width = NULL),
-              checkboxInput("showSingleAnchors", "Show Single Anchors", value = FALSE, width = NULL))
+              sliderInput("smoother", HTML("<h4><b>Smooth .bigwigs</b></h4>"), min=0, max=5000, value=0, step= 50),
+              HTML("<h5>Select number of basepair to smooth region over</h5>"))
      ),
     tags$hr(),
     actionButton("refresh", "Refresh Plot"),
