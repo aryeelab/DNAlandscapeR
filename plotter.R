@@ -70,20 +70,23 @@ masterPlotter <- function(input, dynamic.val){
             t <- i - 4000000
             sample <- names(dynamic.val$m.bg.list)[t]
             bedgraph.trackplot(dynamic.val$m.bg.full[[t]], dynamic.val$region, "Methylation", sample = sample)
-        } else if (i < 6000000){ # HiC Plot
+        } else if (i < 6000000){ # Hi-C Plot for Stuff that's preloaded on the server
             t <- i - 5000000
             sample.hic <- names(dynamic.val$i.list)[t]
             sample <- gsub("-HiC", "", sample.hic)
-            if(sample.hic %in%  names(g_h.i.list)){ #Preloaded on the server
-                fs <- g_h.i.full
-                res <- as.character(input[[paste0(sample, "HiCRes")]])
-                chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
-                file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
-                hicdata <- readRDS(gzcon(url(file)))
-            } else { # Uploaded .rds
-                hicdata <- readRDS(base)
-            }
+            fs <- g_h.i.full
+            res <- as.character(input[[paste0(sample, "HiCRes")]])
+            chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
+            file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
+            hicdata <- readRDS(gzcon(url(file)))
             hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic)
+        } else if (i < 7000000) { # Local Hi-C plot    
+            t <- i - 6000000
+            chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
+            list.dat <- readRDS(dynamic.val$i.l.full[t])
+            hicdata <- list.dat[[chrom]]
+            sample <- names(dynamic.val$i.l.list)[t]
+            hic.plot(hicdata, dynamic.val$region, sample = sample, color = input$HiCcolor, log2trans = input$log2hic)
         } else {return()}
     }
     e <- ifelse(input$showgenes == 2, TRUE, FALSE)
@@ -300,7 +303,7 @@ hic.plot <- function(hicdata, region, sample, color, log2trans){
     hicregion <- as.matrix(hicdata[which(rows >= start & rows <= end), which(cols >= start & cols <= end)])
     if(log2trans) {
         hicregion <- log2(hicregion)
-        hicregion[hicregion<0] <- 0
+        hicregion[hicregion < 0] <- 0
     }
     
     # determine number of bins

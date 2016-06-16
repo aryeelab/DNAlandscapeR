@@ -9,7 +9,7 @@ graphics: yes
 * [Interactive zooming](#iz)
 * [Visualizing Local Data](#uld)
 * [Creating .rds for ChIA-PET Visualization](#crL)
-* [HiC Visualization](#hic)
+* [Creating .rds for Hi-C Visualization](#hic)
 * [FAQ](#faq)
 <hr>
 
@@ -98,7 +98,7 @@ chr1	32705184	32708527	chr1	32799616	32803060	6	1
 <hr>
 <a name="hic"></a>
 ### **HiC Visualization**
-Due to the prohibitive size of HiC data, we've created our own compression format that is optimally designed to be used in **DNAlandscapeR**. For example, a 24 gigabyte normalize output from [HiC-Pro](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x) was compressed to only 44 megabytes from the GM12878 cell line at 20kb resolution. While we are eager to get additional HiC data into the browser, we currently do not support users uploading their data locally due to the highly-specialized format. Thus, we ask that you please contact <A HREF="mailto:caleblareau@g.harvard.edu">Caleb</A> to facilitate the processing and addition of new HiC data into our browser. 
+Due to the prohibitive size of HiC data, we've created our own compression format that is optimally designed to be used in **DNAlandscapeR**. For example, a 24 gigabyte normalized output matrix from [HiC-Pro](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x) was compressed to only 44 megabytes from the GM12878 cell line at 20kb resolution. Users who wish to visualize their own Hi-C data locally should use [this code](https://github.com/aryeelab/DNAlandscapeR/blob/master/data_generating_scripts/DNAlandscapeR-HiCprocess.R) as a basis for running our novel compression algorithm. The resulting .rds for the Hi-C compression format is a list of sparse matrices indexed by the chromosome. On the pre-loaded data, we further split this list into individual chromosomes for even faster data viewing. 
 <hr>
 <a name="faq"></a>
 ### **FAQ**

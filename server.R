@@ -25,19 +25,21 @@ function(input, output, session) {
 
         # Initialize with human
         list.tracks = g_h.f.list, 
-        c.full    = g_h.c.full,
-        t.bw.full = g_h.t.bw.full,
-        t.bg.full = g_h.t.bg.full,
-        m.bw.full = g_h.m.bw.full,
-        m.bg.full = g_h.m.bg.full, 
-        i.full    = g_h.i.full,
-        c.list    = g_h.c.list,
-        t.bw.list = g_h.t.bw.list,
-        t.bg.list = g_h.t.bg.list,
-        m.bw.list = g_h.m.bw.list,
-        m.bg.list = g_h.m.bg.list,
-        i.list    = g_h.i.list,
-        organism = "human",
+        c.full      = g_h.c.full,
+        t.bw.full   = g_h.t.bw.full,
+        t.bg.full   = g_h.t.bg.full,
+        m.bw.full   = g_h.m.bw.full,
+        m.bg.full   = g_h.m.bg.full, 
+        i.full      = g_h.i.full,
+        i.l.list    = NULL,
+        c.list      = g_h.c.list,
+        t.bw.list   = g_h.t.bw.list,
+        t.bg.list   = g_h.t.bg.list,
+        m.bw.list   = g_h.m.bw.list,
+        m.bg.list   = g_h.m.bg.list,
+        i.list      = g_h.i.list,
+        i.l.list    = NULL,
+        organism    = "human",
         
         # Initialize human values
         h.f.list    = g_h.f.list, 
@@ -47,12 +49,14 @@ function(input, output, session) {
         h.m.bw.full = g_h.m.bw.full,
         h.m.bg.full = g_h.m.bg.full,
         h.i.full    = g_h.i.full,
+        h.i.l.full  = NULL,
         h.c.list    = g_h.c.list,
         h.t.bw.list = g_h.t.bw.list,
         h.t.bg.list = g_h.t.bg.list,
         h.m.bw.list = g_h.m.bw.list,
         h.m.bg.list = g_h.m.bg.list,
         h.i.list    = g_h.i.list,
+        h.i.l.list  = NULL,
         
         # Initialize mouse values
         m.f.list    = g_m.f.list,
@@ -62,12 +66,14 @@ function(input, output, session) {
         m.m.bw.full = g_m.m.bw.full,
         m.m.bg.full = g_m.m.bg.full,
         m.i.full    = g_m.i.full,
+        m.i.l.full  = NULL, 
         m.c.list    = g_m.c.list,
         m.t.bw.list = g_m.t.bw.list,
         m.t.bg.list = g_m.t.bg.list,
         m.m.bw.list = g_m.m.bw.list,
         m.m.bg.list = g_m.m.bg.list,
         m.i.list    = g_m.i.list,
+        m.i.l.list  = NULL,
         
         regionRow = 0,
         regions.df = NULL,
@@ -326,7 +332,7 @@ function(input, output, session) {
         
         # Append track/bigwig file        
         } else if (input$datType == 2) {
-            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 2000000]), 0)) + 1 )
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 2000000]), 1000000)) + 1 )
             names(valu) <- name
             if(input$organismUpload == 1){
                 dynamic.val$h.t.bw.full <- c(dynamic.val$h.t.bw.full, curfile)
@@ -338,7 +344,7 @@ function(input, output, session) {
         
         # Append bedgraph track file
         } else if (input$datType == 3) {
-            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 3000000]), 0)) + 1 )
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 3000000]), 2000000)) + 1 )
             names(valu) <- name
             if(input$organismUpload == 1){
                 dynamic.val$h.t.bg.full <- c(dynamic.val$h.t.bg.full, curfile)
@@ -350,7 +356,7 @@ function(input, output, session) {
         
         # Append bigwig methylation file
         } else if (input$datType == 4) {
-            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 4000000]), 0)) + 1 )
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 4000000]), 3000000)) + 1 )
             names(valu) <- name
             if(input$organismUpload == 1){
                 dynamic.val$h.m.bw.full <- c(dynamic.val$h.m.bw.full, curfile)
@@ -362,7 +368,7 @@ function(input, output, session) {
             
         # Append bedgraph methylation file
         } else if (input$datType == 5) {
-            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 5000000]), 0)) + 1 )
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 5000000]), 4000000)) + 1 )
             names(valu) <- name
             if(input$organismUpload == 1){
                 dynamic.val$h.m.bg.full <- c(dynamic.val$h.m.bg.full, curfile)
@@ -372,16 +378,20 @@ function(input, output, session) {
                 dynamic.val$m.m.bg.list <- append(dynamic.val$m.m.bg.list, valu)
             }
             
-        #Hi C data
-        } else {
-            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 6000000]), 0)) + 1 )
+        # Hi C data; .l is for "local"
+        } else { #datType is 6
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 7000000]), 6000000)) + 1 )
             names(valu) <- name
             if(input$organismUpload == 1){
-                dynamic.val$h.i.full <- c(dynamic.val$h.i.full, curfile)
-                dynamic.val$h.i.list <- append(dynamic.val$h.i.list, valu)
+                dynamic.val$h.i.l.full <- c(dynamic.val$h.i.l.full, curfile)
+                dynamic.val$h.i.l.list <- append(dynamic.val$h.i.l.list, valu)
+                dynamic.val$i.l.full <- dynamic.val$h.i.l.full
+                dynamic.val$i.l.list <- dynamic.val$h.i.l.list
             } else {
-                dynamic.val$m.i.full <- c(dynamic.val$m.i.full, curfile)
-                dynamic.val$m.i.list <- append(dynamic.val$m.i.list, valu)
+                dynamic.val$m.i.l.full <- c(dynamic.val$m.i.l.full, curfile)
+                dynamic.val$m.i.l.list <- append(dynamic.val$m.i.l.list, valu)
+                dynamic.val$i.l.full <- dynamic.val$m.i.l.full
+                dynamic.val$i.l.list <- dynamic.val$m.i.l.list
             }
         }
         

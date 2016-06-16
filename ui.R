@@ -64,7 +64,7 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), mul
        column(4, radioButtons("organism", HTML("<h4><b>Specify Organism</b></h4>"),
                     choices = list("Human" = 1, "Mouse" = 2), selected = 1),
               checkboxInput("showSingleAnchors", "Show Single Anchors", value = FALSE, width = NULL),
-              checkboxInput("log2BW", "log2 Transform .bigwigs", value = FALSE, width = NULL)
+              checkboxInput("log2BW", "Log Transform Continuous Tracks", value = FALSE, width = NULL)
               ),
        column(4, textInput("Gene", HTML("<h4><b>Plot Gene Region </b></h4>"), value = "LMO2"),
                  actionButton("plot.gene", "Plot Gene", style='padding:10px; font-size:80%')),
@@ -89,8 +89,8 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), mul
                     choices = choices, selected = min(res))
             })),
         column(4, HTML("<h4><b>Configure HiC Data</b></h4>"),
-               checkboxInput("log2hic", "log2 Transform Hi-C", value = FALSE, width = NULL)),
-        column(4, selectInput("HiCcolor",  HTML("<h4><b>Select HiC Color Theme</b></h4>"),
+               checkboxInput("log2hic", "Log Transform Hi-C Values", value = FALSE, width = NULL)),
+        column(4, selectInput("HiCcolor",  HTML("<h4><b>Select Hi-C Color Theme</b></h4>"),
                     choices = color.choices, selected = 13))
         ),
     tags$hr(),
