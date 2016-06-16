@@ -23,16 +23,11 @@ library(dplyr)
 library(edgeR)
 library(rsconnect)
 library(miniUI)
+library(colorRamps)
 
 default_chr <- "9"
 default_start <- 21912689
 default_end <- 22216233
-
-uploadchoices <- list("Loops/.rds" = 1,
-                      "ReadDepth/.bigWig" = 2,
-                      "ReadDepth/.bedgraph" = 3,
-                      "Methylation/.bigWig" = 4,
-                      "Methylation/.bedgraph" = 5)
 
 # Variable names are coded as follows
 # g_ is a global variable
@@ -57,14 +52,20 @@ amazon.filenames <- paste(amazon, amazon.filenames, sep = "/")
 g_h.c.full <- list.files("data/human/loops", full.names = TRUE)
 g_h.t.files <- list.files("data/human/tracks", full.names = TRUE)
 g_h.m.files <- list.files("data/human/methylation", full.names = TRUE)
-g_h.i.full <- list.files("data/human/hic", full.names = TRUE)
+g_h.i.samples <- character(0)
 
 # Append amazon data
 g_h.c.full <- c(g_h.t.files, amazon.filenames[grepl("data/human/loops/.{1,}", amazon.filenames)])
 g_h.t.files <- c(g_h.t.files, amazon.filenames[grepl("data/human/tracks/.{1,}", amazon.filenames)])
 g_h.m.files <- c(g_h.m.files, amazon.filenames[grepl("data/human/methylation/.{1,}", amazon.filenames)])
+
+# HiC dealings
 i.temp <- amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)]
-g_h.i.full <- c(g_h.i.full,  i.temp[!grepl(".rds", i.temp)])
+g_h.i.samples <- basename(i.temp[!grepl("_", i.temp)])
+res.temp <- basename(i.temp[!grepl(".rds", i.temp) & grepl("_", i.temp)])
+g_h.i.res <- lapply(g_h.i.samples, function(t){unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))[c(FALSE,TRUE)]})
+names(g_h.i.res) <- g_h.i.samples
+g_h.i.full <- i.temp[grepl(".rds", i.temp)]
 
 
 # From 1-1,000,000-- ChIA-PET loops objects
@@ -108,10 +109,10 @@ if(length(g_h.m.bg.full) != 0){
 } else { g_h.m.bg.list <- list(); g_h.m.bg.full <- list()}
 
 # From 5,000,001-6,000,000-- HiC Tracks-- .rds
-if(length(g_h.i.full) != 0){
-    g_h.i.names <- basename(file_path_sans_ext(g_h.i.full))
-    g_h.i.list <- as.list(seq(1, length(g_h.i.names), by = 1) + 5000000)
-    names(g_h.i.list) <- g_h.i.names
+if(length(g_h.i.samples) != 0){
+    g_h.i.list <- as.list(seq(1, length(g_h.i.samples), by = 1) + 5000000)
+    names(g_h.i.list) <- paste(g_h.i.samples, "-HiC", sep="")
+
 } else {g_h.i.list <- list()}
 
 g_h.f.list <- append(g_h.c.list, append(append(g_h.t.bw.list, g_h.t.bg.list), append(append(g_h.m.bw.list, g_h.m.bg.list), g_h.i.list)))
@@ -137,13 +138,13 @@ for(k in 1:dim(h.d)[1]){
 g_m.c.full <- list.files("data/mouse/loops", full.names = TRUE)
 g_m.t.files <- list.files("data/mouse/tracks", full.names = TRUE)
 g_m.m.files <- list.files("data/mouse/methylation", full.names = TRUE)
-g_m.i.full  <- list.files("data/mouse/hic", full.names = TRUE)
+g_m.i.full  <- character(0)
 
 # Append amazon data
 g_m.c.full <- c(g_m.c.full, amazon.filenames[grepl("data/mouse/loops/.{1,}", amazon.filenames)])
 g_m.t.files <- c(g_m.t.files, amazon.filenames[grepl("data/mouse/tracks/.{1,}", amazon.filenames)])
 g_m.m.files <- c(g_m.m.files, amazon.filenames[grepl("data/mouse/methylation/.{1,}", amazon.filenames)])
-g_m.i.full <- c(g_m.i.full, amazon.filenames[grepl("data/mouse/hic/.{1,}", amazon.filenames)])
+#g_m.i.full <- c(g_m.i.full, amazon.filenames[grepl("data/mouse/hic/.{1,}", amazon.filenames)])
 
 
 # From 1-1,000,000-- ChIA-PET loops objects
@@ -189,13 +190,13 @@ if(length(g_m.m.bg.full) != 0){
     names(g_m.m.bg.list) <- g_m.m.bg.names
 } else { g_m.m.bg.list <- list(); g_m.m.bg.full <- list()}
 
-# From 5,000,001-6,000,000-- HiC Tracks-- .rds
-if(length(g_m.i.full) != 0){
-    g_m.i.names <- basename(file_path_sans_ext(g_m.i.full))
-    g_m.i.list <- as.list(seq(1, length(g_m.i.names), by = 1) + 5000000)
-    names(g_m.i.list) <- g_h.i.names
-} else {g_m.i.list <- list()}
-
+# From 5,000,001-6,000,000-- HiC Tracks-- .rds -- not currently supported
+#if(length(g_m.i.full) != 0){
+#    g_m.i.names <- basename(file_path_sans_ext(g_m.i.full))
+#    g_m.i.list <- as.list(seq(1, length(g_m.i.names), by = 1) + 5000000)
+#    names(g_m.i.list) <- g_h.i.names
+#} else {g_m.i.list <- list()}
+g_m.i.list <- list()
 
 g_m.f.list <- append(g_m.c.list, append(append(g_m.t.bw.list, g_m.t.bg.list), append(append(g_m.m.bw.list, g_m.m.bg.list), g_m.i.list)))
 
@@ -210,25 +211,50 @@ for(k in 1:dim(m.d)[1]){
     g_m.f.list <- append(g_m.f.list, x)
 }
 
+## List Parameters
+
+uploadchoices <- list(
+    "Loops/.rds" = 1,
+    "ReadDepth/.bigWig" = 2,
+    "ReadDepth/.bedgraph" = 3,
+    "Methylation/.bigWig" = 4,
+    "Methylation/.bedgraph" = 5,
+    "Hi-C/.rds" = 6
+)
+
+color.choices <- list(
+    "Pallet" = 1,
+    "Viridian" = 2,
+    "Pewter" = 3,
+    "Cerulean" = 4,
+    "Vermillion" = 5,
+    "Lavendar" = 6,
+    "Celadon" = 7,
+    "Fuchsia" = 8,
+    "Saffron" = 9,
+    "Cinnabar" = 10,
+    "Indigo" = 11,
+    "Master" = 12,
+    "Black and Blue" = 13,
+    "Heat" = 14,
+    "Topology" = 15,
+    "Blue to Red" = 16)
+
 
 ## Useful Functions ##
 
 .subsetRegion.quick <- function(loops, region, nanchors = 2) {
-    
     g <- findOverlaps(region, loops@anchors)@to
-
     if(nanchors == 2) { cc <- loops@interactions[,1] %in% g & loops@interactions[,2] %in% g
     } else { cc <- xor(loops@interactions[,1] %in% g, loops@interactions[,2] %in% g) }
     
     ni <- matrix(loops@interactions[cc,], ncol = 2)
     colnames(ni) <- c("left", "right")
-    
     nc <- matrix(loops@counts[cc,], ncol = dim(loops@counts)[2])
     colnames(nc) <- colnames(loops@counts)
 
     slot(loops, "interactions", check = TRUE) <- ni
     slot(loops, "counts", check = TRUE) <- nc
     slot(loops, "rowData", check = TRUE) <- loops@rowData[cc,]
-    
     return(loops)
 }

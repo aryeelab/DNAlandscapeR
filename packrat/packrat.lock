@@ -239,6 +239,11 @@ Source: CRAN
 Version: 0.2-14
 Hash: 127e7e68dfa21d3f17c022df1e727d0a
 
+Package: colorRamps
+Source: CRAN
+Version: 2.3
+Hash: d96002cc5a5865a552486c392e39f5ed
+
 Package: colorspace
 Source: CRAN
 Version: 1.2-6

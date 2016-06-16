@@ -6,10 +6,11 @@ source("global.R")
 options(shiny.error=browser)
 options(shiny.maxRequestSize=1*1024^3) #1 GB Max file size
 options(warn=-1)
+options(scipen=999)
 
 function(input, output, session) {
     
-    # Set up dataframe
+    # Set up dataframe for data description tab
     dDF <- read.table("http://textuploader.com/5buvy/raw", header = TRUE, sep = "\t")
     output$preloadedDataDescription <- renderDataTable({dDF})
     output$regiontotal <- renderText("")
@@ -133,7 +134,7 @@ function(input, output, session) {
     observeEvent(input$plot.gene, {
         if(input$organism == 1) load("data/GenomeAnnotation/hg19/geneinfo.rda")
         if(input$organism == 2) load("data/GenomeAnnotation/mm9/geneinfo.rda")
-        t <- geneinfo[toupper(geneinfo$gene) == toupper(as.character(input$Gene))]
+        t <- geneinfo[toupper(geneinfo$gene) == toupper(as.character(input$Gene)),]
         t.gr <- GRanges(t[c(1,2,3,4)])
         dynamic.val$region <- padGRanges(t.gr, pad = as.integer(width(t.gr)/2))
         updateRegionVals()
@@ -244,9 +245,8 @@ function(input, output, session) {
         makePlot()
     })
     
-    observeEvent(input$refresh, {
-        makePlot()
-    })
+    observeEvent(input$refresh, { makePlot() })
+    observeEvent(input$refresh2, { makePlot() })
     
 
     p1 <- function(){  
@@ -274,7 +274,7 @@ function(input, output, session) {
     output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Select Tracks")),
                                                  choices = dynamic.val$list.tracks, selectize = TRUE,
                                                  multiple = TRUE, selected = 0)})
-
+    
     #---------------------------------#
     # Code for input tab
     #---------------------------------#

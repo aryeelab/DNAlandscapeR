@@ -57,7 +57,8 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
     ),
   fluid = TRUE
 ),
-bsCollapse(id = "collapseAdvancedPlotOptions", open = "Panel1",
+
+bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), multiple = TRUE,
     bsCollapsePanel(title = HTML("<h4><b>Advanced options</b></h4>"), value = "Panel1",
     fluidRow(
        column(4, radioButtons("organism", HTML("<h4><b>Specify Organism</b></h4>"),
@@ -65,7 +66,7 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = "Panel1",
               checkboxInput("showSingleAnchors", "Show Single Anchors", value = FALSE, width = NULL),
               checkboxInput("log2BW", "log2 Transform .bigwigs", value = FALSE, width = NULL)
               ),
-       column(4, textInput("Gene", HTML("<h4><b>Plot Gene Region </b></h4>"), value = "AGO3"),
+       column(4, textInput("Gene", HTML("<h4><b>Plot Gene Region </b></h4>"), value = "LMO2"),
                  actionButton("plot.gene", "Plot Gene", style='padding:10px; font-size:80%')),
        column(4, HTML("<h4><b>Smooth Epigenetic Peaks</b></h4>"),
               sliderInput("smoother", HTML("<h4><b>Smoothing Window Size</b></h4>"), min=0, max=5000, value=100, step=50),
@@ -75,6 +76,25 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = "Panel1",
     tags$hr(),
     actionButton("refresh", "Refresh Plot"),
     downloadButton("down", "Download Plot"),    
+    style = "default"),
+    
+    bsCollapsePanel(title = HTML("<h4><b>Hi-C Configuration</b></h4>"), value = "Panel2",
+    fluidRow(
+        column(4,HTML("<h4><b>Individual Sample Resolution</b></h4>"),
+            lapply(g_h.i.samples, function(sample) {
+                res <- sort(as.integer(g_h.i.res[[sample]]))
+                choices <- as.list(res)
+                names(choices) <- res
+                selectInput(paste0(sample, "HiCRes"), paste0('Specify ', sample, " Resolution"),
+                    choices = choices, selected = min(res))
+            })),
+        column(4, HTML("<h4><b>Configure HiC Data</b></h4>"),
+               checkboxInput("log2hic", "log2 Transform Hi-C", value = FALSE, width = NULL)),
+        column(4, selectInput("HiCcolor",  HTML("<h4><b>Select HiC Color Theme</b></h4>"),
+                    choices = color.choices, selected = 13))
+        ),
+    tags$hr(),
+    actionButton("refresh2", "Refresh Plot"),
     style = "default")
 )),
 

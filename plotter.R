@@ -72,8 +72,18 @@ masterPlotter <- function(input, dynamic.val){
             bedgraph.trackplot(dynamic.val$m.bg.full[[t]], dynamic.val$region, "Methylation", sample = sample)
         } else if (i < 6000000){ # HiC Plot
             t <- i - 5000000
-            sample <- names(dynamic.val$i.list)[t]
-            hic.plot(dynamic.val$i.full[[t]], dynamic.val$region, sample = sample)
+            sample.hic <- names(dynamic.val$i.list)[t]
+            sample <- gsub("-HiC", "", sample.hic)
+            if(sample.hic %in%  names(g_h.i.list)){ #Preloaded on the server
+                fs <- g_h.i.full
+                res <- as.character(input[[paste0(sample, "HiCRes")]])
+                chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
+                file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
+                hicdata <- readRDS(gzcon(url(file)))
+            } else { # Uploaded .rds
+                hicdata <- readRDS(base)
+            }
+            hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic)
         } else {return()}
     }
     e <- ifelse(input$showgenes == 2, TRUE, FALSE)
@@ -257,26 +267,42 @@ bedgraph.trackplot <- function(file, region, ylab, sample){
     return(trackplot)
 }
 
-hic.plot <- function(base, region, sample){
+hicColors <- function(p) {
+    if(p == 1) return(colorRampPalette(colorRamps::matlab.like2(100)))
+    if(p == 2) return(colorRampPalette(c("#ffffff", "#40826D")))
+    if(p == 3) return(colorRampPalette(c("#ffffff", "#9D9A96")))
+    if(p == 4) return(colorRampPalette(c("#ffffff", "#2956B2")))
+    if(p == 5) return(colorRampPalette(c("#ffffff", "#E34234")))
+    if(p == 6) return(colorRampPalette(c("#ffffff", "#E6E6FA")))
+    if(p == 7) return(colorRampPalette(c("#ffffff", "#ACE1AF")))
+    if(p == 8) return(colorRampPalette(c("#ffffff", "#FF0080")))
+    if(p == 9) return(colorRampPalette(c("#ffffff", "#FF9933")))
+    if(p == 10) return(colorRampPalette(c("#ffffff", "#E34234")))
+    if(p == 11) return(colorRampPalette(c("#ffffff", "#4B0082")))
+    if(p == 12) return(colorRampPalette(c("black","blue","#1E90FF","orange","#FF8C00")))
+    if(p == 13) return(colorRampPalette(c("black","blue","#1E90FF","#00BFFF","#B0E2FF")))
+    if(p == 14) return(colorRampPalette(grDevices::heat.colors(100)))
+    if(p == 15) return(colorRampPalette(grDevices::topo.colors(100)))
+    if(p == 16) return(colorRampPalette(colorRamps::blue2red(100)))
+}
+
+hic.plot <- function(hicdata, region, sample, color, log2trans){
     chrom <- as.character(seqnames(region))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(region))))
     end <- as.integer(end(ranges(range(region))))
     
-    if(grepl("amazonaws", base)){
-        file <- paste(base, sample, "-", chromchr, ".rds", sep = "")
-        hicdata <- readRDS(gzcon(url(file)))
-    } else {
-        hicdata <- readRDS(base)
-    }
-    
     # Hacked Sushi HiC Plot Function
-    palette <- SushiColors(6)
+    palette <- hicColors(color)
     rows <- as.numeric(rownames(hicdata))
     cols <- as.numeric(colnames(hicdata))
     
     hicregion <- as.matrix(hicdata[which(rows >= start & rows <= end), which(cols >= start & cols <= end)])
-
+    if(log2trans) {
+        hicregion <- log2(hicregion)
+        hicregion[hicregion<0] <- 0
+    }
+    
     # determine number of bins
     nbins <- nrow(hicregion)
     stepsize <- abs(start - end)/(2 * nbins)
@@ -286,35 +312,40 @@ hic.plot <- function(base, region, sample){
     # map to colors
     breaks <- seq(min_z, max_z, length.out = 100)
     cols <- palette(length(breaks) + 1)
-    hicmcol <- matrix(as.character(cut(hicregion, c(-Inf, breaks, Inf), labels = cols)), nrow = nrow(hicregion))
-
+    if(length(unique(breaks)) == 1){
+        hicmcol <- matrix(max(cols), nrow = 1, ncol = 1)
+    } else {
+        hicmcol <- matrix(as.character(cut(hicregion, c(-Inf, breaks, Inf), labels = cols)), nrow = nrow(hicregion))
+    }
     # initialize plot
     plot(1, 1, xlim = c(start, end), ylim = c(0, 20), type = "n", xaxs = "i", yaxs = "i",
          bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = sample, adj = 0)
 
     # fill plot
+    h <- 20/min(40, dim(hicregion)[2])
     for (rownum in (1:nrow(hicregion))) {
-        y = -0.5
+        y = -1*h
         x = start + (rownum * 2 * stepsize) - (stepsize * 2)
         for (colnum in (rownum:ncol(hicregion))) {
             x = x + stepsize
-            y = y + 0.5
+            y = y + h
             if(y <= 20){
                 if(colnum != rownum & y!=20){ # Square
                     xs = c(x - stepsize, x, x + stepsize, x, x - stepsize)
-                    ys = c(y, y + 0.5, y, y - 0.5, y)
+                    ys = c(y, y + h, y, y - h, y)
                 } else if(y == 20){ #upside down triangle
                     xs = c(x - stepsize, x, x + stepsize)
-                    ys = c(y, y - 0.5, y)
+                    ys = c(y, y - h, y)
                 } else {
                     xs = c(x - stepsize, x, x + stepsize)
-                    ys = c(y, y + 0.5, y)
+                    ys = c(y, y + h, y)
                 }
                 polygon(xs, ys, border = NA, col = hicmcol[colnum, rownum])
             }
         }
     }
     labelgenome(chromchr, start, end, n=4, scale="Mb",edgeblankfraction=0.20)
+    if(min_z == max_z) min_z <- 0
     addlegend(c(min_z, max_z), palette = palette, title="", side="right",
         bottominset=0.4, topinset=0, xoffset=-.035, labelside="left",
         width=0.025, title.offset=0.035)
