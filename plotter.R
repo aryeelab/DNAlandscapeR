@@ -307,12 +307,14 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
         hicregion <- log2(hicregion)
         hicregion[hicregion < 0] <- 0
     }
-    
+    if(dim(hicregion)[1]==0) hicregion <- matrix(1)
     # determine number of bins
     nbins <- nrow(hicregion)
     stepsize <- abs(start - end)/(2 * nbins)
     max_z <- max(hicregion, na.rm = TRUE)
     min_z <- min(hicregion[hicregion > 0], na.rm = TRUE)    
+    if(is.infinite(max_z) | is.na(max_z) | is.nan(max_z)) max_z <- 10000
+    if(is.infinite(min_z) | is.na(min_z) | is.nan(min_z)) min_z <- 0.01
         
     # map to colors
     breaks <- seq(min_z, max_z, length.out = 100)
