@@ -78,7 +78,9 @@ function(input, output, session) {
         regionRow = 0,
         regions.df = NULL,
         fileAvail = FALSE,
-        nregions = 0
+        nregions = 0,
+        track.names = NULL,
+        start.tracks = 0
         )
 
     # Define dynamic variables based on organism selection
@@ -114,6 +116,10 @@ function(input, output, session) {
     }
     })
     
+    output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Select Tracks")),
+                                                 choices = dynamic.val$list.tracks, selectize = TRUE,
+                                                 multiple = TRUE, selected = dynamic.val$start.tracks)})
+    
     #Updates the text boxes of coordinates when a button is pressed.
     updateRegionVals <- function(){
         updateNumericInput(session, "chr", value = data.frame(dynamic.val$region)[1,1])     
@@ -122,11 +128,18 @@ function(input, output, session) {
         output$regiontotal <-renderText(paste(paste(paste("chr", input$chr, sep = ""),
                                         input$start, sep = ":"),input$stop, sep = "-"))
     }
+    
+    observe({dynamic.val$track.names <- names(dynamic.val$list.tracks)[match(input$tracks, dynamic.val$list.tracks)]})
 
     
     #---------------------------------#
     # Code for various buttons
     #---------------------------------#
+    
+    observeEvent(input$initializeExample, {
+        desired.tracks <- c("IMR90-HiC", "GM12878-HiC", "GM12878-CTCFcp", "GM12878-CTCF", "GM12878-DNase")
+        dynamic.val$start.tracks <- g_h.f.list[desired.tracks]
+    })
     
     observeEvent(input$plot.region, {
         dynamic.val$region <- GRanges(seqnames=c(input$chr),
@@ -136,7 +149,7 @@ function(input, output, session) {
                                         input$start, sep = ":"),input$stop, sep = "-"))
         makePlot()
     })
-  
+    
     observeEvent(input$plot.gene, {
         if(input$organism == 1) load("data/GenomeAnnotation/hg19/geneinfo.rda")
         if(input$organism == 2) load("data/GenomeAnnotation/mm9/geneinfo.rda")
@@ -260,26 +273,42 @@ function(input, output, session) {
         if (length(isolate(input$tracks)) == 0) return()
         sg <- ifelse(isolate(input$showgenes) == 0, 0, 1)
         par(mfrow=c(length(isolate(input$tracks)) + sg, 1),
-                oma = c(0, 1, 3, 0), mar = c(3, 5, 1, 1))
+                oma = c(0, 1, 3, 0), mar = c(3, 5, 3, 1))
         masterPlotter(isolate(input), isolate(dynamic.val))
     }
     
-    output$down <- downloadHandler(
+    output$downQuick <- downloadHandler(
         filename <- function() {
-            paste('plot-', Sys.Date(), '.pdf', sep='') },
+            paste('DNAlandscapeR-plot-', Sys.Date(), '.pdf', sep='') },
         content <- function(file) {
             pdf(file, width = 8.5, height = 11)
             p1()
             dev.off()}
     )
     
+    output$bm.down <- downloadHandler(
+        filename <- function() {
+            paste0("DNAlandscapeR-plot-", Sys.Date(), input$bm.type[1:3]) },
+        content <- function(file) {
+            print(input$bm.units)
+            bitmap(file, type = input$bm.type, height = as.numeric(input$bm.height), width = as.numeric(input$bm.width),
+                   res = as.integer(input$bm.res), units = as.character(input$bm.units))
+            p1()
+            dev.off()}
+    )
+    
     makePlot <- function(){ 
-        output$plot <- renderPlot({isolate(p1())}, height = 850)
+        output$plot <- renderPlot({isolate(p1())}, height = 920)
     }
     
-    output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Select Tracks")),
-                                                 choices = dynamic.val$list.tracks, selectize = TRUE,
-                                                 multiple = TRUE, selected = 0)})
+    output$flipMe <- renderUI({dropdownButton(label = "Flip Tracks", status = "default", width = 100,
+        checkboxGroupInput(inputId = "flipper", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names))
+    )})
+    
+    output$showGenomeAnnotation <- renderUI({dropdownButton(label = "Show X Label", status = "default", width = 100,
+        checkboxGroupInput(inputId = "showGA", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names),
+        selected = setNames(as.list(input$tracks), dynamic.val$track.names) )
+    )})
     
     #---------------------------------#
     # Code for input tab

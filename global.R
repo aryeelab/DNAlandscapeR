@@ -25,6 +25,8 @@ library(rsconnect)
 library(miniUI)
 library(colorRamps)
 
+source("www/adv-shiny.R")
+
 default_chr <- "9"
 default_start <- 21912689
 default_end <- 22216233
@@ -52,20 +54,26 @@ amazon.filenames <- paste(amazon, amazon.filenames, sep = "/")
 g_h.c.full <- list.files("data/human/loops", full.names = TRUE)
 g_h.t.files <- list.files("data/human/tracks", full.names = TRUE)
 g_h.m.files <- list.files("data/human/methylation", full.names = TRUE)
-g_h.i.samples <- character(0)
 
-# Append amazon data
+# Local HiC
+g_h.i.samples <- list.dirs("data/human/hic/", full.names = FALSE, recursive = FALSE)
+res.temp <- list.dirs(paste0("data/human/hic/", g_h.i.samples), full.names = FALSE, recursive = FALSE)
+g_h.i.res <- lapply(g_h.i.samples, function(t){unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))[c(FALSE,TRUE)]})
+g_h.i.full <- list.files("data/human/hic", recursive = TRUE, full.names = TRUE)
+
+# Append Amazon data
 g_h.c.full <- c(g_h.t.files, amazon.filenames[grepl("data/human/loops/.{1,}", amazon.filenames)])
 g_h.t.files <- c(g_h.t.files, amazon.filenames[grepl("data/human/tracks/.{1,}", amazon.filenames)])
 g_h.m.files <- c(g_h.m.files, amazon.filenames[grepl("data/human/methylation/.{1,}", amazon.filenames)])
 
-# HiC dealings
+# Append Amazon HiC data
 i.temp <- amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)]
-g_h.i.samples <- basename(i.temp[!grepl("_", i.temp)])
+amazon.hic.samples <- basename(i.temp[!grepl("_", i.temp)])
+g_h.i.samples <- c(g_h.i.samples, amazon.hic.samples)
 res.temp <- basename(i.temp[!grepl(".rds", i.temp) & grepl("_", i.temp)])
-g_h.i.res <- lapply(g_h.i.samples, function(t){unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))[c(FALSE,TRUE)]})
+g_h.i.res <- c(g_h.i.res, lapply(amazon.hic.samples, function(t){unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))[c(FALSE,TRUE)]}))
 names(g_h.i.res) <- g_h.i.samples
-g_h.i.full <- i.temp[grepl(".rds", i.temp)]
+g_h.i.full <- c(g_h.i.full, i.temp[grepl(".rds", i.temp)])
 
 
 # From 1-1,000,000-- ChIA-PET loops objects
@@ -215,52 +223,4 @@ for(k in 1:dim(m.d)[1]){
     x <- list(m.d[k,1])
     names(x) <- (m.d[k,2])
     g_m.f.list <- append(g_m.f.list, x)
-}
-
-## List Parameters
-
-uploadchoices <- list(
-    "Loops/.rds" = 1,
-    "ReadDepth/.bigWig" = 2,
-    "ReadDepth/.bedgraph" = 3,
-    "Methylation/.bigWig" = 4,
-    "Methylation/.bedgraph" = 5,
-    "Hi-C/.rds" = 6
-)
-
-color.choices <- list(
-    "Pallet" = 1,
-    "Viridian" = 2,
-    "Pewter" = 3,
-    "Cerulean" = 4,
-    "Vermillion" = 5,
-    "Lavendar" = 6,
-    "Celadon" = 7,
-    "Fuchsia" = 8,
-    "Saffron" = 9,
-    "Cinnabar" = 10,
-    "Indigo" = 11,
-    "Master" = 12,
-    "Black and Blue" = 13,
-    "Heat" = 14,
-    "Topology" = 15,
-    "Blue to Red" = 16)
-
-
-## Useful Functions ##
-
-.subsetRegion.quick <- function(loops, region, nanchors = 2) {
-    g <- findOverlaps(region, loops@anchors)@to
-    if(nanchors == 2) { cc <- loops@interactions[,1] %in% g & loops@interactions[,2] %in% g
-    } else { cc <- xor(loops@interactions[,1] %in% g, loops@interactions[,2] %in% g) }
-    
-    ni <- matrix(loops@interactions[cc,], ncol = 2)
-    colnames(ni) <- c("left", "right")
-    nc <- matrix(loops@counts[cc,], ncol = dim(loops@counts)[2])
-    colnames(nc) <- colnames(loops@counts)
-
-    slot(loops, "interactions", check = TRUE) <- ni
-    slot(loops, "counts", check = TRUE) <- nc
-    slot(loops, "rowData", check = TRUE) <- loops@rowData[cc,]
-    return(loops)
 }

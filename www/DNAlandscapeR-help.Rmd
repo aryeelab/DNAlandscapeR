@@ -2,7 +2,8 @@
 graphics: yes
 ---
 # **DNAlandscapeR Guide**
-<br>
+N.B. All hyperlinks will either redirect to a location inside this document or open a new tab/browser window. Thus, clicking on any link will not exit your current session. 
+<br><br>
 #### **Contents:**
 * [Basic User Guide](#bug)
 * [Advanced plotting options](#apo)
@@ -58,7 +59,7 @@ While our browser provides a wide variety of epigenetic data for both mouse and 
 <hr>
 <a name="crL"></a>
 ### **Creating .rds for ChIA-PET Visualization**
-Here, we walkthrough the creation of a new data format for visualizing DNA loops from ChIA-PET experiments. Specifically, the browser plots S4 `loops` objects that are produced from the R package [diffloop](https://bioconductor.org/packages/release/bioc/html/diffloop.html). As diffloop does not process the raw .fastq reads, we recommend using the [mango](https://github.com/dphansti/mango) preprocessing pipeline. Here, we provide a working example of how the K562-POL2cp track was generated from two sequencing runs [here](http://www.ncbi.nlm.nih.gov/sra?term=SRX107352) and [here](http://www.ncbi.nlm.nih.gov/sra?term=SRX107353).
+Here, we walkthrough the creation of a new data format for visualizing DNA loops from ChIA-PET experiments. Specifically, the browser plots S4 `loops` objects that are produced from the R package <a href="https://bioconductor.org/packages/release/bioc/html/diffloop.html" target="_blank">diffloop</a>. As diffloop does not process the raw .fastq reads, we recommend using the <a href="https://github.com/dphansti/mango" target="_blank">mango</a> preprocessing pipeline. Here, we provide a working example of how the K562-POL2cp track was generated from two sequencing runs <a href="http://www.ncbi.nlm.nih.gov/sra?term=SRX107352" target="_blank">here</a> and <a href="http://www.ncbi.nlm.nih.gov/sra?term=SRX107353" target="_blank">here</a>.
 <br>
 First, one needs to download the .fastq files, which can achieved by installing the [SRA Toolkit](https://github.com/ncbi/sra-tools/wiki/HowTo:-Binary-Installation). Once this software is installed, the following commands will download the paired end read .fastq files--
 ```
@@ -97,12 +98,12 @@ chr1	32705184	32708527	chr1	32799616	32803060	6	1
 **Add diffloop script and annotation files + awk commands**
 <hr>
 <a name="hic"></a>
-### **HiC Visualization**
-Due to the prohibitive size of HiC data, we've created our own compression format that is optimally designed to be used in **DNAlandscapeR**. For example, a 24 gigabyte normalized output matrix from [HiC-Pro](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x) was compressed to only 44 megabytes from the GM12878 cell line at 20kb resolution. Users who wish to visualize their own Hi-C data locally should use [this code](https://github.com/aryeelab/DNAlandscapeR/blob/master/data_generating_scripts/DNAlandscapeR-HiCprocess.R) as a basis for running our novel compression algorithm. The resulting .rds for the Hi-C compression format is a list of sparse matrices indexed by the chromosome. On the pre-loaded data, we further split this list into individual chromosomes for even faster data viewing. 
+### **Hi-C Visualization**
+Due to the prohibitive size of Hi-C data, we've created our own compression format that is optimally designed to be used in **DNAlandscapeR**. For example, a 24 gigabyte normalized output matrix from <a href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x" target="_blank">HiC-Pro</a> was compressed to only 44 megabytes from the GM12878 cell line at 20kb resolution. Users who wish to visualize their own Hi-C data locally should use [this code](https://github.com/aryeelab/DNAlandscapeR/blob/master/data_generating_scripts/DNAlandscapeR-HiCprocess.R) as a basis for running our novel compression algorithm. The resulting .rds for the Hi-C compression format is a list of sparse matrices indexed by the chromosome. On the pre-loaded data, we further split this list into individual chromosomes for even faster data viewing. 
 <hr>
 <a name="faq"></a>
 ### **FAQ**
-#### **What are the build of the genomes in DNAlandscapeR?**
+#### **What are the builds of the genomes in DNAlandscapeR?**
 The current build of **DNAlandscapeR** is hg19 for human and mm9 for mouse. All epigenetic tracks and gene annotations pre-loaded in the browser utilize these coordinates.<br><br>
 
 #### **How do I access the data pre-loaded into the browser?**
@@ -110,7 +111,7 @@ All data can be downloaded from our Amazon S3 instance using `wget`. For example
 ```
 wget http://s3.amazonaws.com/dnalandscaper/data/human/methylation/HCT116-wgbs.bw
 ```
-Each dataset is [indexed](http://s3.amazonaws.com/dnalandscaper) on the site. However, it may be easier to find the file by parsing the HTML to see the filenames. The following code performs this parsing in the `R` environment. Each track name in the browser had an identical file prefix indexed by the type of track that it displays.
+Each dataset is <a href="http://s3.amazonaws.com/dnalandscaper" target="_blank">indexed</a> on the site. However, it may be easier to find the file by parsing the HTML to see the filenames. The following code performs this parsing in the `R` environment. Each track name in the browser had an identical file prefix indexed by the type of track that it displays, aside from the Hi-C data, which is partitioned by chromosome and resolution. 
 ```
 amazon <- "http://s3.amazonaws.com/dnalandscaper"
 xmlDat <- RCurl::getURL(amazon, ftp.use.epsv = FALSE, dirlistonly = TRUE)
@@ -120,16 +121,16 @@ paste(amazon, amazon.filenames, sep = "/")
 <br>
 
 #### **How do I access the code used to make the plots/browser?**
-**DNAlandscapeR** was built in the R/Shiny environment. All of our source code is made freely available in our [open-source repository](https://github.com/aryeelab/DNAlandscapeR).<br><br>
+**DNAlandscapeR** was built in the R/Shiny environment. All of our source code is made freely available in our <a href="https://github.com/aryeelab/DNAlandscapeR" target="_blank">open-source repository</a>.<br><br>
 
 #### **I want to use a plot similar to what I made in DNAlandscapeR for a paper/presentation/etc., but I need greater control over the plot characteristics. What do I do?**
-Our browser makes extensive use of the [Sushi](https://www.bioconductor.org/packages/release/bioc/html/Sushi.html) package in rendering images. We recommend that users use our source code and data in a local R environment alongside this library to generate more specialized plots. <br><br>
+Our browser makes extensive use of the <a href="https://www.bioconductor.org/packages/release/bioc/html/Sushi.html" target="_blank">Sushi</a> package in rendering images. We recommend that users use our source code and data in a local R environment alongside this library to generate more specialized plots. <br><br>
 
 #### **Are the individual tracks normalized?**
 Each epigenetic track is shown on its own scale, which can be determined on the left side of the plot. Currently, loop widths are normalized between plots. Thus, the boldest loop that is displayed across all tracks is supported by the most PETs from that particular sequencing experiment. HiC data are normalized/displayed within each track, and the scale is noted on the right side of the track plot. <br><br>
 
 #### **What do the colors mean in the loop plots?**
-Consistent with [diffloop](https://bioconductor.org/packages/release/bioc/html/diffloop.html), blue loops are 'CTCF loops', purple loops are "Enhancer-Enhancer loops", orange loops are "Promoter-Promoter loops", red loops are 'Enhancer-Promoter loops', and black loops have no special annotation. Check out the [walkthrough](#crL) for and the diffloop vignette for a better description of how these loops are colored. Loops that fit multiple classifications were prioritzed based on the folowing hierarchy: E-P > P-P > E-E > CTCF > none. We note that black loops could still have biological annotation but were not identifed as using the current data processing. The Data Descriptions tab contains details on how individual samples were annotated and processed. Additionally, the mouse loops have not been specially annotated and thus are all black. <br><br>
+Consistent with <a href="https://bioconductor.org/packages/release/bioc/html/diffloop.html" target="_blank">diffloop</a>, blue loops are 'CTCF loops', purple loops are "Enhancer-Enhancer loops", orange loops are "Promoter-Promoter loops", red loops are 'Enhancer-Promoter loops', and black loops have no special annotation. Check out the [walkthrough](#crL) for and the diffloop vignette for a better description of how these loops are colored. Loops that fit multiple classifications were prioritzed based on the folowing hierarchy: E-P > P-P > E-E > CTCF > none. We note that black loops could still have biological annotation but were not identifed as using the current data processing. The Data Descriptions tab contains details on how individual samples were annotated and processed. Additionally, the mouse loops have not been specially annotated and thus are all black. <br><br>
 
 #### **I'm tired of uploading my local data to visualize in the browser. Can I keep it in DNAlandscapeR permanently?**
-Sure! We remind you that our browser is open source, so your data will thus be accessible to other users as well. If you want to add a track to **DNAlandscapeR**, contact <A HREF="mailto:caleblareau@g.harvard.edu">Caleb</A> to arrange for the inclusion of more data. We may have you process your data in a certain format to keep our data storage costs on Amazon low. 
+Sure! We remind you that our browser is open source, so your data will thus be accessible to other users as well. If you want to add a track to **DNAlandscapeR**, please submit a <a href="http://goo.gl/forms/BLqljNzVCRS3hUxh1" target="_blank">data request</a>.

@@ -1,11 +1,10 @@
-# Main functions for plotting the various tracks. A brief overview follows.
+# Main functions for plotting the various tracks.
 
 # masterPlotter is called from the server.R script and performs these operations:
 # 1) subsets all ChIA-PET objects to determine the max counts for normalization
 # 2) plots tracks calling later functions based on the indices.
 
 masterPlotter <- function(input, dynamic.val){
-    
     chia_pet_samples <- list() #Tracks samples linking with i
     chia_pet_objects <- c() #Tracks subsetted objects
     j <- 1 #Index of subsetted objects vector
@@ -48,28 +47,34 @@ masterPlotter <- function(input, dynamic.val){
     
     #Second loop does all the plotting
     for(i in input$tracks){ 
+        flipped <- i %in% input$flipper
+        showGA <- i %in% input$showGA
         i <- as.integer(i)
         if (i < 1000000) {
             oa <- try(one_anchor_samples[[which(map_chia_pet.indices == i)]], silent = TRUE)
             if("try-error" %in% class(oa)) oa <- NULL
             one.loopPlot(objReg = chia_pet_objects[[which(map_chia_pet.indices == i)]], y = dynamic.val$region,
-                         sample = chia_pet_samples[[as.character(i)]], max_counts = mc, oneAnchor = oa)
+                         sample = chia_pet_samples[[as.character(i)]], max_counts = mc, oneAnchor = oa, flip = flipped,
+                         showGA = showGA)
         } else if (i < 2000000) { # Track; BigWig
             t <- i - 1000000
             sample <- names(dynamic.val$t.bw.list)[t]
-            bigwig.trackplot(dynamic.val$t.bw.full[[t]], dynamic.val$region, input$smoother, FUN = input$FUN, "Depth", sample = sample, log2 = input$log2BW)
+            bigwig.trackplot(dynamic.val$t.bw.full[[t]], dynamic.val$region, input$smoother,
+                             FUN = input$FUN, "Depth", sample = sample, log2 = input$log2BW, flip = flipped,showGA = showGA)
         } else if (i < 3000000){ # Track; Bedgraph
             t <- i - 2000000
             sample <- names(dynamic.val$t.bg.list)[t]
-            bedgraph.trackplot(dynamic.val$t.bg.full[[t]], dynamic.val$region, "Depth", sample = sample)
+            bedgraph.trackplot(dynamic.val$t.bg.full[[t]], dynamic.val$region, "Depth", sample = sample, flip = flipped,
+                               showGA = showGA)
         } else if (i < 4000000) { # Methyl; BigWig
             t <- i - 3000000
             sample <- names(dynamic.val$m.bw.list)[t]
-            bigwig.bumpPlot(dynamic.val$m.bw.full[[t]], dynamic.val$region, sample = sample)
+            bigwig.bumpPlot(dynamic.val$m.bw.full[[t]], dynamic.val$region, sample = sample, flip = flipped, showGA = showGA)
         } else if (i < 5000000){ # Methyl; Bedgraph
             t <- i - 4000000
             sample <- names(dynamic.val$m.bg.list)[t]
-            bedgraph.trackplot(dynamic.val$m.bg.full[[t]], dynamic.val$region, "Methylation", sample = sample)
+            bedgraph.trackplot(dynamic.val$m.bg.full[[t]], dynamic.val$region, "Methylation", sample = sample, flip = flipped,
+                     showGA = showGA)
         } else if (i < 6000000){ # Hi-C Plot for Stuff that's preloaded on the server
             t <- i - 5000000
             sample.hic <- names(dynamic.val$i.list)[t]
@@ -78,15 +83,18 @@ masterPlotter <- function(input, dynamic.val){
             res <- as.character(input[[paste0(sample, "HiCRes")]])
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
             file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
-            hicdata <- readRDS(gzcon(url(file)))
-            hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic)
+            if(grepl("amazonaws", file)){ hicdata <- readRDS(gzcon(url(file)))
+            } else { hicdata <- readRDS(file) }
+            hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
+                     missingco = input$missingco, showlegend = input$showlegend, showGA = showGA)
         } else if (i < 7000000) { # Local Hi-C plot    
             t <- i - 6000000
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
             list.dat <- readRDS(dynamic.val$i.l.full[t])
             hicdata <- list.dat[[chrom]]
             sample <- names(dynamic.val$i.l.list)[t]
-            hic.plot(hicdata, dynamic.val$region, sample = sample, color = input$HiCcolor, log2trans = input$log2hic)
+            hic.plot(hicdata, dynamic.val$region, sample = sample, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
+                     missingco = input$missingco, showlegend = input$showlegend, showGA = showGA)
         } else {return()}
     }
     e <- ifelse(input$showgenes == 2, TRUE, FALSE)
@@ -98,7 +106,7 @@ masterPlotter <- function(input, dynamic.val){
 # one sample's loops in these plots. The object is a loops object
 # without self loops generated from the master function to determine
 # the max_counts
-one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAnchor = NULL) {
+one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAnchor = NULL, flip, showGA) {
 
     # Grab Regional Coordinates
     chrom <- as.character(seqnames(y))
@@ -170,9 +178,8 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
         loplot <- recordPlot()
         plotBedpe(bedPE, chrom, start, end, color = cs, lwd = lwd, 
                   plottype = "loops", heights = h, lwdrange = c(0, 5), 
-                  main = sample, adj=0)
-        labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+                  main = sample, adj=0, flip = flip)
+        if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20, n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
         return(loplot)
     } else {
         # Return dummy plot
@@ -180,14 +187,13 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
         plotBedpe(data.frame(), chrom, start, end, color = c("blue"), lwd = 0, 
                   plottype = "loops", heights = 0, lwdrange = c(0, 0), 
                   main = sample, adj=0)
-        labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-                    n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+        if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20, n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
         return(loplot)   
     }
 }
 
 # bigwig.bumpPlot is used for methylation
-bigwig.bumpPlot <- function(file, region, smoother = 0, shade = TRUE, sample){
+bigwig.bumpPlot <- function(file, region, smoother = 0, shade = TRUE, sample, flip, showGA){
     region.bed <- import.bw(file, which = addchr(region))
     
     region.bedgraph <- data.frame(region.bed)
@@ -204,15 +210,14 @@ bigwig.bumpPlot <- function(file, region, smoother = 0, shade = TRUE, sample){
     cluster_id <- clusterMaker(chr=chrom, pos=pos, maxGap = 100)
     smooth <- locfitByCluster(x=pos, y=y, cluster=cluster_id, bpSpan = smoother + 50)
     plot(pos, smooth$fitted, type="l", xaxt='n',bty = "n",xaxs="i",yaxs="i",main=sample,adj=0,ylab="")
-    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-        n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+    if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20, n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     # mtext(sample,side=2,line=2.5,cex=1,font=2)
     if(shade) polygon(cbind(c(min(pos), pos, max(pos)), c(min(y), y, min(y))), border=NA, col="black")
     return(bumpplot)
 }
 
 # bigwig.trackplot is used for most epigenetic peaks
-bigwig.trackplot <- function(file, region, smoother, FUN, ylab, sample, log2){
+bigwig.trackplot <- function(file, region, smoother, FUN, ylab, sample, log2, flip, showGA){
     region.bed <- import.bw(file, which = addchr(region))
     # smooth
     if(smoother != 0){
@@ -230,7 +235,6 @@ bigwig.trackplot <- function(file, region, smoother, FUN, ylab, sample, log2){
         ugly <- ugly[order(as.numeric(ugly$Row.names)), ]
         mcols(tile)$score <- unname(ugly$bwvalues, force = TRUE)
         region.bed <- suppressWarnings(tile[!is.na(mcols(tile)$score)])
-        
     }
     
     region.bedgraph <- data.frame(region.bed)
@@ -244,16 +248,15 @@ bigwig.trackplot <- function(file, region, smoother, FUN, ylab, sample, log2){
 
     trackplot <- recordPlot()
     plotBedgraph(region.bedgraph, chromchr, start, end, 
-                 main = sample, adj=0)
+                 main = sample, adj=0, flip = flip)
     #mtext(ylab,side=2,line=2.5,cex=1,font=2)
     axis(side=2,las=2,tcl=.2)
-    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-                n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+    if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20, n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     return(trackplot)
 }
 
 # Primarily used for the 450k
-bedgraph.trackplot <- function(file, region, ylab, sample){
+bedgraph.trackplot <- function(file, region, ylab, sample, flip, showGA){
     region.bed <- read_delim(file, delim = " ")
     region.bedgraph <- data.frame(region.bed)
 
@@ -263,10 +266,9 @@ bedgraph.trackplot <- function(file, region, ylab, sample){
     end <- as.integer(end(ranges(range(region))))
 
     trackplot <- recordPlot()
-    plotBedgraph(region.bedgraph, chromchr, start, end, main = sample, adj=0)
+    plotBedgraph(region.bedgraph, chromchr, start, end, main = sample, adj=0, flip = flip)
     axis(side=2,las=2,tcl=.2)
-    labelgenome(chromchr, start, end, side = 1, scipen = 20, 
-                n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
+    if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20,  n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     return(trackplot)
 }
 
@@ -289,18 +291,18 @@ hicColors <- function(p) {
     if(p == 16) return(colorRampPalette(colorRamps::blue2red(100)))
 }
 
-hic.plot <- function(hicdata, region, sample, color, log2trans){
+hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco, showlegend, showGA){
     chrom <- as.character(seqnames(region))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(region))))
     end <- as.integer(end(ranges(range(region))))
     
-    # Hacked Sushi HiC Plot Function
-    palette <- hicColors(color)
+    palette <- hicColors(color) # Hacked Sushi HiC Plot Function
+    
     rows <- as.numeric(rownames(hicdata))
     cols <- as.numeric(colnames(hicdata))
-    
     hicregion <- as.matrix(hicdata[which(rows >= start & rows <= end), which(cols >= start & cols <= end)])
+    
     if(log2trans) {
         hicregion <- log2(hicregion)
         hicregion[hicregion < 0] <- 0
@@ -314,29 +316,38 @@ hic.plot <- function(hicdata, region, sample, color, log2trans){
         
     # map to colors
     breaks <- seq(min_z, max_z, length.out = 100)
-    cols <- palette(length(breaks) + 1)
+    cols <- palette(length(breaks))
+    if(missingco == "min") { cols <- c(cols[1], cols)
+    } else { cols <- c(missingco, cols) }
+    
+    
     if(length(unique(breaks)) == 1){
         hicmcol <- matrix(max(cols), nrow = 1, ncol = 1)
     } else {
         hicmcol <- matrix(as.character(cut(hicregion, c(-Inf, breaks, Inf), labels = cols)), nrow = nrow(hicregion))
     }
+    
+    # Handle flipping
+    f <- 1; ylim <- c(0, 20); side <- 1
+    if(flip){ f <- -1; ylim <- c(-20, 0); side <- 3}
+    
     # initialize plot
-    plot(1, 1, xlim = c(start, end), ylim = c(0, 20), type = "n", xaxs = "i", yaxs = "i",
+    plot(1, 1, xlim = c(start, end), ylim = ylim, type = "n", xaxs = "i", yaxs = "i",
          bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = sample, adj = 0)
 
     # fill plot
-    h <- 20/min(40, dim(hicregion)[2])
+    h <- 20/min(40, dim(hicregion)[2]) * f
     for (rownum in (1:nrow(hicregion))) {
         y = -1*h
         x = start + (rownum * 2 * stepsize) - (stepsize * 2)
         for (colnum in (rownum:ncol(hicregion))) {
             x = x + stepsize
             y = y + h
-            if(y <= 20){
-                if(colnum != rownum & y!=20){ # Square
+            if((y <= 20 & f == 1) | (y >= -20 & f == -1)){
+                if(colnum != rownum & y!=20*f){ # Square
                     xs = c(x - stepsize, x, x + stepsize, x, x - stepsize)
                     ys = c(y, y + h, y, y - h, y)
-                } else if(y == 20){ #upside down triangle
+                } else if(y == 20 | y == -20){ #upside down triangle
                     xs = c(x - stepsize, x, x + stepsize)
                     ys = c(y, y - h, y)
                 } else {
@@ -347,12 +358,21 @@ hic.plot <- function(hicdata, region, sample, color, log2trans){
             }
         }
     }
-    labelgenome(chromchr, start, end, n=4, scale="Mb",edgeblankfraction=0.20)
+    
+    if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20, n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     if(min_z == max_z) min_z <- 0
-    addlegend(c(min_z, max_z), palette = palette, title="", side="right",
-        bottominset=0.4, topinset=0, xoffset=-.035, labelside="left",
-        width=0.025, title.offset=0.035)
+    if(showlegend & !flip){
+        addlegend(c(min_z, max_z), palette = palette, title="", side="right",
+            bottominset=0.4, topinset=0, xoffset=-.035, labelside="left",
+            width=0.025, title.offset=0.035, labels.digits=0)
+    } else if(showlegend & flip) {
+        addlegend(c(min_z, max_z), palette = palette, title="", side="right",
+            topinset=0.4, bottominset=0.1, xoffset=-.035, labelside="left",
+            width=0.025, title.offset=0.035, labels.digits=0)      
+    }
 }
+
+
 
 # geneAnnotation plots the hg19/mm9 gene tracks from the cached genome loci. 
 geneAnnotation <- function(y, organism, exons = FALSE) {
