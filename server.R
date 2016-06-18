@@ -23,6 +23,7 @@ function(input, output, session) {
     dynamic.val <- reactiveValues(
         region = GRanges(seqnames=c(default_chr),ranges=IRanges(start=c(default_start), end=c(default_end))),
         alldat = NULL,
+        awsBuckets = NULL,
 
         # Initialize with human
         list.tracks = g_h.f.list, 
@@ -459,5 +460,27 @@ function(input, output, session) {
         } else {
             dynamic.val$m.f.list <- append(dynamic.val$m.f.list, valu)
         }        
+    })
+    
+    observeEvent(input$addAWSBucket, {
+        if(is.null(input$newBucket)) return()
+        dynamic.val$awsBuckets <- data.frame(rbind(dynamic.val$awsBuckets, paste0("http://s3.amazonaws.com/", input$newBucket)))
+        dynamic.val <- importAmazonAWSBucket(input$newBucket, dynamic.val)
+        colnames(dynamic.val$awsBuckets) <- c("Bucket Name")
+        awsLoaded <- as.data.frame(dynamic.val$awsBuckets)
+        output$awsLoaded <- renderDataTable({awsLoaded})
+        
+        if(input$organism == 1){
+            dynamic.val$i.l.full <- dynamic.val$h.i.l.full
+            dynamic.val$i.l.list <- dynamic.val$h.i.l.list
+        } else {
+            dynamic.val$i.l.full <- dynamic.val$m.i.l.full
+            dynamic.val$i.l.list <- dynamic.val$m.i.l.list
+        }
+        
+        dynamic.val$alldat <- NULL
+        dt <- as.data.frame(dynamic.val$alldat)
+        output$dt <- renderDataTable({dt})
+        
     })
 }

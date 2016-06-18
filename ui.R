@@ -152,7 +152,7 @@ fluidPage(
         )
 )),
 
-tabPanel("Upload",
+tabPanel("Import",
 pageWithSidebar(
     headerPanel(
         tags$h1(tags$b('Add local data'))
@@ -176,7 +176,26 @@ pageWithSidebar(
         dataTableOutput('dt'),
         tags$hr()
         )
-)),
+),
+tags$hr(),
+pageWithSidebar(
+    headerPanel(
+        tags$h1(tags$b('Import AWS Bucket'))
+        ),
+    sidebarPanel(
+        textInput("newBucket", h5(tags$b("Specify bucket name:"), value = "")),
+        tags$hr(),
+        actionButton("addAWSBucket", "Import", style='padding:10px; font-size:80%')
+        ),
+    mainPanel(
+        HTML("<h4><b>Loaded user buckets</b></h4>"),
+        dataTableOutput('awsLoaded'),
+        tags$hr()
+        )
+)
+
+
+),
 tabPanel("Guide",
     includeMarkdown("www/DNAlandscapeR-help.Rmd")
 ),

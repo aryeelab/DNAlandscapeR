@@ -2,13 +2,13 @@
 graphics: yes
 ---
 # **DNAlandscapeR Guide**
-N.B. All hyperlinks will either redirect to a location inside this document or open a new tab/browser window. Thus, clicking on any link will not exit your current session. 
+**N.B.** All hyperlinks will either redirect to a location inside this document or open a new tab/browser window. Thus, clicking on any link will not exit your current session. 
 <br><br>
 #### **Contents:**
 * [Basic User Guide](#bug)
 * [Advanced plotting options](#apo)
 * [Interactive zooming](#iz)
-* [Visualizing Local Data](#uld)
+* [Visualizing User Data](#uld)
 * [Creating .rds for ChIA-PET Visualization](#crL)
 * [Creating .rds for Hi-C Visualization](#hic)
 * [FAQ](#faq)
@@ -48,8 +48,8 @@ After selecting a region, one can simply double click anywhere on the plot to zo
 <hr>
 
 <a name="uld"></a>
-### **Visualizing Local Data**
-While our browser provides a wide variety of epigenetic data for both mouse and human, users may wish to include their own data to visualize in the browser. **DNAlandscapeR** accepts the common data file formats (BedGraph, BigWig) for visualizing methylation, ChIP-Seq, RNA-Seq, and other quantiative regional data in addition to a new data format for ChIA-PET that we discuss [below](#crL) how to generate. The **Upload** tab contains the following input parameters to add local data to **DNAlandscapeR**:
+### **Visualizing User Data**
+While our browser provides a wide variety of epigenetic data for both mouse and human, users may wish to include their own data to visualize in the browser. **DNAlandscapeR** accepts the common data file formats (BedGraph, BigWig) for visualizing methylation, ChIP-Seq, RNA-Seq, and other quantiative regional data in addition to a new data format for ChIA-PET that we discuss [below](#crL) how to generate. The **Import** tab contains the following input parameters to add local data to **DNAlandscapeR**:
 * Specify organism-- Choose which genome build (human/mouse) to visualize the new data alongside.
 * Add file-- Choose the local file to be uploaded to **DNAlandscapeR**. The selected file will not be imported into the browser until later input options are specified and the **Add** button is pressed. 
 * Specify track name-- The text entry will define the name of the added track both in the plotting and in the dropdown selection.
