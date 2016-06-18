@@ -61,7 +61,7 @@ While our browser provides a wide variety of epigenetic data for both mouse and 
 ### **Creating .rds for ChIA-PET Visualization**
 Here, we walkthrough the creation of a new data format for visualizing DNA loops from ChIA-PET experiments. Specifically, the browser plots S4 `loops` objects that are produced from the R package <a href="https://bioconductor.org/packages/release/bioc/html/diffloop.html" target="_blank">diffloop</a>. As diffloop does not process the raw .fastq reads, we recommend using the <a href="https://github.com/dphansti/mango" target="_blank">mango</a> preprocessing pipeline. Here, we provide a working example of how the K562-POL2cp track was generated from two sequencing runs <a href="http://www.ncbi.nlm.nih.gov/sra?term=SRX107352" target="_blank">here</a> and <a href="http://www.ncbi.nlm.nih.gov/sra?term=SRX107353" target="_blank">here</a>.
 <br>
-First, one needs to download the .fastq files, which can achieved by installing the [SRA Toolkit](https://github.com/ncbi/sra-tools/wiki/HowTo:-Binary-Installation). Once this software is installed, the following commands will download the paired end read .fastq files--
+First, one needs to download the .fastq files, which can achieved by installing the <a href="https://github.com/ncbi/sra-tools/wiki/HowTo:-Binary-Installation" target="_blank">SRA Toolkit</a>. Once this software is installed, the following commands will download the paired end read .fastq files--
 ```
 fastq-dump --split-files SRR372747
 fastq-dump --split-files SRR372748

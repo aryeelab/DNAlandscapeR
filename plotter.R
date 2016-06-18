@@ -4,13 +4,16 @@
 # 1) subsets all ChIA-PET objects to determine the max counts for normalization
 # 2) plots tracks calling later functions based on the indices.
 
-masterPlotter <- function(input, dynamic.val){
+masterPlotter <- function(input, dynamic.val, loopsdl = FALSE){
     chia_pet_samples <- list() #Tracks samples linking with i
     chia_pet_objects <- c() #Tracks subsetted objects
     j <- 1 #Index of subsetted objects vector
     map_chia_pet.indices <- c() #maps i to order in vector of subsetted objects
     mc <- 1 #max counts
     one_anchor_samples <- list() #Tracks samples linking with i
+    
+    #Handle loops download if requested
+    if(loopsdl) loopsTotal <- data.frame()
     
     #First loop initalizes the ChIA-PET max values
     for(i in input$tracks){
@@ -23,6 +26,15 @@ masterPlotter <- function(input, dynamic.val){
             } else { x <- readRDS(file.conn) }
             sample <- names(dynamic.val$c.list)[i]
             objReg <- removeSelfLoops(.subsetRegion.quick(x, dynamic.val$region, nanchors = 2))
+            
+            #Handle loops download if requested
+            if(loopsdl){
+                sdf <- summary(objReg)
+                sdf$sample <- sample
+                colnames(sdf)[7] <- "counts"
+                loopsTotal <- rbind(loopsTotal, sdf)
+            }
+            
             #Grab loops with one anchor, in needed
             if(input$showSingleAnchors){
                 oneAnchor <- .subsetRegion.quick(x, dynamic.val$region, nanchors = 1)
@@ -44,6 +56,8 @@ masterPlotter <- function(input, dynamic.val){
             j <- j + 1
         }
     }
+    
+    if(loopsdl) return(loopsTotal)
     
     #Second loop does all the plotting
     for(i in input$tracks){ 

@@ -49,7 +49,7 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
     selectInput("showgenes", label=HTML("<h4><b>Genome Annotation</b></h4>"),
                 choices = list("Gene Bodies" = 1, "Detailed Gene Annotation" = 2, "None" = 0), selected = 1),
     tags$br(),
-    downloadButton("downQuick", "Quick Download")
+    downloadButton("downQuick", "Quick Plot")
   ), 
 
   mainPanel(
@@ -74,7 +74,7 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Pan
                  tags$br()
               ),
        column(4, HTML("<h4><b>Smooth Epigenetic Peaks</b></h4>"),
-              sliderInput("smoother", HTML("<h4><b>Smoothing Window Size</b></h4>"), min=0, max=5000, value=100, step=50),
+              sliderInput("smoother", HTML("<h4><b>Smoothing Window Size</b></h4>"), min=0, max=5000, value=250, step=50),
               selectInput("FUN", label=HTML("<h4><b>Function to Smooth</b></h4>"),
               choices = list("Mean"="mean", "Max"="max", "Median"="median"), selected = "mean"))
      ),
@@ -85,13 +85,7 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Pan
     bsCollapsePanel(title = HTML("<h4><b>Hi-C Tracks Configuration</b></h4>"), value = "Panel2",
     fluidRow(
         column(4,HTML("<h4><b>Individual Sample Resolution</b></h4>"),
-            lapply(g_h.i.samples, function(sample) {
-                res <- sort(as.integer(g_h.i.res[[sample]]))
-                choices <- as.list(res)
-                names(choices) <- res
-                selectInput(paste0(sample, "HiCRes"), paste0('Specify ', sample, " Resolution"),
-                    choices = choices, selected = min(res))
-            })),
+               uiOutput("HiCresolutions")),
         column(4, HTML("<h4><b>Configure Hi-C Data</b></h4>"),
                checkboxInput("showlegend", "Show Legend on Plots", value = TRUE, width = NULL),
                checkboxInput("log2hic", "Log Transform Hi-C Values", value = FALSE, width = NULL)),
@@ -114,20 +108,34 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Pan
     tags$hr()),
     style = "default"),
     
-    bsCollapsePanel(title = HTML("<h4><b>Advanced Plot Downloading Configuration</b></h4>"), value = "bmPanel",
+    bsCollapsePanel(title = HTML("<h4><b>Advanced Downloading</b></h4>"), value = "bmPanel",
+    HTML('<h3><b><P ALIGN=Center>Plot Rendering</b></h3>'), tags$br(),
     fluidRow(
-        column(4,HTML('<h4><b>Parameters for Rs <a href="https://stat.ethz.ch/R-manual/R-devel/library/grDevices/html/dev2bitmap.html"
+        column(1, tags$br()), 
+        column(5,HTML('<h4><b>Parameters for the <a href="https://stat.ethz.ch/R-manual/R-devel/library/grDevices/html/dev2bitmap.html"
                       target="_blank">bitmap</a> function</b></h4>'),
-                 textInput3("bm.type",HTML("<h5><b>Type&nbsp;</b></h5>"), value = "png16m"),
-                 textInput3("bm.res", HTML("<h5><b>Resolution&nbsp;</b></h5>"), value = 72)
+                 textInput3("bm.type",HTML("<h5><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type&nbsp;</b></h5>"), value = "png16m"),
+                 textInput3("bm.res", HTML("<h5><b>Resolution&nbsp;</b></h5>"), value = 72), tags$br(),tags$br(),
+                 downloadButton("bm.down", "Download Custom Plot")
                ),
-        column(4, textInput3("bm.height",HTML("<h5><b>Height&nbsp;</b></h5>"), value = 8.5),
-                  textInput3("bm.width", HTML("<h5><b>Width&nbsp;&nbsp;</b></h5>"), value = 11),
-                  textInput3("bm.units", HTML("<h5><b>Units&nbsp;&nbsp;&nbsp;</b></h5>"), value = "in")
-               ),
-        column(4, tags$br()),
+        column(6,HTML('<h4><b>Plot Dimensions</b></h4>'),
+                  textInput3("bm.height",HTML("<h5><b>Height&nbsp;</b></h5>"), value = 8.5),
+                  textInput3("bm.width", HTML("<h5><b>&nbsp;&nbsp;Width&nbsp;</b></h5>"), value = 11),
+                  textInput3("bm.units", HTML("<h5><b>&nbsp;&nbsp;&nbsp;Units&nbsp;</b></h5>"), value = "in")
+               )),
+    tags$hr(),tags$br(),
+    HTML('<h3><b><P ALIGN=Center>Data Download</b></h3>'),
+    fluidRow(
+        column(1, tags$br()),
+        column(10, HTML("<h5>The left button downloads a .tsv file of all loops that are currently displayed. 
+                        The right button downloads a .rds of an R list that summarizes all data being displayed. </b>")),
+        column(1, tags$br())),tags$br(),
+    fluidRow(
+        column(1, tags$br()),
+        column(5, downloadButton("downloadLoops", "Download Displayed Loops")),
+        column(6, tags$br())),
     tags$hr(),
-    downloadButton("bm.down", "Download Custom Plot")),
     style = "default")
 )),
 

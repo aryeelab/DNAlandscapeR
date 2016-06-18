@@ -12,7 +12,8 @@ function(input, output, session) {
     
     # Set up dataframe for data description tab
     dDF <- read.table("http://textuploader.com/5buvy/raw", header = TRUE, sep = "\t")
-    output$preloadedDataDescription <- renderDataTable({dDF})
+    dDF$PMID <- paste0('<a href="http://www.ncbi.nlm.nih.gov/pubmed/', dDF$PMID, '" target="_blank">', dDF$PMID, '</a>')
+    output$preloadedDataDescription <- renderDataTable({dDF}, escape = FALSE)
     output$regiontotal <- renderText("")
     
     #---------------------------------#
@@ -277,6 +278,42 @@ function(input, output, session) {
         masterPlotter(isolate(input), isolate(dynamic.val))
     }
     
+    ## Hi-C Resolution Display ##
+    output$HiCresolutions <- renderUI({
+        hictracks <- input$tracks[as.integer(input$tracks) <= 6000000 & as.integer(input$tracks) > 5000000] 
+        plotSamples <- gsub("-HiC", "", names( g_h.i.list[match(hictracks, g_h.i.list)]))
+        lapply(plotSamples, function(sample) {
+                res <- sort(as.integer(g_h.i.res[[sample]]))
+                choices <- as.list(res)
+                names(choices) <- res
+                selectInput(paste0(sample, "HiCRes"), paste0('Specify ', sample, " Resolution"),
+                    choices = choices, selected = min(res))
+            })
+    })
+    
+        ## Drop down buttons##
+    output$flipMe <- renderUI({dropdownButton(label = "Flip Tracks", status = "default", width = 100,
+        checkboxGroupInput(inputId = "flipper", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names))
+    )})
+    
+    output$showGenomeAnnotation <- renderUI({dropdownButton(label = "Show X Label", status = "default", width = 100,
+        checkboxGroupInput(inputId = "showGA", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names),
+        selected = setNames(as.list(input$tracks), dynamic.val$track.names) )
+    )})
+    
+    ## Download Handlers ##
+    
+    output$downloadLoops <- downloadHandler(
+        filename = function() { paste('DNAlandscapeR-loops-', Sys.Date(), '.tsv', sep='') },
+        content = function(file) {
+            write.table(getLoops(), file, quote = FALSE, sep = "\t", row.names = FALSE)
+        }
+    )
+    
+    getLoops <- function(){
+        masterPlotter(isolate(input), isolate(dynamic.val), loopsdl = TRUE)
+    }
+    
     output$downQuick <- downloadHandler(
         filename <- function() {
             paste('DNAlandscapeR-plot-', Sys.Date(), '.pdf', sep='') },
@@ -301,14 +338,6 @@ function(input, output, session) {
         output$plot <- renderPlot({isolate(p1())}, height = 920)
     }
     
-    output$flipMe <- renderUI({dropdownButton(label = "Flip Tracks", status = "default", width = 100,
-        checkboxGroupInput(inputId = "flipper", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names))
-    )})
-    
-    output$showGenomeAnnotation <- renderUI({dropdownButton(label = "Show X Label", status = "default", width = 100,
-        checkboxGroupInput(inputId = "showGA", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names),
-        selected = setNames(as.list(input$tracks), dynamic.val$track.names) )
-    )})
     
     #---------------------------------#
     # Code for input tab
