@@ -30,6 +30,7 @@ source("www/adv-shiny.R")
 default_chr <- "9"
 default_start <- 21912689
 default_end <- 22216233
+ucsc_coord <- paste0("chr", default_chr, ":", as.character(default_start), "-", as.character(default_end))
 
 # Variable names are coded as follows
 # g_ is a global variable
@@ -138,9 +139,6 @@ for(k in 1:dim(h.d)[1]){
     names(x) <- (h.d[k,2])
     g_h.f.list <- append(g_h.f.list, x)
 }
-
-
-
 
 ## MOUSE INITIALIZATION ##
 #Currently does not support HiC

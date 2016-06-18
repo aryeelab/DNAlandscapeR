@@ -1,13 +1,6 @@
 # DNAlandscapeR UI # 
 source("global.R")
 
-#Custom input style
-textInput3 <- function (inputId, label, value = "", ...){
-    div(
-    tags$label(label, `for` = inputId), 
-    tags$input(id = inputId, type = "text", value = value, ...))
-}
-
 shinyUI(navbarPage(HTML("<img src='harvard-logo.png'/>"),
 tabPanel("Welcome",
 fluidPage(
@@ -53,7 +46,6 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
   ), 
 
   mainPanel(
-    #fluidRow(column(12, textOutput("regiontotal"), align = 'center')),
     plotOutput("plot", 
     dblclick = "plot_dblclick",
     brush = "plot_brush")
@@ -61,22 +53,29 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
   fluid = TRUE
 ),
 
-bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Panel3"), multiple = TRUE,
-    bsCollapsePanel(title = HTML("<h4><b>Overall Plot Configuration</b></h4>"), value = "Panel1",
+bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), multiple = TRUE,
+    bsCollapsePanel(title = HTML("<h4><b>Plot Configuration</b></h4>"), value = "Panel1",
     fluidRow(
-       column(4, radioButtons("organism", HTML("<h4><b>Specify Organism</b></h4>"),
-                    choices = list("Human" = 1, "Mouse" = 2), selected = 1),
-              checkboxInput("showSingleAnchors", "Show Single Anchors", value = FALSE, width = NULL),
-              checkboxInput("log2BW", "Log Transform Continuous Tracks", value = FALSE, width = NULL)
+       column(4, radioButtons("organism", HTML("<h3><b>Specify Organism</b></h3>"),
+                    choices = list("Human" = 1, "Mouse" = 2), selected = 1), tags$br(),
+              HTML("<h3><b>Track Customization</b></h3>"),
+              uiOutput("flipMe"), tags$br(),
+              uiOutput("showGenomeAnnotation")
               ),
-       column(4, textInput("Gene", HTML("<h4><b>Plot Gene Region </b></h4>"), value = "LMO2"),
-                 actionButton("plot.gene", "Plot Gene", style='padding:10px; font-size:80%'),
-                 tags$br()
-              ),
-       column(4, HTML("<h4><b>Smooth Epigenetic Peaks</b></h4>"),
-              sliderInput("smoother", HTML("<h4><b>Smoothing Window Size</b></h4>"), min=0, max=5000, value=250, step=50),
+       column(4,
+              sliderInput("smoother", HTML("<h3><b>Smooth Epigenetic Peaks<br></b></h3>
+                                           <h4><b>Window Size</b></h4>"), min=0, max=5000, value=250, step=50),
               selectInput("FUN", label=HTML("<h4><b>Function to Smooth</b></h4>"),
-              choices = list("Mean"="mean", "Max"="max", "Median"="median"), selected = "mean"))
+              choices = list("Mean"="mean", "Max"="max", "Median"="median"), selected = "mean"),
+              checkboxInput("methylSmooth", "Also smooth WGBS Tracks", value = TRUE, width = NULL),
+              checkboxInput("log2BW", "Log Transform Continuous Tracks", value = FALSE, width = NULL),
+              checkboxInput("showSingleAnchors", "Show Single Anchors in ChIA-PET Tracks", value = FALSE, width = NULL)),
+    column(4, uiOutput("plotGeneName"),
+                 actionButton("plot.gene", "Plot Gene"),
+                 tags$br(),tags$br(),
+                 textInput("ucscCoord", HTML("<h3><b>UCSC Coordinates</b></h3>"), value = ucsc_coord),
+                 actionButton("plot.region2", "Plot Region")
+              )
      ),
     tags$hr(),
     actionButton("refresh", "Refresh Plot"),
@@ -98,22 +97,12 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Pan
     actionButton("refresh2", "Refresh Plot"),
     style = "default"),
     
-    bsCollapsePanel(title = HTML("<h4><b>Individual Track Customization</b></h4>"), value = "Panel3",
-    fluidRow(
-        column(4, uiOutput("flipMe")
-               ),
-        column(4, uiOutput("showGenomeAnnotation")
-               ),
-        column(4, HTML("<h4><b>Coloring options (Not yet implemented)</b></h4>")),
-    tags$hr()),
-    style = "default"),
-    
     bsCollapsePanel(title = HTML("<h4><b>Advanced Downloading</b></h4>"), value = "bmPanel",
     HTML('<h3><b><P ALIGN=Center>Plot Rendering</b></h3>'), tags$br(),
     fluidRow(
         column(1, tags$br()), 
         column(5,HTML('<h4><b>Parameters for the <a href="https://stat.ethz.ch/R-manual/R-devel/library/grDevices/html/dev2bitmap.html"
-                      target="_blank">bitmap</a> function</b></h4>'),
+                      target="_blank">bitmap</a> function</b></h4>'),tags$br(),tags$br(),
                  textInput3("bm.type",HTML("<h5><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type&nbsp;</b></h5>"), value = "png16m"),
                  textInput3("bm.res", HTML("<h5><b>Resolution&nbsp;</b></h5>"), value = 72), tags$br(),tags$br(),
@@ -134,7 +123,8 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Pan
     fluidRow(
         column(1, tags$br()),
         column(5, downloadButton("downloadLoops", "Download Displayed Loops")),
-        column(6, tags$br())),
+        column(5, downloadButton("downloadRDS", "Download All Displayed Data")),
+        column(1, tags$br())),
     tags$hr(),
     style = "default")
 )),

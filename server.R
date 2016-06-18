@@ -14,8 +14,7 @@ function(input, output, session) {
     dDF <- read.table("http://textuploader.com/5buvy/raw", header = TRUE, sep = "\t")
     dDF$PMID <- paste0('<a href="http://www.ncbi.nlm.nih.gov/pubmed/', dDF$PMID, '" target="_blank">', dDF$PMID, '</a>')
     output$preloadedDataDescription <- renderDataTable({dDF}, escape = FALSE)
-    output$regiontotal <- renderText("")
-    
+
     #---------------------------------#
     # Code for variable setup
     #---------------------------------#
@@ -82,7 +81,8 @@ function(input, output, session) {
         fileAvail = FALSE,
         nregions = 0,
         track.names = NULL,
-        start.tracks = 0
+        start.tracks = 0,
+        genes.avail = NULL
         )
 
     # Define dynamic variables based on organism selection
@@ -122,13 +122,21 @@ function(input, output, session) {
                                                  choices = dynamic.val$list.tracks, selectize = TRUE,
                                                  multiple = TRUE, selected = dynamic.val$start.tracks)})
     
+    output$plotGeneName <- renderUI({
+        value <- "LMO2"
+        if(input$organism == 2) value = "Grik4"
+        textInput("Gene", label = HTML("<h3><b>Plot Gene Region </b></h3>"), value = value)
+    })
+    
     #Updates the text boxes of coordinates when a button is pressed.
     updateRegionVals <- function(){
-        updateNumericInput(session, "chr", value = data.frame(dynamic.val$region)[1,1])     
-        updateNumericInput(session, "start", value = as.integer(start(ranges(range(dynamic.val$region)))))  
-        updateNumericInput(session, "stop", value = as.integer(end(ranges(range(dynamic.val$region)))))   
-        output$regiontotal <-renderText(paste(paste(paste("chr", input$chr, sep = ""),
-                                        input$start, sep = ":"),input$stop, sep = "-"))
+        c <- data.frame(dynamic.val$region)[1,1]
+        s <- as.integer(start(ranges(range(dynamic.val$region))))
+        e <- as.integer(end(ranges(range(dynamic.val$region))))
+        updateNumericInput(session, "chr", value = c)     
+        updateNumericInput(session, "start", value = s)  
+        updateNumericInput(session, "stop", value = e)
+        updateTextInput(session, "ucscCoord", value = paste0("chr", c, ":", as.character(s), "-", as.character(e)))
     }
     
     observe({dynamic.val$track.names <- names(dynamic.val$list.tracks)[match(input$tracks, dynamic.val$list.tracks)]})
@@ -145,11 +153,19 @@ function(input, output, session) {
     
     observeEvent(input$plot.region, {
         dynamic.val$region <- GRanges(seqnames=c(input$chr),
-                                      ranges=IRanges(start=c(as.numeric(input$start)),
-                                                     end=c(as.numeric(input$stop))))
-        output$regiontotal <-renderText(paste(paste(paste("chr", input$chr, sep = ""),
-                                        input$start, sep = ":"),input$stop, sep = "-"))
+                    ranges=IRanges(start=c(as.numeric(input$start)), end=c(as.numeric(input$stop))))
         makePlot()
+        updateRegionVals()
+    })
+    
+    observeEvent(input$plot.region2, {
+        c <- gsub("chr", "", unlist(strsplit(input$ucscCoord, ":"))[1])
+        s <- unlist(strsplit(unlist(strsplit(input$ucscCoord, ":"))[2], "-"))[1]
+        e <- unlist(strsplit(unlist(strsplit(input$ucscCoord, ":"))[2], "-"))[2]
+        dynamic.val$region <- GRanges(seqnames=c(c),
+                    ranges=IRanges(start=c(as.numeric(s)), end=c(as.numeric(e))))
+        makePlot()
+        updateRegionVals()
     })
     
     observeEvent(input$plot.gene, {
@@ -266,7 +282,7 @@ function(input, output, session) {
         makePlot()
     })
     
-    observeEvent(input$refresh, { makePlot() })
+    observeEvent( input$refresh, { makePlot() })
     observeEvent(input$refresh2, { makePlot() })
     
 
@@ -297,7 +313,7 @@ function(input, output, session) {
         checkboxGroupInput(inputId = "flipper", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names))
     )})
     
-    output$showGenomeAnnotation <- renderUI({dropdownButton(label = "Show X Label", status = "default", width = 100,
+    output$showGenomeAnnotation <- renderUI({dropdownButton(label = "Genome Label", status = "default",
         checkboxGroupInput(inputId = "showGA", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names),
         selected = setNames(as.list(input$tracks), dynamic.val$track.names) )
     )})
@@ -311,8 +327,19 @@ function(input, output, session) {
         }
     )
     
+    output$downloadRDS <- downloadHandler(
+        filename = function() { paste('DNAlandscapeR-allData-', Sys.Date(), '.rds', sep='') },
+        content = function(file) {
+            saveRDS(getAllData(), file)
+        }
+    )
+    
     getLoops <- function(){
         masterPlotter(isolate(input), isolate(dynamic.val), loopsdl = TRUE)
+    }
+    
+    getAllData <- function(){
+        masterPlotter(isolate(input), isolate(dynamic.val), datadl = TRUE)
     }
     
     output$downQuick <- downloadHandler(
