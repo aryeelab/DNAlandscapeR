@@ -394,6 +394,7 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     
         #Melt and reshape to account for missing data
         m.hicregion <- melt(hicregion)
+        colnames(m.hicregion) <- c("X1", "X2", "value")
         zeros <- cbind(t(combn(seq(min_bp, max_bp, resolution), 2)), 0)
         colnames(zeros) <- c("X1", "X2", "value")
         m.full <- rbind(m.hicregion,zeros)
