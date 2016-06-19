@@ -27,6 +27,10 @@ library(colorRamps)
 
 source("www/adv-shiny.R")
 
+# Get commit ID
+sha <- git2r::commits()[[1]]@sha
+short_sha <- substr(sha, 1, 7)
+
 default_chr <- "9"
 default_start <- 21912689
 default_end <- 22216233
