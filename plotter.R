@@ -104,10 +104,11 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             t <- i - 5000000
             sample.hic <- names(dynamic.val$i.list)[t]
             sample <- gsub("-HiC", "", sample.hic)
-            fs <- g_h.i.full
+            fs <- dynamic.val$i.full
             res <- as.character(input[[paste0(sample, "HiCRes")]])
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
             file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
+            print(file)
             if(grepl("amazonaws", file)){ hicdata <- readRDS(gzcon(url(file)))
             } else { hicdata <- readRDS(file) }
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
@@ -358,43 +359,69 @@ hicColors <- function(p) {
 }
 
 hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco, showlegend, showGA, datadl){
+   
+    # Set up region
     chrom <- as.character(seqnames(region))
     chromchr <- paste(c("chr", as.character(chrom)), collapse = "")
     start <- as.integer(start(ranges(range(region))))
     end <- as.integer(end(ranges(range(region))))
-    
     palette <- hicColors(color) # Hacked Sushi HiC Plot Function
     
     rows <- as.numeric(rownames(hicdata))
     cols <- as.numeric(colnames(hicdata))
-    hicregion <- as.matrix(hicdata[which(rows >= start & rows <= end), which(cols >= start & cols <= end)])
+    
+    hicregion <- as.matrix(hicdata[which(rows > start & rows < end), which(cols > start & cols < end), drop=FALSE])
     if(datadl) return(data.frame(hicregion))
     
-    if(log2trans) {
-        hicregion <- log2(hicregion)
-        hicregion[hicregion < 0] <- 0
+    if(log2trans) { hicregion <- log2(hicregion); hicregion[hicregion < 0] <- 0 }
+    
+    if(dim(hicregion)[1]==0 | dim(hicregion)[2]==0){ #Nothing comes up from subsetting
+        hicregion <- matrix(0)  
+        colnames(hicregion) <- as.character(as.integer(start))
+        rownames(hicregion) <- as.character(as.integer(end))
     }
-    if(dim(hicregion)[1]==0) hicregion <- matrix(1)
+
     # determine number of bins
-    nbins <- nrow(hicregion)
+    rvs <- as.numeric(rownames(hicregion))
+    cvs <- as.numeric(colnames(hicregion))
+    min_bp <-  min(c(rvs, cvs))
+    max_bp <-  max(c(rvs, cvs))
+    resolution <- min(c(diff(rvs), diff(cvs)))
+    
+    if(is.infinite(resolution)){ resolution <- max(rvs,cvs) - min(rvs,cvs)} #1x1 matrix 
+    
+    if(resolution != 0) { #different region; 1x1 matrix
+    
+        #Melt and reshape to account for missing data
+        m.hicregion <- melt(hicregion)
+        zeros <- cbind(t(combn(seq(min_bp, max_bp, resolution), 2)), 0)
+        colnames(zeros) <- c("X1", "X2", "value")
+        m.full <- rbind(m.hicregion,zeros)
+        
+        xx <- dcast(data = m.full, formula = X1 ~ X2, value.var = "value", fill = 0, fun.aggregate = sum)
+        rn <- xx[,1]
+        xx <- xx[,-1]
+        rownames(xx) <- rn
+        hicregion <- data.matrix(xx)
+        nbins <- (max_bp-min_bp)/resolution
+    } else {
+        nbins <- 1
+    }
+    
     stepsize <- abs(start - end)/(2 * nbins)
     max_z <- max(hicregion, na.rm = TRUE)
     min_z <- min(hicregion[hicregion > 0], na.rm = TRUE)    
-    if(is.infinite(max_z) | is.na(max_z) | is.nan(max_z)) max_z <- 10000
+    if(is.infinite(max_z) | is.na(max_z) | is.nan(max_z) | max_z == 0) max_z <- 10000
     if(is.infinite(min_z) | is.na(min_z) | is.nan(min_z)) min_z <- 0.01
         
     # map to colors
-    breaks <- seq(min_z, max_z, length.out = 100)
-    cols <- palette(length(breaks))
-    if(missingco == "min") { cols <- c(cols[1], cols)
-    } else { cols <- c(missingco, cols) }
+    breaks <- seq(min_z, max_z, length.out = 100) - 0.01
+    cols <- palette(length(unique(breaks)))
     
+    if(missingco == "min") { cols <- c(cols[1], cols) } else { cols <- c(missingco, cols) }
+    if(length(cols) == 2 ){ cols[2] <- palette(100)[100]}
     
-    if(length(unique(breaks)) == 1){
-        hicmcol <- matrix(max(cols), nrow = 1, ncol = 1)
-    } else {
-        hicmcol <- matrix(as.character(cut(hicregion, c(-Inf, breaks, Inf), labels = cols)), nrow = nrow(hicregion))
-    }
+    hicmcol <- matrix(as.character(cut(hicregion, c(-Inf, unique(breaks), Inf), labels = cols)), nrow = nrow(hicregion))
     
     # Handle flipping
     f <- 1; ylim <- c(0, 20); side <- 1
@@ -408,7 +435,7 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     h <- 20/min(40, dim(hicregion)[2]) * f
     for (rownum in (1:nrow(hicregion))) {
         y = -1*h
-        x = start + (rownum * 2 * stepsize) - (stepsize * 2)
+        x = start + (rownum * 2 * stepsize) - (stepsize * 3)
         for (colnum in (rownum:ncol(hicregion))) {
             x = x + stepsize
             y = y + h
@@ -416,14 +443,17 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
                 if(colnum != rownum & y!=20*f){ # Square
                     xs = c(x - stepsize, x, x + stepsize, x, x - stepsize)
                     ys = c(y, y + h, y, y - h, y)
-                } else if(y == 20 | y == -20){ #upside down triangle
+                } else if(y == 20 | y == -20){ #upside down triangle; at top
                     xs = c(x - stepsize, x, x + stepsize)
                     ys = c(y, y - h, y)
-                } else {
+                } else { #basic triangle
                     xs = c(x - stepsize, x, x + stepsize)
                     ys = c(y, y + h, y)
                 }
-                polygon(xs, ys, border = NA, col = hicmcol[colnum, rownum])
+                if(rownum <= dim(hicmcol)[2] & colnum <= dim(hicmcol)[1]){
+                    col <- hicmcol[colnum, rownum]
+                } else {col <- cols[1]}
+                polygon(xs, ys, border = NA, col = col)
             }
         }
     }

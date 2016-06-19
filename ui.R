@@ -178,6 +178,7 @@ pageWithSidebar(
         actionButton("addAWSBucket", "Import", style='padding:10px; font-size:80%')
         ),
     mainPanel(
+        HTML("<h4><b>NOTE: To successfully import a new bucket, you must not have any tracks selected on the Visualize panel</b></h4>"),
         HTML("<h4><b>Loaded user buckets</b></h4>"),
         dataTableOutput('awsLoaded'),
         tags$hr()

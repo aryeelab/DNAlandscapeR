@@ -39,6 +39,7 @@ function(input, output, session) {
         m.bw.list   = g_h.m.bw.list,
         m.bg.list   = g_h.m.bg.list,
         i.list      = g_h.i.list,
+        i.res       = g_h.i.res,
         i.l.list    = NULL,
         organism    = "human",
         
@@ -57,6 +58,7 @@ function(input, output, session) {
         h.m.bw.list = g_h.m.bw.list,
         h.m.bg.list = g_h.m.bg.list,
         h.i.list    = g_h.i.list,
+        h.i.res     = g_h.i.res,
         h.i.l.list  = NULL,
         
         # Initialize mouse values
@@ -84,38 +86,49 @@ function(input, output, session) {
         start.tracks = 0,
         genes.avail = NULL
         )
-
-    # Define dynamic variables based on organism selection
-    observe({
-    if(input$organism == 1) {
+    
+    # Update current options to human
+    updateToHuman <- function(){
         dynamic.val$organism <- "human"
         dynamic.val$list.tracks <- dynamic.val$h.f.list 
         dynamic.val$c.full <- dynamic.val$h.c.full
         dynamic.val$t.bw.full <- dynamic.val$h.t.bw.full
         dynamic.val$t.bg.full <- dynamic.val$h.t.bg.full
         dynamic.val$m.bw.full <- dynamic.val$h.m.bw.full
-        dynamic.val$m.bg.full <- dynamic.val$h.m.bg.full 
+        dynamic.val$m.bg.full <- dynamic.val$h.m.bg.full
+        dynamic.val$i.full <- dynamic.val$h.i.full
+        dynamic.val$i.l.full <- dynamic.val$h.i.l.full
         dynamic.val$c.list <- dynamic.val$h.c.list
         dynamic.val$t.bw.list <- dynamic.val$h.t.bw.list
         dynamic.val$t.bg.list <- dynamic.val$h.t.bg.list
         dynamic.val$m.bw.list <- dynamic.val$h.m.bw.list
         dynamic.val$m.bg.list <- dynamic.val$h.m.bg.list
+        dynamic.val$i.list <- dynamic.val$h.i.list  
+        dynamic.val$i.l.list <- dynamic.val$h.i.l.list
+        dynamic.val$i.res <- dynamic.val$h.i.res
     }
     
-    if(input$organism == 2) {
+    updateToMouse <- function(){
         dynamic.val$organism <- "mouse"
         dynamic.val$list.tracks <- dynamic.val$m.f.list 
         dynamic.val$c.full <- dynamic.val$m.c.full
         dynamic.val$t.bw.full <- dynamic.val$m.t.bw.full
         dynamic.val$t.bg.full <- dynamic.val$m.t.bg.full
         dynamic.val$m.bw.full <- dynamic.val$m.m.bw.full
-        dynamic.val$m.bg.full <- dynamic.val$m.m.bg.full 
+        dynamic.val$m.bg.full <- dynamic.val$m.m.bg.full
+        dynamic.val$i.l.full <- dynamic.val$m.i.l.full
         dynamic.val$c.list <- dynamic.val$m.c.list
         dynamic.val$t.bw.list <- dynamic.val$m.t.bw.list
         dynamic.val$t.bg.list <- dynamic.val$m.t.bg.list
         dynamic.val$m.bw.list <- dynamic.val$m.m.bw.list
         dynamic.val$m.bg.list <- dynamic.val$m.m.bg.list
+        dynamic.val$i.l.list <- dynamic.val$m.i.l.list  
     }
+
+    # Define dynamic variables based on organism selection
+    observe({
+        if(input$organism == 1)  updateToHuman()
+        if(input$organism == 2)  updateToMouse()
     })
     
     output$trackoptions <- renderUI({selectInput("tracks", label = h3(tags$b("Select Tracks")),
@@ -298,9 +311,9 @@ function(input, output, session) {
     ## Hi-C Resolution Display ##
     output$HiCresolutions <- renderUI({
         hictracks <- input$tracks[as.integer(input$tracks) <= 6000000 & as.integer(input$tracks) > 5000000] 
-        plotSamples <- gsub("-HiC", "", names( g_h.i.list[match(hictracks, g_h.i.list)]))
+        plotSamples <- gsub("-HiC", "", names( dynamic.val$i.res[match(hictracks, dynamic.val$i.list)]))
         lapply(plotSamples, function(sample) {
-                res <- sort(as.integer(g_h.i.res[[sample]]))
+                res <- sort(as.integer(dynamic.val$i.res[[sample]]))
                 choices <- as.list(res)
                 names(choices) <- res
                 selectInput(paste0(sample, "HiCRes"), paste0('Specify ', sample, " Resolution"),
@@ -309,7 +322,8 @@ function(input, output, session) {
     })
     
         ## Drop down buttons##
-    output$flipMe <- renderUI({dropdownButton(label = "Flip Tracks", status = "default", width = 100,
+    output$flipMe <- renderUI({
+        dropdownButton(label = "Flip Tracks", status = "default", width = 100,
         checkboxGroupInput(inputId = "flipper", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names))
     )})
     
@@ -355,7 +369,6 @@ function(input, output, session) {
         filename <- function() {
             paste0("DNAlandscapeR-plot-", Sys.Date(), input$bm.type[1:3]) },
         content <- function(file) {
-            print(input$bm.units)
             bitmap(file, type = input$bm.type, height = as.numeric(input$bm.height), width = as.numeric(input$bm.width),
                    res = as.integer(input$bm.res), units = as.character(input$bm.units))
             p1()
@@ -490,21 +503,22 @@ function(input, output, session) {
     })
     
     observeEvent(input$addAWSBucket, {
-        if(is.null(input$newBucket)) return()
-        dynamic.val$awsBuckets <- data.frame(rbind(dynamic.val$awsBuckets, paste0("http://s3.amazonaws.com/", input$newBucket)))
-        dynamic.val <- importAmazonAWSBucket(input$newBucket, dynamic.val)
+        if(is.null(input$newBucket) | input$newBucket == "" ) return()
+        bucket <-  gsub("^\\s+|\\s+$", "", input$newBucket) #gets rid of pesky white spaces
+        dynamic.val$awsBuckets <- data.frame(rbind(dynamic.val$awsBuckets, paste0("http://s3.amazonaws.com/", bucket)))
+        dynamic.val <- importAmazonAWSBucket(bucket, dynamic.val)
         colnames(dynamic.val$awsBuckets) <- c("Bucket Name")
         awsLoaded <- as.data.frame(dynamic.val$awsBuckets)
         output$awsLoaded <- renderDataTable({awsLoaded})
         
+        # Display the correct values
         if(input$organism == 1){
-            dynamic.val$i.l.full <- dynamic.val$h.i.l.full
-            dynamic.val$i.l.list <- dynamic.val$h.i.l.list
+            updateToHuman()
         } else {
-            dynamic.val$i.l.full <- dynamic.val$m.i.l.full
-            dynamic.val$i.l.list <- dynamic.val$m.i.l.list
+            updateToMouse()
         }
         
+        # Wipe record of individual local file upload
         dynamic.val$alldat <- NULL
         dt <- as.data.frame(dynamic.val$alldat)
         output$dt <- renderDataTable({dt})

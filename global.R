@@ -24,6 +24,7 @@ library(edgeR)
 library(rsconnect)
 library(miniUI)
 library(colorRamps)
+library(reshape2)
 
 source("www/adv-shiny.R")
 
@@ -400,6 +401,7 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     dynamic.val$h.m.bw.full = g_h.m.bw.full
     dynamic.val$h.m.bg.full = g_h.m.bg.full
     dynamic.val$h.i.full    = g_h.i.full
+    dynamic.val$h.i.res    = g_h.i.res
     dynamic.val$h.i.l.full  = NULL
     dynamic.val$h.c.list    = g_h.c.list
     dynamic.val$h.t.bw.list = g_h.t.bw.list
