@@ -138,7 +138,7 @@ function(input, output, session) {
     output$plotGeneName <- renderUI({
         value <- "LMO2"
         if(input$organism == 2) value = "Grik4"
-        textInput("Gene", label = HTML("<h3><b>Plot Gene Region </b></h3>"), value = value)
+        textInput("Gene", label = HTML("<h4><b>Show Gene in Region </b></h4>"), value = value)
     })
     
     #Updates the text boxes of coordinates when a button is pressed.

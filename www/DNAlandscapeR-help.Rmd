@@ -134,3 +134,5 @@ Consistent with <a href="https://bioconductor.org/packages/release/bioc/html/dif
 
 #### **I'm tired of uploading my local data to visualize in the browser. Can I keep it in DNAlandscapeR permanently?**
 Sure! We remind you that our browser is open source, so your data will thus be accessible to other users as well. If you want to add a track to **DNAlandscapeR**, please submit a <a href="http://goo.gl/forms/BLqljNzVCRS3hUxh1" target="_blank">data request</a>.
+ <br><br>
+
