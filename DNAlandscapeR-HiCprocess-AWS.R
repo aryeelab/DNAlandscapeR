@@ -1,30 +1,22 @@
 # Author: Caleb Lareau
 # Group:  Aryee Lab
 
-# Use: Creates list of chromosomal matrices
-# of Hi-C data in .rds object for DNAlandscapeR
-
-# v2.0-- Creates full (coordinates) sparse matrix
+# Use: Creates a folder sparse matrices of Hi-C data indexed in a
+# .rds object for each chromosome visualization in DNAlandscapeR.
+# Use this script when hosting the data on an AWS Bucket. 
 
 library(readr)
 library(GenomicRanges)
 library(reshape2)
+library(tools)
 library(Matrix)
-library(foreach)
 
-b <- "/PHShome/ma695/work/projects/gbm_topology/output/hicpro/johnstone_gbm/hic_results/matrix/"
-s_all <- c("BT142-rep1", "BT142-rep2", "GBM4-rep1", "GBM4-rep2")
-c_all <- c("20000", "40000", "150000", "500000", "1000000")
-
-foreach( s = s_all ) %do% { foreach( c = c_all) %do% {
-matrix.file <- paste0(b,s, "/iced/", c, "/",s,"_", c, "_iced.matrix")
-bed.file <- paste0(b,s, "/raw/", c, "/",s,"_", c, "_abs.bed")
-out.pre <- paste0(s, "_", c)
-print(out.pre)
-compress = TRUE
+matrix.file <- "gm12878_1000000.matrix"
+bed.file <- "gm12878_1000000_abs.bed"
+out.prefix <-  "gm12878_1000000"
 
 bed.GRanges <- GRanges(data.frame(read_tsv(bed.file, col_names = c("chr", "start", "stop", "region"))))
-dat.long <- read_tsv(matrix.file, col_names = c("idx1", "idx2", "region"))
+dat.long <-read_tsv(matrix.file, col_names = c("idx1", "idx2", "region"))
 
 core_chrom <- paste("chr", seq(1, 22, 1), sep = "")
 core_chrom <- c(core_chrom, "chrX")
@@ -59,8 +51,6 @@ lapply(core_chrom, function(chr) {
   mat.chrom <- mat.chrom[1:i, 1:j]
   
   saveRDS(Matrix(as.matrix(mat.chrom)), file = paste(out.pre, "/", out.pre, "-", chr, ".rds", sep = ""))
-  print(chr)
 })
 
-if(compress) {tar(paste0(out.pre,".tgz"),out.pre,compression='gzip'); unlink(out.pre, recursive = TRUE)}
-}}
+if (compress) { tar(paste(out.pre, ".tgz", sep = ""), out.pre, compression = 'gzip'); unlink(out.pre, recursive = TRUE) }

@@ -52,7 +52,7 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
 ),
 
 bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), multiple = TRUE,
-    bsCollapsePanel(title = HTML("<h4><b>Plot Configuration</b></h4>"), value = "Panel1",
+    bsCollapsePanel(title = HTML("<h4><b>Advanced Options</b></h4>"), value = "Panel1",
     fluidRow(
        column(4, radioButtons("organism", HTML("<h3><b>Specify Organism</b></h3>"),
                     choices = list("Human" = 1, "Mouse" = 2), selected = 1), tags$br(),
@@ -180,7 +180,6 @@ pageWithSidebar(
         actionButton("addAWSBucket", "Import", style='padding:10px; font-size:80%')
         ),
     mainPanel(
-        HTML("<h4><b>NOTE: To successfully import a new bucket, you must not have any tracks selected on the Visualize panel</b></h4>"),
         HTML("<h4><b>Loaded user buckets</b></h4>"),
         dataTableOutput('awsLoaded'),
         tags$hr()
