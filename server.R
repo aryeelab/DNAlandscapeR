@@ -160,7 +160,7 @@ function(input, output, session) {
     #---------------------------------#
     
     observeEvent(input$initializeExample, {
-        desired.tracks <- c("IMR90-HiC", "GM12878-HiC", "GM12878-CTCFcp", "GM12878-CTCF", "GM12878-DNase")
+        desired.tracks <- c("IMR90-HiC", "GM12878-HiC", "GM12878-ChIA-Pet-CTCF", "GM12878-ChIP-Seq-CTCF")
         dynamic.val$start.tracks <- g_h.f.list[desired.tracks]
     })
     

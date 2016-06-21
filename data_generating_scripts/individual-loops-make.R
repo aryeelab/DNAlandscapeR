@@ -1,5 +1,13 @@
 library(diffloop)
 
+## Read one sample at a time
+
+x <- loopsMake.mango(beddir = "/Users/lareauc/Desktop/Research/AryeeResearch/processed_chiapet/mouse/POL2",
+                       samples = "NSC-POL2", ext = "all")
+saveRDS(x, "/Users/lareauc/Desktop/NSC-ChIA-Pet-POL2.rds")
+
+## Old way; splitting
+
 load("/Users/lareauc/Desktop/Research/AryeeResearch/sarah-qual/output/valid_full-v1.0.rda")
 ctcf <- rmchr(padGRanges(bedToGRanges("/Users/lareauc/Desktop/Research/AryeeResearch/sarah-qual/input/CTCF-np_peaks.narrowPeak"), pad = 1000))
 h3k27ac <- rmchr(padGRanges(bedToGRanges("/Users/lareauc/Desktop/Research/AryeeResearch/sarah-qual/input/H3K27ac-np_peaks.narrowPeak"), pad = 1000))

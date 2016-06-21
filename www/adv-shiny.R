@@ -94,6 +94,6 @@ missingco.choices <- list(
 
     slot(loops, "interactions", check = TRUE) <- ni
     slot(loops, "counts", check = TRUE) <- nc
-    slot(loops, "rowData", check = TRUE) <- loops@rowData[cc,]
+    slot(loops, "rowData", check = TRUE) <- loops@rowData[cc,, drop = FALSE]
     return(loops)
 }

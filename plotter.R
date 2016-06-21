@@ -30,6 +30,7 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             file.conn <- dynamic.val$c.full[[i]]
             if(grepl("amazonaws", file.conn)){ x <- readRDS(gzcon(url(file.conn)))
             } else { x <- readRDS(file.conn) }
+            print(file.conn)
             sample <- names(dynamic.val$c.list)[i]
             objReg <- removeSelfLoops(.subsetRegion.quick(x, dynamic.val$region, nanchors = 2))
             
