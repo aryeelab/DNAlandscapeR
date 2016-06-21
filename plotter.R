@@ -1,4 +1,6 @@
 # Main functions for plotting the various tracks.
+#region <- GRanges(seqnames=c("9"),ranges=IRanges(start=c(20912689),end=c(22216233)))
+
 
 # masterPlotter is called from the server.R script and performs these operations:
 # 1) subsets all ChIA-PET objects to determine the max counts for normalization
@@ -370,10 +372,10 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     rows <- as.numeric(rownames(hicdata))
     cols <- as.numeric(colnames(hicdata))
     
-    hicregion <- as.matrix(hicdata[which(rows > start & rows < end), which(cols > start & cols < end), drop=FALSE])
+    hicregion <- as.matrix(hicdata[which(rows >= start & rows <= end), which(cols > start & cols < end), drop=FALSE])
     if(datadl) return(data.frame(hicregion))
     
-    if(log2trans) { hicregion <- log2(hicregion); hicregion[hicregion < 0] <- 0 }
+    if(log2trans) {hicregion[hicregion < 0] <- 0; hicregion <- log2(hicregion); hicregion[hicregion < 0] <- 0}
     
     if(dim(hicregion)[1]==0 | dim(hicregion)[2]==0){ #Nothing comes up from subsetting
         hicregion <- matrix(0)  
@@ -390,30 +392,13 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     
     if(is.infinite(resolution)){ resolution <- max(rvs,cvs) - min(rvs,cvs)} #1x1 matrix 
     
-    if(resolution != 0) { #different region; 1x1 matrix
-    
-        #Melt and reshape to account for missing data
-        m.hicregion <- melt(hicregion)
-        colnames(m.hicregion) <- c("X1", "X2", "value")
-        zeros <- cbind(t(combn(seq(min_bp, max_bp, resolution), 2)), 0)
-        colnames(zeros) <- c("X1", "X2", "value")
-        m.full <- rbind(m.hicregion,zeros)
-        
-        xx <- dcast(data = m.full, formula = X1 ~ X2, value.var = "value", fill = 0, fun.aggregate = sum)
-        rn <- xx[,1]
-        xx <- xx[,-1]
-        rownames(xx) <- rn
-        hicregion <- data.matrix(xx)
-        nbins <- (max_bp-min_bp)/resolution
-    } else {
-        nbins <- 1
-    }
+    if(resolution != 0) {  nbins <- (max_bp-min_bp)/resolution } else { nbins <- 1 }
     
     stepsize <- abs(start - end)/(2 * nbins)
     max_z <- max(hicregion, na.rm = TRUE)
-    min_z <- min(hicregion[hicregion > 0], na.rm = TRUE)    
+    min_z <- min(hicregion[hicregion != 0], na.rm = TRUE)    
     if(is.infinite(max_z) | is.na(max_z) | is.nan(max_z) | max_z == 0) max_z <- 10000
-    if(is.infinite(min_z) | is.na(min_z) | is.nan(min_z)) min_z <- 0.01
+    if(is.infinite(min_z) | is.na(min_z) | is.nan(min_z)) min_z <- 0.0000001
         
     # map to colors
     breaks <- seq(min_z, max_z, length.out = 100) - 0.01
@@ -431,7 +416,7 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     # initialize plot
     plot(1, 1, xlim = c(start, end), ylim = ylim, type = "n", xaxs = "i", yaxs = "i",
          bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = sample, adj = 0)
-
+    if(dim(hicmcol)[1] != 1) {
     # fill plot
     h <- 20/min(40, dim(hicregion)[2]) * f
     for (rownum in (1:nrow(hicregion))) {
@@ -458,17 +443,22 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
             }
         }
     }
+    } else {
+        xs = c(start, start+stepsize, end)
+        ys = c(0, f*20, 0)
+        polygon(xs, ys, border = NA, col = hicmcol[1, 1])
+    }
     
     if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20, n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     if(min_z == max_z) min_z <- 0
     if(showlegend & !flip){
         addlegend(c(min_z, max_z), palette = palette, title="", side="right",
             bottominset=0.4, topinset=0, xoffset=-.035, labelside="left",
-            width=0.025, title.offset=0.035, labels.digits=0)
+            width=0.025, title.offset=0.035, labels.digits=1)
     } else if(showlegend & flip) {
         addlegend(c(min_z, max_z), palette = palette, title="", side="right",
             topinset=0.4, bottominset=0.1, xoffset=-.035, labelside="left",
-            width=0.025, title.offset=0.035, labels.digits=0)      
+            width=0.025, title.offset=0.035, labels.digits=1)      
     }
 }
 

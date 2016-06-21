@@ -37,8 +37,6 @@ default_start <- 21912689
 default_end <- 22216233
 ucsc_coord <- paste0("chr", default_chr, ":", as.character(default_start), "-", as.character(default_end))
 
-#region <- GRanges(seqnames=c("9"),ranges=IRanges(start=c(21912689),end=c(22216233)))
-
 # Variable names are coded as follows
 # g_ is a global variable
 # h. is human; m. is mouse

@@ -37,6 +37,8 @@ dat <- lapply(core_chrom, function(chr){
   # Create zeroes matrix to handle missing data
   bins <- seq(0, as.numeric(dist[chr]), as.numeric(c))
   zeros.long <- cbind(t(combn(bins, 2)), 0)
+  zeros.long <- rbind(zeros.long, cbind(bins, bins, 0))
+
   colnames(zeros.long) <- c("idx1", "idx2", "region")
   
   mat.chrom <-dcast(data = rbind(dat.chrom, zeros.long), formula = idx2 ~ idx1,
