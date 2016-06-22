@@ -247,11 +247,12 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     i.temp <- amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)]
     amazon.hic.samples <- basename(i.temp[!grepl("_", i.temp)])
     g_h.i.samples <- c(g_h.i.samples, amazon.hic.samples)
-    res.temp <- basename(i.temp[!grepl(".rds", i.temp) & grepl("_", i.temp)])
+    res.temp2 <-  unlist(strsplit(basename(i.temp[grepl(".rds", i.temp) & grepl("_", i.temp)]), "-chr"))
+    res.temp <- unique(res.temp2[!grepl(".rds", res.temp2) ])
     g_h.i.res <- c(g_h.i.res, lapply(amazon.hic.samples, function(t){unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))[c(FALSE,TRUE)]}))
     names(g_h.i.res) <- g_h.i.samples
     g_h.i.full <- c(g_h.i.full, i.temp[grepl(".rds", i.temp)])
-    
+
     
     # From 1-1,000,000-- ChIA-PET loops objects
     if(length(g_h.c.full) != 0){

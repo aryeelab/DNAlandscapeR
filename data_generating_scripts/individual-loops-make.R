@@ -2,9 +2,12 @@ library(diffloop)
 
 ## Read one sample at a time
 
-x <- loopsMake.mango(beddir = "/Users/lareauc/Desktop/Research/AryeeResearch/processed_chiapet/mouse/POL2",
-                       samples = "NSC-POL2", ext = "all")
-saveRDS(x, "/Users/lareauc/Desktop/NSC-ChIA-Pet-POL2.rds")
+x <- loopsMake.mango(beddir = "/Users/lareauc/Desktop/Research/AryeeResearch/processed_chiapet/human/POL2",
+                       samples = "gm12878-pol2_tang", ext = "all")
+promoter <- padGRanges(getHumanTSS(), pad = 2000)
+enhancer <- padGRanges(bedToGRanges("/Users/lareauc/Desktop/gm12878_h3k27ac.bed"),  pad = 2000)
+y <- annotateLoops(x, enhancer = enhancer, promoter = promoter)
+saveRDS(y, "/Users/lareauc/Desktop/GM12878-ChIA-Pet-POL2.rds")
 
 ## Old way; splitting
 
