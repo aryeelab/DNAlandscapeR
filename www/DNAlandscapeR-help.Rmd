@@ -139,7 +139,22 @@ chr1	32705184	32708527	chr1	32712484	32715408	4	1
 chr1	32705184	32708527	chr1	32755920	32759477	3	1
 chr1	32705184	32708527	chr1	32799616	32803060	6	1
 ```
-**Add diffloop script and annotation files + awk commands**
+Using diffloop, this interactions file can immediately be converted into a .rds for visualization in **DNAlandscapeR**. However, we demonstrate that added utility of annotating these loops by their possible biological functionality especially in relation to transcriptionsal activity. For K562, we access the <a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM733656">H3K27ac peaks</a> from the ENCODE project. After uncompressing, we can pull out use `awk` to produce a .bed file of putative enhancer regions that can be used by diffloop. 
+```
+awk '{print $1"\t"$2"\t"$3"\t"$5}' GSM733656_hg19_wgEncodeBroadHistoneK562H3k27acStdPk.broadPeak > K562_H3K27ac.bed
+```
+Using this file, we can annotate the loops for the combined K562 sample in the `R` environment--
+```
+library(diffloop)
+K562_comb <- loopsMake.mango(beddir = "~/mango_output", samples = c("K562-POL2cp"))
+h3k27ac_file <- "~/ChIP-Seq/K562_H3K27ac.bed"
+h3k27ac <- rmchr(padGRanges(bedToGRanges(h3k27ac_file), pad = 1000))
+promoter <- padGRanges(getHumanTSS(c('1')), pad = 1000)
+annotated_K562_comb <- annotateLoops(K562_comb, enhancer = h3k27ac, promoter = promoter)
+saveRDS(annotated_K562_comb, "K562-ChIA-Pet-POL2.rds")
+```
+We note that additional annotation of CTCF-mediated loops from ChIA-PET experiments against factors like RAD21 and SMC1 can be performed in this same function call with an additional parameter denoting a similar CTCF GRanges object. <br> <br>
+The newly constructed .rds can be directly uploaded into the browser or added into the browser via an Amazon S3 bucket. 
 <hr>
 <a name="hic"></a>
 ### **Hi-C Visualization**
