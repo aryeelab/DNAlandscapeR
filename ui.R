@@ -66,21 +66,24 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), mul
               selectInput("FUN", label=HTML("<h4><b>Function to Smooth</b></h4>"),
               choices = list("Mean"="mean", "Max"="max", "Median"="median"), selected = "mean"),
               checkboxInput("methylSmooth", "Also smooth WGBS Tracks", value = TRUE, width = NULL),
-              checkboxInput("log2BW", "Log Transform Continuous Tracks", value = FALSE, width = NULL),
-              checkboxInput("showSingleAnchors", "Show Single Anchors in ChIA-PET Tracks", value = FALSE, width = NULL)),
+              checkboxInput("log2BW", "Log Transform Continuous Tracks", value = FALSE, width = NULL)
+              ),
     column(4, HTML("<h3><b>Configure Visualizaiton</b></h3>"),
-           textInput3("chr", HTML("<h5><b>Chr&nbsp;&nbsp;&nbsp;&nbsp;</b></h5>"), value = default_chr),
-           textInput3("start", HTML("<h5><b>Start&nbsp;</b></h5>"), value = default_start),
-           textInput3("stop", HTML("<h5><b>Stop&nbsp;&nbsp;</b></h5>"), value = default_end),
-           tags$br(),
-           actionButton("plot.region", "Plot Region"),
-           tags$br(),tags$br(),
+
+           #tags$br(),tags$br(),
            selectInput("showgenes", label=HTML("<h4><b>Genome Annotation</b></h4>"),
-                choices = list("Gene Bodies" = 1, "Detailed Gene Annotation" = 2, "None" = 0), selected = 1)
-              )
+                choices = list("Gene Bodies" = 1, "Detailed Gene Annotation" = 2, "None" = 0), selected = 1),
+           selectInput("loopWidthNorm", label=HTML("<h4><b>ChIA-PET Loop Width Normalization</b></h4>"),
+                choices = list("Between Track" = 1, "Within Track" = 2, "None" = 0), selected = 1),
+           checkboxInput("showSingleAnchors", "Show Single Anchors in ChIA-PET Tracks", value = FALSE, width = NULL)
+           )
      ),
     tags$hr(),
-    actionButton("refresh", "Refresh Plot"),
+    fluidRow(
+        column(4, textInput3("chr", HTML("<h5><b>Chr&nbsp;&nbsp;&nbsp;&nbsp;</b></h5>"), value = default_chr)),
+        column(4, textInput3("start", HTML("<h5><b>Start&nbsp;</b></h5>"), value = default_start)),
+        column(4, textInput3("stop", HTML("<h5><b>Stop&nbsp;&nbsp;</b></h5>"), value = default_end))),tags$br(),
+        actionButton("plot.region", "Plot Region"),
     style = "default"),
     
     bsCollapsePanel(title = HTML("<h4><b>Hi-C Tracks Configuration</b></h4>"), value = "Panel2",

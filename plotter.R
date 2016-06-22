@@ -64,6 +64,10 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
         }
     }
     
+    # Change max counts if user wants
+    if(input$loopWidthNorm == 0) mc = -3
+    if(input$loopWidthNorm == 2) mc = -2
+    
     if(loopsdl) return(loopsTotal)
     
     #Second loop does all the plotting
@@ -186,7 +190,14 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
         w <- loopWidth(objReg)
         h <- sqrt(w/max(w))
         lwd <- 5 * (bedPE$score/max_counts)
-        
+        if(max_counts == -2){ #within track normalization
+            max_counts <- max(bedPE$score)
+            lwd <- 5 * (bedPE$score/max_counts)
+        } else if (max_counts == -3) {
+            max_counts <- 1
+            lwd <- 3
+        }
+
         # Add single loops
         if(!is.null(oneAnchor) ){
           if(dim(data.frame(oneAnchor))[1] != 0){
@@ -376,7 +387,7 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     hicregion <- as.matrix(hicdata[which(rows >= start & rows <= end), which(cols > start & cols < end), drop=FALSE])
     if(datadl) return(data.frame(hicregion))
     
-    if(log2trans) {hicregion[hicregion < 0] <- 0; hicregion <- log2(hicregion); hicregion[hicregion < 0] <- 0}
+    if(log2trans) {hicregion <- log2(hicregion); hicregion[is.infinite(hicregion)] <- 0}
     
     if(dim(hicregion)[1]==0 | dim(hicregion)[2]==0){ #Nothing comes up from subsetting
         hicregion <- matrix(0)  
