@@ -182,8 +182,8 @@ function(input, output, session) {
     })
     
     observeEvent(input$plot.gene, {
-        if(input$organism == 1) load("data/GenomeAnnotation/hg19/geneinfo.rda")
-        if(input$organism == 2) load("data/GenomeAnnotation/mm9/geneinfo.rda")
+        if(input$organism == 1){ load("data/GenomeAnnotation/hg19/geneinfo.rda")}
+        if(input$organism == 2){ load("data/GenomeAnnotation/mm9/geneinfo.rda")}
         t <- geneinfo[toupper(geneinfo$gene) == toupper(as.character(input$Gene)),]
         t.gr <- GRanges(t[c(1,2,3,4)])
         dynamic.val$region <- padGRanges(t.gr, pad = as.integer(width(t.gr)/2))

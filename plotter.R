@@ -28,9 +28,11 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             
             #Import object and subset
             file.conn <- dynamic.val$c.full[[i]]
-            if(grepl("amazonaws", file.conn)){ x <- readRDS(gzcon(url(file.conn)))
-            } else { x <- readRDS(file.conn) }
-            print(file.conn)
+            if(grepl("amazonaws", file.conn)){
+                filegz <- gzcon(url(file.conn))
+                x <- readRDS(filegz)
+                close(filegz)
+            } else { x <- readRDS(file.conn); close(file.conn) }
             sample <- names(dynamic.val$c.list)[i]
             objReg <- removeSelfLoops(.subsetRegion.quick(x, dynamic.val$region, nanchors = 2))
             
@@ -115,9 +117,11 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             res <- as.character(input[[paste0(sample, "HiCRes")]])
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
             file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
-            print(file)
-            if(grepl("amazonaws", file)){ hicdata <- readRDS(gzcon(url(file)))
-            } else { hicdata <- readRDS(file) }
+            if(grepl("amazonaws", file)){
+                filegz <- gzcon(url(file))
+                hicdata <- readRDS(filegz)
+                close(filegz)
+            } else { hicdata <- readRDS(file); close(file) }
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl)
             if(datadl) datOut <- append(datOut, setNames(list(o), sample.hic))
@@ -484,13 +488,15 @@ geneAnnotation <- function(y, organism, exons = FALSE, datadl) {
     end <- as.integer(end(ranges(range(y))))
     
     geneinfo <- data.frame()
+    file <- NULL
     
     # Use cache annotation
-    if(organism == "human" & exons) load("data/GenomeAnnotation/hg19/geneinfo-exon.rda")
-    if(organism == "mouse" & exons) load("data/GenomeAnnotation/mm9/geneinfo-exon.rda")
-    if(organism == "human" & !exons) load("data/GenomeAnnotation/hg19/geneinfo.rda")
-    if(organism == "mouse" & !exons) load("data/GenomeAnnotation/mm9/geneinfo.rda")
-    
+    if(organism == "human" & exons) file <- "data/GenomeAnnotation/hg19/geneinfo-exon.rda"
+    if(organism == "mouse" & exons) file <- "data/GenomeAnnotation/mm9/geneinfo-exon.rda"
+    if(organism == "human" & !exons) file <- "data/GenomeAnnotation/hg19/geneinfo.rda"
+    if(organism == "mouse" & !exons) file <- "data/GenomeAnnotation/mm9/geneinfo.rda"
+    load(file)
+
     geneinfo <- geneinfo[geneinfo$chrom == chrom & geneinfo$start > start & geneinfo$stop < end,]
     if(datadl) return(geneinfo)
     
