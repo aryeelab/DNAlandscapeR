@@ -117,11 +117,13 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             res <- as.character(input[[paste0(sample, "HiCRes")]])
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
             file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
+            file <- file[grep(paste0("^", sample), basename(file))]
+            print(file)
             if(grepl("amazonaws", file)){
                 filegz <- gzcon(url(file))
                 hicdata <- readRDS(filegz)
                 close(filegz)
-            } else { hicdata <- readRDS(file); close(file) }
+            } else { hicdata <- readRDS(file) }
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl)
             if(datadl) datOut <- append(datOut, setNames(list(o), sample.hic))

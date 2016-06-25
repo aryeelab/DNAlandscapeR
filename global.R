@@ -74,10 +74,15 @@ g_h.m.files <- c(g_h.m.files, amazon.filenames[grepl("data/human/methylation/.{1
 
 # Append Amazon HiC data
 i.temp <- amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)]
-amazon.hic.samples <- basename(i.temp[!grepl("_", i.temp)])
+i.base <- basename(i.temp)
+amazon.hic.samples <- basename(i.base[!grepl(".rds", i.base) & !grepl("000", i.base)])
 g_h.i.samples <- c(g_h.i.samples, amazon.hic.samples)
-res.temp <- basename(i.temp[!grepl(".rds", i.temp) & grepl("_", i.temp)])
-g_h.i.res <- c(g_h.i.res, lapply(amazon.hic.samples, function(t){unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))[c(FALSE,TRUE)]}))
+res.temp2 <-  unlist(strsplit(basename(i.temp[grepl(".rds", i.temp) & grepl("_", i.temp)]), "-chr"))
+res.temp <- unique(res.temp2[!grepl(".rds", res.temp2) ])
+g_h.i.res <- c(g_h.i.res, lapply(amazon.hic.samples, function(t){
+    opts <- unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))
+    unique(opts[grep("000", opts)])
+}))
 names(g_h.i.res) <- g_h.i.samples
 g_h.i.full <- c(g_h.i.full, i.temp[grepl(".rds", i.temp)])
 
