@@ -92,9 +92,9 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), mul
                uiOutput("HiCresolutions")),
         column(4, HTML("<h4><b>Configure Hi-C Data</b></h4>"),
                checkboxInput("showlegend", "Show Legend on Plots", value = TRUE, width = NULL),
-               checkboxInput("log2hic", "Log Transform Hi-C Values", value = FALSE, width = NULL)),
+               checkboxInput("log2hic", "Log Transform Hi-C Values", value = TRUE, width = NULL)),
         column(4, selectInput("HiCcolor",  HTML("<h4><b>Select Hi-C Color Theme</b></h4>"),
-                    choices = color.choices, selected = 13),
+                    choices = color.choices, selected = 16),
                   selectInput("missingco",  HTML("<h4><b>Specify Missing Data Color</b></h4>"),
                     choices = missingco.choices, selected = "min"))
         ),
