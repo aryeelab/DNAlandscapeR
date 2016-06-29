@@ -146,7 +146,7 @@ awk '{print $1"\t"$2"\t"$3"\t"$5}' GSM733656_hg19_wgEncodeBroadHistoneK562H3k27a
 Using this file, we can annotate the loops for the combined K562 sample in the `R` environment--
 ```
 library(diffloop)
-K562_comb <- loopsMake.mango(beddir = "~/mango_output", samples = c("K562-POL2cp"))
+K562_comb <- loopsMake.mango(beddir = "~/mango_output", samples = c("K562-POL2cp"), ext = "all")
 h3k27ac_file <- "~/ChIP-Seq/K562_H3K27ac.bed"
 h3k27ac <- rmchr(padGRanges(bedToGRanges(h3k27ac_file), pad = 1000))
 promoter <- padGRanges(getHumanTSS(c('1')), pad = 1000)
@@ -158,7 +158,25 @@ The newly constructed .rds can be directly uploaded into the browser or added in
 <hr>
 <a name="hic"></a>
 ### **Hi-C Visualization**
-Due to the prohibitive size of Hi-C data, we've created our own compression format that is optimally designed to be used in **DNAlandscapeR**. For example, a 24 gigabyte normalized output matrix from <a href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x" target="_blank">HiC-Pro</a> was compressed to only 44 megabytes from the GM12878 cell line at 20kb resolution. Users who wish to visualize their own Hi-C data locally using the upload feature should use <a href="https://github.com/aryeelab/DNAlandscapeR/blob/master/data_generating_scripts/DNAlandscapeR-HiCprocess.R" target="_blank">this code</a> as a basis for running our novel compression algorithm. The resulting .rds for the Hi-C compression format is a list of sparse matrices indexed by the chromosome. On the pre-loaded data in our S3 bucket, we further split this list into individual chromosomes for even faster data viewing. Users who similarly choose to link their own Hi-C data from their own S3 Bucket should also split their .rds files into one matrix per chromosome per file, which can conveniently be achieved by <a href="https://github.com/aryeelab/DNAlandscapeR/blob/master/data_generating_scripts/DNAlandscapeR-HiCprocess-AWS.R" target="_blank">this script</a>. 
+Due to the prohibitive size of Hi-C data, we've created our own compression format that is optimally designed to be used in **DNAlandscapeR**. We've bundled this compression algorithm in an R package that can be downloaded from the AryeeLab Github page. For example, a 24 gigabyte normalized output matrix from <a href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x" target="_blank">HiC-Pro</a> was compressed to only 44 megabytes from the GM12878 cell line at 20kb resolution. Users who wish to visualize their own Hi-C data locally using the upload feature should use the following code as an outline--
+
+```
+devtools::install_github("aryeelab/sparseHiC") #Run once
+
+library(sparseHiC)
+matrix.file <- "gm12878_1000000_iced.matrix"
+bed.file <-  "gm12878_1000000_abs.bed"
+genomeBuild <- "hg19"
+res <- "1000000"
+x <- sparseCompress.HiCPro(matrix.file, bed.file, res, genomeBuild)
+saveRDS(x, file = "gm12878-local_1MB.rds)
+```
+The resulting .rds for the Hi-C compression format is a list of sparse matrices indexed by the chromosome. This can be directly imported into the browser on the **Import** tab. For the pre-loaded data in S3 buckets, we further split this list into individual chromosomes for even faster data viewing. Users who similarly choose to link their own Hi-C data from their own S3 Bucket should also split their .rds files into one matrix per chromosome per file, which can conveniently be achieved by this call--
+```
+x <- sparseCompress.HiCPro(matrix.file, bed.file, res, genomeBuild, list = FALSE, save = TRUE,
+                           out.pre = "gm12878-local", dir.create = TRUE, compress = TRUE)
+```
+Unlike the first call that returns a list, this call automatically will write the folder that should be placed in the S3 bucket for data visualization. Currently, the **sparseHiC** package handles output from HiC-Pro. If you have other preprocessed Hi-C data that uses a common preprocessing tool, contact us and we'll be happy to add a new function to this compression package.  
 <hr>
 <a name="faq"></a>
 ### **FAQ**
@@ -191,8 +209,8 @@ Each epigenetic track is shown on its own scale, which can be determined on the 
 #### **What do the colors mean in the loop plots?**
 Consistent with <a href="https://bioconductor.org/packages/release/bioc/html/diffloop.html" target="_blank">diffloop</a>, blue loops are 'CTCF loops', purple loops are "Enhancer-Enhancer loops", orange loops are "Promoter-Promoter loops", red loops are 'Enhancer-Promoter loops', and black loops have no special annotation. Check out the [walkthrough](#crL) for and the diffloop vignette for a better description of how these loops are colored. Loops that fit multiple classifications were prioritzed based on the folowing hierarchy: E-P > P-P > E-E > CTCF > none. We note that black loops could still have biological annotation but were not identifed as using the current data processing. The Data Descriptions tab contains details on how individual samples were annotated and processed. Additionally, the mouse loops have not been specially annotated and thus are all black. <br><br>
 
-#### **I'm tired of uploading my local data to visualize in the browser. Can I keep it in DNAlandscapeR permanently?**
-Sure! We remind you that our browser is open source, so your data will thus be accessible to other users as well. If you want to add a track to **DNAlandscapeR**, please submit a <a href="http://goo.gl/forms/BLqljNzVCRS3hUxh1" target="_blank">data request</a>.<br><br>
+#### **What if I want to visualize other data in the browser**
+While we provide a variety of options in the Import tab, if you'd like to source either your own data or other publically available data, please submit a <a href="http://goo.gl/forms/BLqljNzVCRS3hUxh1" target="_blank">data request</a>. We remind you that our browser is open source, so data archieved by these means will be accessible to other users as well. <br><br>
  
 #### **My plot is taking a long time to load... What do I do to make things faster?**
 While visualizing small landscpaes (~500 kb) is generally pretty fast, viewing landscapes that exceed 1 Mb can become computationally intensive. To speed up the displayed plot, consider the following configurations:
