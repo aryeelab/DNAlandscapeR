@@ -3,10 +3,7 @@
 source("plotter.R")
 source("global.R")
 
-options(shiny.error=browser)
-options(shiny.maxRequestSize=1*1024^3) #1 GB Max file size
-options(warn=-1)
-options(scipen=999)
+
 
 function(input, output, session) {
     

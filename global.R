@@ -1,31 +1,6 @@
 # Global variables for both server.R and ui.R to reference
-library(tools)
-library(shiny)
-library(shinyBS)
-library(shinythemes)
-library(ggplot2)
-library(GenomicRanges)
-library(diffloop)
-library(Sushi)
-library(foreach)
-library(rtracklayer)
-library(DT)
-library(grid)
-library(readr)
-library(bumphunter)
-library(shinyFiles)
-library(markdown)
-library(knitr)
-library(gsubfn)    
-library(RCurl)
-library(Matrix)
-library(dplyr)
-library(edgeR)
-library(rsconnect)
-library(miniUI)
-library(colorRamps)
-library(reshape2)
 
+source("www/libraries.R")
 source("www/adv-shiny.R")
 
 # Get commit ID
@@ -157,14 +132,31 @@ for(k in 1:dim(h.d)[1]){
 g_m.c.full <- list.files("data/mouse/loops", full.names = TRUE)
 g_m.t.files <- list.files("data/mouse/tracks", full.names = TRUE)
 g_m.m.files <- list.files("data/mouse/methylation", full.names = TRUE)
-g_m.i.full  <- character(0)
+
+# Local HiC data
+g_m.i.samples <- list.dirs("data/mouse/hic/", full.names = FALSE, recursive = FALSE)
+m.res.temp <- list.dirs(paste0("data/mouse/hic/", g_m.i.samples), full.names = FALSE, recursive = FALSE)
+g_m.i.res <- lapply(g_h.i.samples, function(t){unlist(strsplit(m.res.temp[grepl(t, m.res.temp)],split="_"))[c(FALSE,TRUE)]})
+g_m.i.full <- list.files("data/mouse/hic", recursive = TRUE, full.names = TRUE)
 
 # Append amazon data
 g_m.c.full <- c(g_m.c.full, amazon.filenames[grepl("data/mouse/loops/.{1,}", amazon.filenames)])
 g_m.t.files <- c(g_m.t.files, amazon.filenames[grepl("data/mouse/tracks/.{1,}", amazon.filenames)])
 g_m.m.files <- c(g_m.m.files, amazon.filenames[grepl("data/mouse/methylation/.{1,}", amazon.filenames)])
-#g_m.i.full <- c(g_m.i.full, amazon.filenames[grepl("data/mouse/hic/.{1,}", amazon.filenames)])
 
+# Append Amazon HiC data
+i.temp <- amazon.filenames[grepl("data/mouse/hic/.{1,}", amazon.filenames)]
+i.base <- basename(i.temp)
+amazon.hic.samples <- basename(i.base[!grepl(".rds", i.base) & !grepl("000", i.base)])
+g_m.i.samples <- c(g_m.i.samples, amazon.hic.samples)
+res.temp2 <-  unlist(strsplit(basename(i.temp[grepl(".rds", i.temp) & grepl("_", i.temp)]), "-chr"))
+res.temp <- unique(res.temp2[!grepl(".rds", res.temp2) ])
+g_m.i.res <- c(g_m.i.res, lapply(amazon.hic.samples, function(t){
+    opts <- unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))
+    unique(opts[grep("000", opts)])
+}))
+names(g_m.i.res) <- g_m.i.samples
+g_m.i.full <- c(g_m.i.full, i.temp[grepl(".rds", i.temp)])
 
 # From 1-1,000,000-- ChIA-PET loops objects
 if(length(g_m.c.full) != 0){
@@ -209,13 +201,11 @@ if(length(g_m.m.bg.full) != 0){
     names(g_m.m.bg.list) <- g_m.m.bg.names
 } else { g_m.m.bg.list <- list(); g_m.m.bg.full <- list()}
 
-# From 5,000,001-6,000,000-- HiC Tracks-- .rds -- not currently supported
-#if(length(g_m.i.full) != 0){
-#    g_m.i.names <- basename(file_path_sans_ext(g_m.i.full))
-#    g_m.i.list <- as.list(seq(1, length(g_m.i.names), by = 1) + 5000000)
-#    names(g_m.i.list) <- g_h.i.names
-#} else {g_m.i.list <- list()}
-g_m.i.list <- list()
+# From 5,000,001-6,000,000-- HiC Tracks-- .rds
+if(length(g_m.i.samples) != 0){
+    g_m.i.list <- as.list(seq(1, length(g_m.i.samples), by = 1) + 5000000)
+    names(g_m.i.list) <- paste(g_m.i.samples, "-HiC", sep="")
+} else {g_m.i.list <- list()}
 
 # From 6,000,001-7,000,000-- Local HiC Tracks-- .rds
 # Do Nothing; just keeping track. 
