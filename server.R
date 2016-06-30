@@ -43,6 +43,8 @@ function(input, output, session) {
         # Initialize human values
         h.f.list    = g_h.f.list, 
         h.c.full    = g_h.c.full,
+        h.t.files   = g_h.t.files,
+        h.m.files   = g_h.m.files,
         h.t.bw.full = g_h.t.bw.full,
         h.t.bg.full = g_h.t.bg.full,
         h.m.bw.full = g_h.m.bw.full,
@@ -61,6 +63,8 @@ function(input, output, session) {
         # Initialize mouse values
         m.f.list    = g_m.f.list,
         m.c.full    = g_m.c.full,
+        m.t.files   = g_m.t.files,
+        m.m.files   = g_m.m.files,
         m.t.bw.full = g_m.t.bw.full,
         m.t.bg.full = g_m.t.bg.full,
         m.m.bw.full = g_m.m.bw.full,
@@ -73,6 +77,7 @@ function(input, output, session) {
         m.m.bw.list = g_m.m.bw.list,
         m.m.bg.list = g_m.m.bg.list,
         m.i.list    = g_m.i.list,
+        m.i.res     = g_m.i.res,
         m.i.l.list  = NULL,
         
         regionRow = 0,
@@ -113,13 +118,16 @@ function(input, output, session) {
         dynamic.val$t.bg.full <- dynamic.val$m.t.bg.full
         dynamic.val$m.bw.full <- dynamic.val$m.m.bw.full
         dynamic.val$m.bg.full <- dynamic.val$m.m.bg.full
+        dynamic.val$i.full    <- dynamic.val$m.i.full 
         dynamic.val$i.l.full <- dynamic.val$m.i.l.full
         dynamic.val$c.list <- dynamic.val$m.c.list
         dynamic.val$t.bw.list <- dynamic.val$m.t.bw.list
         dynamic.val$t.bg.list <- dynamic.val$m.t.bg.list
         dynamic.val$m.bw.list <- dynamic.val$m.m.bw.list
         dynamic.val$m.bg.list <- dynamic.val$m.m.bg.list
-        dynamic.val$i.l.list <- dynamic.val$m.i.l.list  
+        dynamic.val$i.list <- dynamic.val$m.i.list 
+        dynamic.val$i.l.list <- dynamic.val$m.i.l.list 
+        dynamic.val$i.res <- dynamic.val$m.i.res
     }
 
     # Define dynamic variables based on organism selection
@@ -183,7 +191,7 @@ function(input, output, session) {
         if(input$organism == 2){ load("data/GenomeAnnotation/mm9/geneinfo.rda")}
         t <- geneinfo[toupper(geneinfo$gene) == toupper(as.character(input$Gene)),]
         t.gr <- GRanges(t[c(1,2,3,4)])
-        dynamic.val$region <- padGRanges(t.gr, pad = as.integer(width(t.gr)/2))
+        dynamic.val$region <- padGRanges(t.gr, pad = 150000)
         updateRegionVals()
         makePlot()
     })  
@@ -232,6 +240,7 @@ function(input, output, session) {
      
     observeEvent(input$clear, {
         dynamic.val$region <- NULL
+        # add something here
     })
       
     observeEvent(input$plot_dblclick, {
@@ -502,9 +511,11 @@ function(input, output, session) {
     observeEvent(input$addAWSBucket, {
         if(is.null(input$newBucket) | input$newBucket == "" ) return()
         bucket <-  gsub("^\\s+|\\s+$", "", input$newBucket) #gets rid of pesky white spaces
-        dynamic.val$awsBuckets <- data.frame(rbind(dynamic.val$awsBuckets, paste0("http://s3.amazonaws.com/", bucket)))
+        ndf <- data.frame(paste0("http://s3.amazonaws.com/", bucket))
+        names(ndf) <- "URL"
+        dynamic.val$awsBuckets <- data.frame(rbind(dynamic.val$awsBuckets, ndf))
+        names(dynamic.val$awsBuckets) <- "URL"
         dynamic.val <- importAmazonAWSBucket(bucket, dynamic.val)
-        colnames(dynamic.val$awsBuckets) <- c("Bucket Name")
         awsLoaded <- as.data.frame(dynamic.val$awsBuckets)
         output$awsLoaded <- renderDataTable({awsLoaded})
         

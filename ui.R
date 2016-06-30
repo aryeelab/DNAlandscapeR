@@ -9,7 +9,9 @@ fluidPage(
              <h3><b><P ALIGN=Center>Aryee Lab</b></h3>")
         ),
     mainPanel(includeHTML("www/welcome.html"),
+              tags$br(),tags$br(),
               actionButton("initializeExample", "Initialize Example", style='padding:10px; font-size:80%'),
+              tags$br(),tags$br(),
               width = 12)
 )),
                    

@@ -188,6 +188,22 @@ Source: CRAN
 Version: 0.1
 Hash: 0afb92b59b02593c70ff8046700ba9d3
 
+Package: aws.s3
+Source: github
+Version: 0.1.26
+Hash: bdac261808a48689d03b7286de23e8ba
+Requires: aws.signature, base64enc, curl, digest, httr, xml2
+GithubRepo: aws.s3
+GithubUsername: cloudyr
+GithubRef: master
+GithubSha1: aedc7c26b3d0578d792524ed6c39f6db09c6063a
+
+Package: aws.signature
+Source: CRAN
+Version: 0.2.2
+Hash: eff80b71a1c0396457a46201f5b2210e
+Requires: base64enc, digest
+
 Package: base64
 Source: CRAN
 Version: 2.0
@@ -388,8 +404,8 @@ Requires: Rcpp
 
 Package: httr
 Source: CRAN
-Version: 1.1.0
-Hash: 27ffb4b4dbb8ac4019126070d66910fc
+Version: 1.2.0
+Hash: cd5c30acde81117f6b9da436dffeaedf
 Requires: R6, curl, jsonlite, mime, openssl
 
 Package: illuminaio
@@ -405,8 +421,8 @@ Hash: 488b93c2a4166db0d15f1e8d882cb1d4
 
 Package: jsonlite
 Source: CRAN
-Version: 0.9.20
-Hash: 7c342f33735452ef1f1512af8bcca066
+Version: 0.9.22
+Hash: a465329f66afd33012e1aedfe5ba2e20
 
 Package: knitr
 Source: CRAN
@@ -679,6 +695,12 @@ Package: withr
 Source: CRAN
 Version: 1.0.1
 Hash: e3d37838719e5d66652364e2aefebcee
+
+Package: xml2
+Source: CRAN
+Version: 1.0.0
+Hash: 115dce64d9d154b13ded64dcc17ca83d
+Requires: BH, Rcpp
 
 Package: xtable
 Source: CRAN

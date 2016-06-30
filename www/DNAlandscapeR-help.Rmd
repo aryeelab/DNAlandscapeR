@@ -1,6 +1,7 @@
 ---
 graphics: yes
 ---
+<a name="GUIDE"></a>
 # **DNAlandscapeR Guide**
 **N.B.** All hyperlinks will either redirect to a location inside this document or open a new tab/browser window. Thus, clicking on any link will not exit your current session. 
 <br><br>

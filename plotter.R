@@ -113,9 +113,12 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             t <- i - 5000000
             sample.hic <- names(dynamic.val$i.list)[t]
             sample <- gsub("-HiC", "", sample.hic)
+            print(sample)
             fs <- dynamic.val$i.full
             res <- as.character(input[[paste0(sample, "HiCRes")]])
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
+            print(chrom)
+            print(res)
             file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
             file <- file[grep(paste0("^", sample), basename(file))]
             print(file)
