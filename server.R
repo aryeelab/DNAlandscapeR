@@ -148,9 +148,40 @@ function(input, output, session) {
     
     #Updates the text boxes of coordinates when a button is pressed.
     updateRegionVals <- function(){
-        c <- data.frame(dynamic.val$region)[1,1]
-        s <- as.integer(start(ranges(range(dynamic.val$region))))
-        e <- as.integer(end(ranges(range(dynamic.val$region))))
+        c <- as.character(data.frame(dynamic.val$region)[1,1])
+        s <- as.numeric(start(ranges(range(dynamic.val$region))))
+        e <- as.numeric(end(ranges(range(dynamic.val$region))))
+        # Max chromosome sizes
+        hg19.dist <- c(249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,
+                  135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,
+                  59128983,63025520,48129895,51304566,155270560)
+        names(hg19.dist) <- c(paste0("chr", seq(1, 22, 1)), "chrX")
+        
+        mm9.dist <- c(197195432,181748087,159599783,155630120,152537259,149517037,152524553,131738871,124076172,
+                      129993255,121843856,121257530,120284312,125194864,103494974,98319150,95272651,90772031,61342430,
+                      166650296)
+        names(mm9.dist) <- c(paste0("chr", seq(1, 19, 1)), "chrX")
+        
+        # Do some checking first to guard against 0, max, or switched input
+        if(input$organism == 1){
+            tchr <- c
+            if(!(paste0("chr", c) %in% names(hg19.dist))){
+                output$topText <- renderText(paste0("Chromosome ", tchr, " not found; plotting 1 instead"))
+                c <- 1
+            }
+        } else {
+            if(!(paste0("chr", c) %in% names(mm9.dist))){
+                tchr <- c
+                output$topText <- renderText(paste0("Chromosome ", tchr, " not found; plotting 1 instead"))
+                c <- 1
+            }
+        }
+        
+        max_chrom_dist <- ifelse(input$organism == 1, hg19.dist[paste0("chr", c)], mm9.dist[paste0("chr", c)])
+        s <- max(s, 0)
+        e <- min(max_chrom_dist, e)
+        
+        dynamic.val$region <- GRanges(seqnames=c(c), ranges=IRanges(start=c(as.numeric(s)), end=c(as.numeric(e))))
         updateNumericInput(session, "chr", value = c)     
         updateNumericInput(session, "start", value = s)  
         updateNumericInput(session, "stop", value = e)
@@ -177,9 +208,15 @@ function(input, output, session) {
     })
     
     observeEvent(input$plot.region2, {
+
         c <- gsub("chr", "", unlist(strsplit(input$ucscCoord, ":"))[1])
         s <- unlist(strsplit(unlist(strsplit(input$ucscCoord, ":"))[2], "-"))[1]
         e <- unlist(strsplit(unlist(strsplit(input$ucscCoord, ":"))[2], "-"))[2]
+        if(s > e){ #switch the values
+            ttmp <- e
+            e <- s
+            s <- ttmp
+        }
         dynamic.val$region <- GRanges(seqnames=c(c),
                     ranges=IRanges(start=c(as.numeric(s)), end=c(as.numeric(e))))
         makePlot()
@@ -190,10 +227,14 @@ function(input, output, session) {
         if(input$organism == 1){ load("data/GenomeAnnotation/hg19/geneinfo.rda")}
         if(input$organism == 2){ load("data/GenomeAnnotation/mm9/geneinfo.rda")}
         t <- geneinfo[toupper(geneinfo$gene) == toupper(as.character(input$Gene)),]
-        t.gr <- GRanges(t[c(1,2,3,4)])
-        dynamic.val$region <- padGRanges(t.gr, pad = 150000)
-        updateRegionVals()
-        makePlot()
+        if(dim(t)[1] > 0){
+            t.gr <- GRanges(t[c(1,2,3,4)])
+            dynamic.val$region <- padGRanges(t.gr, pad = 150000)
+            updateRegionVals()
+            makePlot()
+        } else {
+            output$topText <- renderText("Gene name not found")
+        }
     })  
   
     observeEvent(input$zoom.out, {
@@ -255,7 +296,7 @@ function(input, output, session) {
             # Map that proportion to the GRanges width
             s <- as.integer(width(dynamic.val$region) * startprop)
             e <- as.integer(width(dynamic.val$region) * endprop)
-            chr_temp <- as.numeric(as.matrix(data.frame(dynamic.val$region)[1,1]))
+            chr_temp <- as.character(as.matrix(data.frame(dynamic.val$region)[1,1]))
             dynamic.val$region <- GRanges(seqnames=c(chr_temp),
                                           ranges=IRanges(start=c(data.frame(dynamic.val$region)[1,2]+s),
                                           end=c(data.frame(dynamic.val$region)[1,2]+e)))
@@ -327,7 +368,7 @@ function(input, output, session) {
             })
     })
     
-        ## Drop down buttons##
+    ## Drop down buttons##
     output$flipMe <- renderUI({
         dropdownButton(label = "Flip Tracks", status = "default", width = 100,
         checkboxGroupInput(inputId = "flipper", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names))
@@ -383,6 +424,7 @@ function(input, output, session) {
     
     makePlot <- function(){ 
         output$plot <- renderPlot({isolate(p1())}, height = 920)
+        output$topText <- renderText("")
     }
     
     

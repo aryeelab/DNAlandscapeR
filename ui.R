@@ -16,7 +16,7 @@ fluidPage(
 )),
                    
 tabPanel("Visualize", 
-headerPanel(tags$h1(tags$b('DNA Landscape'))),
+headerPanel(fluidRow(column(6, tags$h1(tags$b('DNA Landscape'))), tags$h4(column(6, tags$h3(textOutput("topText")))))),
   sidebarLayout(
   sidebarPanel(
     uiOutput("trackoptions"), 
@@ -46,9 +46,7 @@ headerPanel(tags$h1(tags$b('DNA Landscape'))),
   ), 
 
   mainPanel(
-    plotOutput("plot", 
-    dblclick = "plot_dblclick",
-    brush = "plot_brush")
+    plotOutput("plot", dblclick = "plot_dblclick",brush = "plot_brush")
     ),
   fluid = TRUE
 ),
@@ -94,7 +92,16 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), mul
                uiOutput("HiCresolutions")),
         column(4, HTML("<h4><b>Configure Hi-C Data</b></h4>"),
                checkboxInput("showlegend", "Show Legend on Plots", value = TRUE, width = NULL),
-               checkboxInput("log2hic", "Log Transform Hi-C Values", value = TRUE, width = NULL)),
+               checkboxInput("log2hic", "Log Transform Hi-C Values", value = TRUE, width = NULL),
+        checkboxInput("maxMinHiC", "Set Max/Min Threshold Value", value = FALSE),
+        conditionalPanel(
+            condition = "input.maxMinHiC == true",
+            textInput3("HiCmax", HTML("<h5><b>Maximum&nbsp;</b></h5>"), value = 100)
+        ),
+        conditionalPanel(
+            condition = "input.maxMinHiC == true",
+            textInput3("HiCmin", HTML("<h5><b>Minimum&nbsp;&nbsp;</b></h5>"), value = 0)
+        )),
         column(4, selectInput("HiCcolor",  HTML("<h4><b>Select Hi-C Color Theme</b></h4>"),
                     choices = color.choices, selected = 16),
                   selectInput("missingco",  HTML("<h4><b>Specify Missing Data Color</b></h4>"),

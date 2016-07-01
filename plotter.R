@@ -113,12 +113,9 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             t <- i - 5000000
             sample.hic <- names(dynamic.val$i.list)[t]
             sample <- gsub("-HiC", "", sample.hic)
-            print(sample)
             fs <- dynamic.val$i.full
             res <- as.character(input[[paste0(sample, "HiCRes")]])
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
-            print(chrom)
-            print(res)
             file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
             file <- file[grep(paste0("^", sample), basename(file))]
             print(file)
@@ -128,7 +125,8 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
                 close(filegz)
             } else { hicdata <- readRDS(file) }
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
-                     missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl)
+                     missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl, HiCmin = input$HiCmin,
+                     HiCmax = input$HiCmax, custMaxMin = input$maxMinHiC)
             if(datadl) datOut <- append(datOut, setNames(list(o), sample.hic))
         } else if (i < 7000000) { # Local Hi-C plot    
             t <- i - 6000000
@@ -137,7 +135,8 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             hicdata <- list.dat[[chrom]]
             sample <- names(dynamic.val$i.l.list)[t]
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
-                     missingco = input$missingco, showlegend = input$showlegend, showGA = showGA, datadl = datadl)
+                     missingco = input$missingco, showlegend = input$showlegend, showGA = showGA, datadl = datadl, HiCmin = input$HiCmin,
+                     HiCmax = input$HiCmax, custMaxMin = input$maxMinHiC)
             if(datadl) datOut <- append(datOut, setNames(list(o), sample.hic))
         } else {return()}
     }
@@ -381,7 +380,8 @@ hicColors <- function(p) {
     if(p == 16) return(colorRampPalette(colorRamps::blue2red(100)))
 }
 
-hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco, showlegend, showGA, datadl){
+hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco, showlegend, showGA, datadl,
+                     HiCmin = 0, HiCmax= 0, custMaxMin = FALSE){
    
     # Set up region
     chrom <- as.character(seqnames(region))
@@ -420,9 +420,13 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     min_z <- min(hicregion[hicregion != 0], na.rm = TRUE)    
     if(is.infinite(max_z) | is.na(max_z) | is.nan(max_z) | max_z == 0) max_z <- 10000
     if(is.infinite(min_z) | is.na(min_z) | is.nan(min_z)) min_z <- 0.0000001
+    if(custMaxMin & (HiCmax > HiCmin)){
+        max_z <- as.numeric(HiCmax)
+        min_z <- as.numeric(HiCmin)
+    }
         
     # map to colors
-    breaks <- seq(min_z, max_z, length.out = 100) - 0.01
+    breaks <- seq(min_z, max_z, length.out = 100) - 0.001
     cols <- palette(length(unique(breaks)))
     
     if(missingco == "min") { cols <- c(cols[1], cols) } else { cols <- c(missingco, cols) }

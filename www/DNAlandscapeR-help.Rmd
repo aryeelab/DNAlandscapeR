@@ -24,9 +24,9 @@ The browser for **DNAlandscapeR** is housed on the "Visualize" tab. The side pan
 
 After selecting tracks, the genomic coordinates can be specified for the region of interest either through directly specifying the region or through plotting a valid gene name. Currently, we support all autosomal chromosomes in addition to chromosome X. By default, the human genome is displayed, but we also support the mouse genome (see advanced options). 
 
-Other buttoms below the "Plot Region" option behave intuitively. These options allow the user to zoom in and out, shift left and right, and wipe the environment before reselecting options to plot. Check out the [interactive zooming](#iz) guide to more easily specify a specific region of interest. 
+Other buttoms below the "Plot Region" option behave intuitively. These options allow the user to zoom in and out, shift left and right, and wipe the environment before reselecting options to plot. Check out the [interactive zooming](#iz) guide to more easily specify a zoomed in region of interest. 
 
-Additionally, we note other configuration option on the sidebar that allows users to upload a .bed file and subsequently use the "<<<" and ">>>" buttons to navigate quickly between regions. This option allows users to quickly jump between regions of interest, such as a list of known oncogene coordinates.
+Additionally, we note other configuration options on the sidebar that allows users to upload a .bed file and subsequently use the "<<<" and ">>>" buttons to navigate quickly between regions. This option allows users to quickly jump between regions of interest, such as a list of known oncogene neighborhoods
 
 Finally, by selecting the "Download Quick Plot" button, a 8.5 x 11 inch PDF of the currently displayed landscape will save locally. To render publication-quality images of the currently displayed landscape, see the [advanced downloading](#advDL) section.
 <hr>
@@ -40,7 +40,7 @@ The collapsible panel labeled **Advanced Options** includes the following featur
 * **Show Single Anchors in ChIA-PET Tracks-** **DNAlandscapeR** only plots loops that have both anchors in the specified region. When this option is selected, small green bumps will be displayed in areas where one side of a loop anchors in the region. Users should then consider zooming out to see the full loop. 
 * **Configure Visualization--** These set of boxes and the button behave the same way as the previous "Plot Region" command with genome coordinates but provides a different basis for entering these coordiates. 
 * **Genome Annotation--** This final drop-down box supports a basic gene body annotation as well as more advanced track. In the default gene bodies track, only protein-coding genes whose entire transcription body is present in the specified region will be displayed. The second track, "Detailed Gene Annotation", displays exon-level resolution of gene bodies that are not necessarily protein coding genes. Additionally, genes only partially present in the region are displayed. While the "Detailed Gene Annotation" track is often more useful for small regions displayed in the browser, we note that displaying large regions with this option selected can dramatically slow the browser down. We recommend looking at the Detailed Annotation in regions less than 100kb. 
-
+* **ChIA-PET Loop Width Normalization--** The width of each loop indicates how many reads support the interaction relative to all displayed samples ("Between Track") or relative to itself ("Within Track"). A user can choose "None" to have consistent loop widths across all samples.  
 <hr>
 
 
@@ -57,7 +57,7 @@ After selecting a region, one can simply double click anywhere on the plot to zo
 
 <a name="hicConfig"></a>
 ### **Hi-C Tracks Configuration**
-The second collapsible panel provides custom options for tracks of Hi-C data. On the left column, users can choose between the different resolutions available per sample selected. These dynamically appear as the user specifies one or more Hi-C tracks. In the middle column, users can select displaying the heatmap legend across the different plots and log<sub>2</sub> transform the Hi-C matrix values. In the final column, users can specify the color theme associated with the Hi-C visualization as well as the missing data color. By default, the missing data regions are displayed as the minimum interaction color for the plot. 
+The second collapsible panel provides custom options for tracks of Hi-C data. On the left column, users can choose between the different resolutions available per sample selected. These dynamically appear as the user specifies one or more Hi-C tracks. By default, the best resolution for each sample will appear.<br><br> In the middle column, users can select displaying the heatmap legend across the different plots, log<sub>2</sub> transform the Hi-C matrix values, and specifying the max/min color values. If the Max/Min box is checked, all values above the max will be plotted with the highest intensity color while all the values below the min will be plotted with the lowest intensity color. <br><br>In the final column, users can specify the color theme associated with the Hi-C visualization as well as the missing data color. By default, the missing data regions are displayed as the minimum interaction color for the plot. 
 
 <hr>
 
@@ -100,7 +100,11 @@ For users that have several tracks that they would like to display in our browse
         methylation/
         tracks/
 ```
-For the Hi-C data tracks, the file name must follow the following format: sample_resolution-chr\*.rds. Otherwise, other samples can be named however as long as they are properly organized within the folder hierarchy. The S3 bucket for **DNAlandscapeR** is <a href="http://s3.amazonaws.com/dnalandscaper" target="_blank">indexed</a> the same way that user buckets need to be specified to be successfull imported. Finally, we note that to successfully import a new bucket or track, the user cannot have any tracks selected on the Visualize panel.
+For the Hi-C data tracks, the file name must follow the following format: sample_resolution-chr\*.rds. Otherwise, other samples can be named however as long as they are properly organized within the folder hierarchy. The S3 bucket for **DNAlandscapeR** is <a href="http://s3.amazonaws.com/dnalandscaper" target="_blank">indexed</a> the same way that user buckets need to be specified to be successfull imported. Finally, we note that to successfully import a new bucket or track, the user cannot have any tracks selected on the Visualize panel. For example, we've added additional Hi-C samples from <a href="http://www.ncbi.nlm.nih.gov/pubmed/22495300" target="_blank">this paper</a>, which can be linked by adding the "ren-hic" bucket in the **Import** tab. It's important that no tracks are currently selected in the **Visualize** tab to ensure that the bucket linking is successful. 
+<br><br>
+<img src="renhic.png" width="100%" height="100%" />
+<br><br>
+
 <hr>
 <a name="crL"></a>
 ### **Creating .rds for ChIA-PET Visualization**
@@ -205,12 +209,12 @@ paste(amazon, amazon.filenames, sep = "/")
 Our browser makes extensive use of the <a href="https://www.bioconductor.org/packages/release/bioc/html/Sushi.html" target="_blank">Sushi</a> package in rendering images. We recommend that users use our source code and data in a local R environment alongside this library to generate more specialized plots. This can easily be facilitated by downloading a .rds of the data currently being displayed and parsing the ensuring R object in a local framework. <br><br>
 
 #### **Are the individual tracks normalized?**
-Each epigenetic track is shown on its own scale, which can be determined on the left side of the plot. Currently, loop widths are normalized between plots. Thus, the boldest loop that is displayed across all tracks is supported by the most PETs from that particular sequencing experiment. HiC data are normalized/displayed within each track, and the scale is noted on the right side of the track plot. Check out the **Data Descriptions** tab for track-specific information. <br><br>
+Each epigenetic track is shown on its own scale, which can be determined on the left side of the plot. By default, loop widths are normalized between plots. Thus, the boldest loop that is displayed across all tracks is supported by the most PETs from that particular sequencing experiment. However, these loop widths can be reconfigured in the [advanced plot options](#apo). HiC data are normalized/displayed within each track, and the scale is noted on the right side of the track plot. Check out the **Data Descriptions** tab for track-specific information on the origins of the data pre-loaded in **DNAlandscapeR**. <br><br>
 
 #### **What do the colors mean in the loop plots?**
 Consistent with <a href="https://bioconductor.org/packages/release/bioc/html/diffloop.html" target="_blank">diffloop</a>, blue loops are 'CTCF loops', purple loops are "Enhancer-Enhancer loops", orange loops are "Promoter-Promoter loops", red loops are 'Enhancer-Promoter loops', and black loops have no special annotation. Check out the [walkthrough](#crL) for and the diffloop vignette for a better description of how these loops are colored. Loops that fit multiple classifications were prioritzed based on the folowing hierarchy: E-P > P-P > E-E > CTCF > none. We note that black loops could still have biological annotation but were not identifed as using the current data processing. The Data Descriptions tab contains details on how individual samples were annotated and processed. Additionally, the mouse loops have not been specially annotated and thus are all black. <br><br>
 
-#### **What if I want to visualize other data in the browser**
+#### **What if I want to visualize other data in the browser?**
 While we provide a variety of options in the Import tab, if you'd like to source either your own data or other publically available data, please submit a <a href="http://goo.gl/forms/BLqljNzVCRS3hUxh1" target="_blank">data request</a>. We remind you that our browser is open source, so data archieved by these means will be accessible to other users as well. <br><br>
  
 #### **My plot is taking a long time to load... What do I do to make things faster?**
