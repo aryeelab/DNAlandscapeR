@@ -208,10 +208,17 @@ function(input, output, session) {
     })
     
     observeEvent(input$plot.region2, {
-
-        c <- gsub("chr", "", unlist(strsplit(input$ucscCoord, ":"))[1])
-        s <- unlist(strsplit(unlist(strsplit(input$ucscCoord, ":"))[2], "-"))[1]
-        e <- unlist(strsplit(unlist(strsplit(input$ucscCoord, ":"))[2], "-"))[2]
+        coord <- input$ucscCoord
+        coord <- gsub("chr", "", coord)
+        coord <- gsub(",", "", coord)
+        coord <- gsub(":", " ", coord)
+        coord <- gsub("-", " ", coord)
+        coord <- gsub("\\t", " ", coord)
+        coord <- gsub(" +", " ", coord)
+        coord <- unlist(strsplit(coord, split=" "))
+        c <- coord[1]
+        s <- coord[2]
+        e <- coord[3]
         if(s > e){ #switch the values
             ttmp <- e
             e <- s
