@@ -25,7 +25,10 @@ RUN chown shiny:shiny -R packrat && \
 # Serve only the DNAlandscapeR app (replace /srv/shiny-server with /srv/shiny-server/DNAlandscapeR)
 RUN sed -i 's/\/srv\/shiny-server/\/srv\/shiny-server\/DNAlandscapeR/' /etc/shiny-server/shiny-server.conf
 
-# Add Google Analytics tracking code to the beginning of the "location /" section
+# Improve first page load time by not shutting down the R session when idle
+RUN sed -i '/location \/ {/a app_idle_timeout 0;' /etc/shiny-server/shiny-server.conf
+
+# Add Google Analytics tracking code
 RUN sed -i '/location \/ {/a google_analytics_id UA-37764824-4;' /etc/shiny-server/shiny-server.conf
 
 # Start and expose shiny server
