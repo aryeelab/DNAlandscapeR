@@ -3,8 +3,6 @@
 source("plotter.R")
 source("global.R")
 
-
-
 function(input, output, session) {
     
     # Set up dataframe for data description tab
