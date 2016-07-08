@@ -9,6 +9,27 @@
 # Additional parameters for download handling hijack this function and then exit
 # before plotting to create data objects for downloading
 
+readCachedRDS <- function(file) {
+  if(grepl("amazonaws", file)){
+    cached_file <- gsub("/", "__", sub(".*//", "", file))
+    cached_file <- file.path(cache_dir, cached_file)
+    if (file.exists(cached_file)) {
+      x <- readRDS(cached_file)
+      print(paste("Reading file from cache: ", cached_file))
+    } else {
+      filegz <- gzcon(url(file))
+      x <- readRDS(filegz)
+      close(filegz)
+      saveRDS(x, file=cached_file)
+      print(paste("Writing file to cache: ", cached_file))
+    }
+  } else { 
+    x <- readRDS(file)
+  }
+  return(x)
+}
+
+
 masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
     chia_pet_samples <- list() #Tracks samples linking with i
     chia_pet_objects <- c() #Tracks subsetted objects
@@ -28,11 +49,7 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             
             #Import object and subset
             file.conn <- dynamic.val$c.full[[i]]
-            if(grepl("amazonaws", file.conn)){
-                filegz <- gzcon(url(file.conn))
-                x <- readRDS(filegz)
-                close(filegz)
-            } else { x <- readRDS(file.conn); close(file.conn) }
+            x <- readCachedRDS(file.conn)
             sample <- names(dynamic.val$c.list)[i]
             objReg <- removeSelfLoops(.subsetRegion.quick(x, dynamic.val$region, nanchors = 2))
             
@@ -118,12 +135,7 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
             file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
             file <- file[grep(paste0("^", sample), basename(file))]
-            print(file)
-            if(grepl("amazonaws", file)){
-                filegz <- gzcon(url(file))
-                hicdata <- readRDS(filegz)
-                close(filegz)
-            } else { hicdata <- readRDS(file) }
+            hicdata <- readCachedRDS(file)
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl, HiCmin = input$HiCmin,
                      HiCmax = input$HiCmax, custMaxMin = input$maxMinHiC)

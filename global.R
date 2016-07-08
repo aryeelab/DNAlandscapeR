@@ -13,6 +13,9 @@ options(scipen=999)
 sha <- git2r::commits()[[1]]@sha
 short_sha <- substr(sha, 1, 7)
 
+# Set up the local S3 cache dir
+cache_dir <- tempdir()
+
 default_chr <- "9"
 default_start <- 21912689
 default_end <- 22216233
