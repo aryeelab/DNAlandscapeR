@@ -1,16 +1,8 @@
 FROM rocker/shiny
 RUN apt-get update && apt-get install -y git libxml2-dev libssl-dev ghostscript
-
-# Install git lfs
-RUN wget https://github.com/github/git-lfs/releases/download/v1.2.0/git-lfs-linux-amd64-1.2.0.tar.gz && \
-    tar zxf git-lfs-linux-amd64-1.2.0.tar.gz && \
-    cd git-lfs-1.2.0 && \
-    ./install.sh && \
-    git lfs install --skip-smudge
     
 # Install DNAlandscapeR
-RUN cd /srv/shiny-server && \
-    git clone --depth=1 https://github.com/aryeelab/DNAlandscapeR.git
+COPY . /srv/shiny-server/DNAlandscapeR
  
 WORKDIR /srv/shiny-server/DNAlandscapeR
 
@@ -33,5 +25,5 @@ RUN sed -i '/location \/ {/a google_analytics_id UA-37764824-4;' /etc/shiny-serv
 
 # Start and expose shiny server
 EXPOSE 3838
-CMD git lfs pull; /usr/bin/shiny-server.sh
+CMD /usr/bin/shiny-server.sh
 
