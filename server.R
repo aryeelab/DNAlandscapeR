@@ -194,8 +194,12 @@ function(input, output, session) {
     #---------------------------------#
     
     observeEvent(input$initializeExample, {
-        desired.tracks <- c("IMR90-HiC", "GM12878-HiC", "GM12878-ChIA-Pet-CTCF", "GM12878-ChIP-Seq-CTCF")
-        dynamic.val$start.tracks <- g_h.f.list[desired.tracks]
+        if(input$organism == 1){
+            desired.tracks <- c("IMR90-HiC", "GM12878-HiC", "GM12878-ChIA-Pet-CTCF", "GM12878-ChIP-Seq-CTCF")
+            dynamic.val$start.tracks <- g_h.f.list[desired.tracks]
+        } else {
+            dynamic.val$start.tracks <- 0
+        }
     })
     
     observeEvent(input$plot.region, {
@@ -360,6 +364,15 @@ function(input, output, session) {
         masterPlotter(isolate(input), isolate(dynamic.val))
     }
     
+    ## ChIA-PET Loop Filters ##
+    output$petThresholds <- renderUI({
+        hits <-input$tracks[as.integer(input$tracks) <= 1000000 ]
+        plotSamples <- names(dynamic.val$list.tracks[match(hits, dynamic.val$list.tracks)])
+        lapply(plotSamples, function(sample) {
+            sliderInput(paste0(sample, "petThresh"),paste0(sample, " min. # PETs"), min=1, max=20, value=1, step=1)
+        })
+    })
+    
     ## Hi-C Resolution Display ##
     output$HiCresolutions <- renderUI({
         hictracks <- input$tracks[as.integer(input$tracks) <= 6000000 & as.integer(input$tracks) > 5000000] 
@@ -372,6 +385,12 @@ function(input, output, session) {
                     choices = choices, selected = min(res))
             })
     })
+    
+    ## Initialize example ##
+    output$initExamp <- renderUI({
+        actionButton("initializeExample", "Load Example Tracks", style='padding:12px; font-size:100%')
+    })    
+    
     
     ## Drop down buttons##
     output$flipMe <- renderUI({

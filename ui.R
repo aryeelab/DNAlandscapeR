@@ -2,21 +2,10 @@
 source("global.R")
 
 shinyUI(navbarPage(HTML("<img src='harvard-logo.png'/>"),
-tabPanel("Welcome",
-fluidPage(
-    headerPanel(
-        HTML("<h2><b><P ALIGN=Center>Welcome to the DNAlandscapeR Epigenomics Browser</b></h2>
-             <h3><b><P ALIGN=Center>Aryee Lab</b></h3>")
-        ),
-    mainPanel(includeHTML("www/welcome.html"),
-              tags$br(),tags$br(),
-              actionButton("initializeExample", "Initialize Example", style='padding:10px; font-size:80%'),
-              tags$br(),tags$br(),
-              width = 12)
-)),
                    
 tabPanel("Visualize", 
-headerPanel(fluidRow(column(6, tags$h1(tags$b('DNA Landscape'))), tags$h4(column(6, tags$h3(textOutput("topText")))))),
+headerPanel(fluidRow(column(6, tags$h1(tags$b('DNA Landscape'))),
+                     tags$h4(column(6, tags$h3(textOutput("topText")))))),
   sidebarLayout(
   sidebarPanel(
     uiOutput("trackoptions"), 
@@ -42,23 +31,20 @@ headerPanel(fluidRow(column(6, tags$h1(tags$b('DNA Landscape'))), tags$h4(column
     actionButton("left.skip", "<<<", style='padding:10px; font-size:100%'),
     actionButton("right.skip", ">>>", style='padding:10px; font-size:100%'),
     tags$hr(),
-    downloadButton("downQuick", "Download Quick Plot")
-  ), 
+    downloadButton("downQuick", "Download Plot"), tags$br(), tags$br(),
+    conditionalPanel(condition="input.initializeExample==0", uiOutput("initExamp"))), 
 
-  mainPanel(
-    plotOutput("plot", dblclick = "plot_dblclick",brush = "plot_brush")
-    ),
+  mainPanel( plotOutput("plot", dblclick = "plot_dblclick",brush = "plot_brush") ),
   fluid = TRUE
 ),
 
-bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), multiple = TRUE,
+bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Panel3"), multiple = TRUE,
     bsCollapsePanel(title = HTML("<h4><b>Advanced Options</b></h4>"), value = "Panel1",
     fluidRow(
        column(4, radioButtons("organism", HTML("<h3><b>Specify Organism</b></h3>"),
                     choices = list("Human" = 1, "Mouse" = 2), selected = 1), tags$br(),
-              HTML("<h3><b>Track Customization</b></h3>"),tags$br(),
-              uiOutput("flipMe"), tags$br(),
-              uiOutput("showGenomeAnnotation")
+              selectInput("showgenes", label=HTML("<h4><b>Genome Annotation</b></h4>"),
+                          choices = list("Gene Bodies" = 1, "Detailed Gene Annotation" = 2, "None" = 0), selected = 1)
               ),
        column(4,
               sliderInput("smoother", HTML("<h3><b>Smooth Epigenetic Peaks<br></b></h3>
@@ -68,44 +54,62 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), mul
               checkboxInput("methylSmooth", "Also smooth WGBS Tracks", value = TRUE, width = NULL),
               checkboxInput("log2BW", "Log Transform Continuous Tracks", value = FALSE, width = NULL)
               ),
-    column(4, HTML("<h3><b>Configure Visualizaiton</b></h3>"),
-
-           #tags$br(),tags$br(),
-           selectInput("showgenes", label=HTML("<h4><b>Genome Annotation</b></h4>"),
-                choices = list("Gene Bodies" = 1, "Detailed Gene Annotation" = 2, "None" = 0), selected = 1),
-           selectInput("loopWidthNorm", label=HTML("<h4><b>ChIA-PET Loop Width Normalization</b></h4>"),
-                choices = list("Between Track" = 1, "Within Track" = 2, "None" = 0), selected = 1),
-           checkboxInput("showSingleAnchors", "Show Single Anchors in ChIA-PET Tracks", value = FALSE, width = NULL)
+    column(4, HTML("<h3><b>Track Customization</b></h3>"),tags$br(),
+              uiOutput("flipMe"), tags$br(),tags$br(),
+              uiOutput("showGenomeAnnotation")
            )
      ),
     tags$hr(),
     fluidRow(
         column(4, textInput3("chr", HTML("<h5><b>Chr&nbsp;&nbsp;&nbsp;&nbsp;</b></h5>"), value = default_chr)),
         column(4, textInput3("start", HTML("<h5><b>Start&nbsp;</b></h5>"), value = default_start)),
-        column(4, textInput3("stop", HTML("<h5><b>Stop&nbsp;&nbsp;</b></h5>"), value = default_end))),tags$br(),
+        column(4, textInput3("stop", HTML("<h5><b>Stop&nbsp;&nbsp;</b></h5>"), value = default_end))),tags$hr(),
         actionButton("plot.region", "Plot Region"),
     style = "default"),
     
-    bsCollapsePanel(title = HTML("<h4><b>Hi-C Tracks Configuration</b></h4>"), value = "Panel2",
+    bsCollapsePanel(title = HTML("<h4><b>ChIA-PET Tracks Configuration</b></h4>"), value = "Panel2",
+    fluidRow(
+        column(4,HTML("<h4><b>Individual Sample PET Cutoff</b></h4>"),
+               uiOutput("petThresholds")),
+        column(4, HTML("<h4><b>Configure ChIA-PET Visualization </b></h4>"),
+              checkboxInput("colorLoops", "Color Loops Based on Biological Annotation", value = TRUE, width = NULL),
+              checkboxInput("showSingleAnchors", "Show Single Anchors in ChIA-PET Tracks", value = FALSE, width = NULL)),
+        column(4, selectInput("loopWidthNorm", label=HTML("<h4><b>ChIA-PET Loop Width Normalization</b></h4>"),
+                           choices = list("Between Track" = 1, "Within Track" = 2, "None" = 0), selected = 1))),
+    tags$hr(),
+    actionButton("refresh2", "Refresh Plot"),
+    style = "default"),
+    
+    bsCollapsePanel(title = HTML("<h4><b>Hi-C Tracks Configuration</b></h4>"), value = "Panel3",
     fluidRow(
         column(4,HTML("<h4><b>Individual Sample Resolution</b></h4>"),
                uiOutput("HiCresolutions")),
         column(4, HTML("<h4><b>Configure Hi-C Data</b></h4>"),
                checkboxInput("showlegend", "Show Legend on Plots", value = TRUE, width = NULL),
-               checkboxInput("log2hic", "Log Transform Hi-C Values", value = TRUE, width = NULL),
-        checkboxInput("maxMinHiC", "Set Max/Min Threshold Value", value = FALSE),
-        conditionalPanel(
+                checkboxInput("maxMinHiC", "Set Max/Min Threshold Values", value = FALSE),
+    conditionalPanel(
             condition = "input.maxMinHiC == true",
-            textInput3("HiCmax", HTML("<h5><b>Maximum&nbsp;</b></h5>"), value = 100)
+            textInput3("HiCmax", HTML("<h5><b>Max Value&nbsp;</b></h5>"), value = 100)
         ),
         conditionalPanel(
             condition = "input.maxMinHiC == true",
-            textInput3("HiCmin", HTML("<h5><b>Minimum&nbsp;&nbsp;</b></h5>"), value = 0)
+            textInput3("HiCmin", HTML("<h5><b>Min Value&nbsp;&nbsp;</b></h5>"), value = 0)
+        ),
+        checkboxInput("hicQuant", "Set Quantile Thresholds", value = TRUE),
+        conditionalPanel(
+            condition = "input.hicQuant == true",
+            textInput3("quantMax", HTML("<h5><b>Max Quant.&nbsp;</b></h5>"), value = 95)
+        ),
+        conditionalPanel(
+            condition = "input.hicQuant == true",
+            textInput3("quantMin", HTML("<h5><b>Min Quant.&nbsp;&nbsp;</b></h5>"), value = 5)
         )),
         column(4, selectInput("HiCcolor",  HTML("<h4><b>Select Hi-C Color Theme</b></h4>"),
                     choices = color.choices, selected = 16),
                   selectInput("missingco",  HTML("<h4><b>Specify Missing Data Color</b></h4>"),
-                    choices = missingco.choices, selected = "min"))
+                    choices = missingco.choices, selected = "min"),
+                  checkboxInput("log2hic", "Log Transform Hi-C Values", value = TRUE, width = NULL)
+               )
         ),
     tags$hr(),
     actionButton("refresh2", "Refresh Plot"),
@@ -141,6 +145,17 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2"), mul
         column(1, tags$br())),
     tags$hr(),
     style = "default")
+)),
+
+tabPanel("About",
+fluidPage(
+    headerPanel(
+        HTML("<h2><b><P ALIGN=Center>Welcome to the DNAlandscapeR Epigenomics Browser</b></h2>
+             <h3><b><P ALIGN=Center>Aryee Lab</b></h3>")
+        ),
+    mainPanel(includeHTML("www/welcome.html"),
+              tags$br(),tags$br(),
+              width = 12)
 )),
 
 tabPanel("Data Descriptions",

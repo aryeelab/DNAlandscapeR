@@ -7,7 +7,9 @@ graphics: yes
 <br><br>
 #### **Contents:**
 * [Basic User Guide](#bug)
+* [First Time User](#let)
 * [Advanced plotting options](#apo)
+* [ChIA-PET Tracks Configuration](chiapetConfig)
 * [Hi-C Tracks Configuration](#hicConfig)
 * [Interactive zooming](#iz)
 * [Advanced Downloading](#advDL)
@@ -28,21 +30,24 @@ Other buttoms below the "Plot Region" option behave intuitively. These options a
 
 Additionally, we note other configuration options on the sidebar that allows users to upload a .bed file and subsequently use the "<<<" and ">>>" buttons to navigate quickly between regions. This option allows users to quickly jump between regions of interest, such as a list of known oncogene neighborhoods
 
-Finally, by selecting the "Download Quick Plot" button, a 8.5 x 11 inch PDF of the currently displayed landscape will save locally. To render publication-quality images of the currently displayed landscape, see the [advanced downloading](#advDL) section.
+By selecting the "Download Quick Plot" button, a 8.5 x 11 inch PDF of the currently displayed landscape will save locally. To render publication-quality images of the currently displayed landscape, see the [advanced downloading](#advDL) section.
+<hr>
+
+
+<a name="let"></a>
+### **First Time User**
+The first use of a new genome browser can be overwhelming. In an effort to get new users exploration started, one can simply press the "Load Example Tracks" button at the bottom of the side panel. This will initialize four sample tracks into the Selected Tracks, including 3 topology data. To visualize the default region, simply press "Plot Region" to view the loaded tracks. A user can then zoom, shift, download, and add additional tracks with ease. Note that the "Human" genome must be selected for tracks to load. If the "Mouse" genome build is specified, no new data will load. The pre-loaded data will enable the viewing of the three-dimensional loops that span the CTCF peaks, which can be viewed underneath from ChIA-PET data, in the GM12878 cell line. We can view the overall three-dimensional structure from a Hi-C experiment, and compare the topological domains in the GM12878 cell line with those in the IMR90 cell line. Overall, this sample plot shows some of the variability in the three-dimensional structure of the two cell lines, confirms correspondence of Hi-C topological domains and ChIA-PET loops, and verifies that loop anchors correspond to regions of CTCF binding.
 <hr>
 
 <a name="apo"></a>
 ### **Advanced plotting options**
 The collapsible panel labeled **Advanced Options** includes the following features:
 * **Organism selection--** Allows for the toggling back and forth between the landscape of mouse and human. 
-* **Track Customization--** Two drop down boxes that allow users to flip displayed tracks or add/remove the displayed genome coordinates on the x-axis. These lists are dynamic in that only the selected tracks are rendered as choices to be flipped or annotated.
+* **Genome Annotation--** This drop-down box supports a basic gene body annotation as well as more advanced track. In the default gene bodies track, only protein-coding genes whose entire transcription body is present in the specified region will be displayed. The second track, "Detailed Gene Annotation", displays exon-level resolution of gene bodies that are not necessarily protein coding genes. Additionally, genes only partially present in the region are displayed. While the "Detailed Gene Annotation" track is often more useful for small regions displayed in the browser, we note that displaying large regions with this option selected can dramatically slow the browser down. We recommend looking at the Detailed Annotation in regions less than 100kb. 
 * **Log Transform Continuous Tracks--** When this box is checked, the scores associated with epigenetic peaks will be log<sub>2</sub> transformed. This only applies to ReadDepth tracks (e.g. RNA-Seq, DNase, ChIP-Seq, etc.) and does not necessarily apply to methylation.
-* **Show Single Anchors in ChIA-PET Tracks-** **DNAlandscapeR** only plots loops that have both anchors in the specified region. When this option is selected, small green bumps will be displayed in areas where one side of a loop anchors in the region. Users should then consider zooming out to see the full loop. 
 * **Configure Visualization--** These set of boxes and the button behave the same way as the previous "Plot Region" command with genome coordinates but provides a different basis for entering these coordiates. 
-* **Genome Annotation--** This final drop-down box supports a basic gene body annotation as well as more advanced track. In the default gene bodies track, only protein-coding genes whose entire transcription body is present in the specified region will be displayed. The second track, "Detailed Gene Annotation", displays exon-level resolution of gene bodies that are not necessarily protein coding genes. Additionally, genes only partially present in the region are displayed. While the "Detailed Gene Annotation" track is often more useful for small regions displayed in the browser, we note that displaying large regions with this option selected can dramatically slow the browser down. We recommend looking at the Detailed Annotation in regions less than 100kb. 
-* **ChIA-PET Loop Width Normalization--** The width of each loop indicates how many reads support the interaction relative to all displayed samples ("Between Track") or relative to itself ("Within Track"). A user can choose "None" to have consistent loop widths across all samples.  
+* **Track Customization--** Two drop down boxes that allow users to flip displayed tracks or add/remove the displayed genome coordinates on the x-axis. These lists are dynamic in that only the selected tracks are rendered as choices to be flipped or annotated.
 <hr>
-
 
 <a name="iz"></a>
 ### **Interactive Zooming**
@@ -52,13 +57,19 @@ As the **Zoom In** button increases the focuses in on the center part of the cur
 After selecting a region, one can simply double click anywhere on the plot to zoom over the specified region. The boundaries of the shaded box will define the new x-coordinates in the updated plot. The y-coordinates of the box do not have an effect on the ensuing zoom. The plot below shows the shaded region after being double-clicked.
 <br><br><br>
 <img src="zoom2.png" width="50%" height="50%" /><br><br>
+<hr>
 
+<a name="chiapetConfig"></a>
+### **ChIA-PET Tracks Configuration**
+* **Individual Sample PET Cutoff-** An input option to specify the minimum number of PETs (reads supporting the interaction) in each sample appears dynamically as the user specifies the number of ChIA-PET samples. As the sequencing depth between these tracks is highly variable, we suggest to use this feature to determine the most confident loops within each sample but 
+* **Color Loops Based on Biological Annotation-** If available, when this button is selected, the ChIA-PET loops will be colored based on proximity to various epigenetic and genetic features, such as enhancers and promoters. The [FAQ](#faq) discusses this annotation process and color meaning in greater detail. When the box is not selected, all loops will appear black.  
+* **Show Single Anchors in ChIA-PET Tracks-** **DNAlandscapeR** only plots loops that have both anchors in the specified region. When this option is selected, small green bumps will be displayed in areas where one side of a loop anchors in the region. Users should then consider zooming out to see the full loop. 
+* **ChIA-PET Loop Width Normalization--** The width of each loop indicates how many reads support the interaction relative to all displayed samples ("Between Track") or relative to itself ("Within Track"). A user can choose "None" to have consistent loop widths across all samples.
 <hr>
 
 <a name="hicConfig"></a>
 ### **Hi-C Tracks Configuration**
-The second collapsible panel provides custom options for tracks of Hi-C data. On the left column, users can choose between the different resolutions available per sample selected. These dynamically appear as the user specifies one or more Hi-C tracks. By default, the best resolution for each sample will appear.<br><br> In the middle column, users can select displaying the heatmap legend across the different plots, log<sub>2</sub> transform the Hi-C matrix values, and specifying the max/min color values. If the Max/Min box is checked, all values above the max will be plotted with the highest intensity color while all the values below the min will be plotted with the lowest intensity color. <br><br>In the final column, users can specify the color theme associated with the Hi-C visualization as well as the missing data color. By default, the missing data regions are displayed as the minimum interaction color for the plot. 
-
+The third collapsible panel provides custom options for tracks of Hi-C data. On the left column, users can choose between the different resolutions available per sample selected. These dynamically appear as the user specifies one or more Hi-C tracks. By default, the best resolution for each sample will appear.<br><br> Additionally, Users can select displaying the heatmap legend across the different plots and specifying the max/min color values. If the Max/Min box is checked, all values above the max will be plotted with the highest intensity color while all the values below the min will be plotted with the lowest intensity color. If the Quantile Thresholds is selected, all values over the max quantile (as a percentage) will be potted with the highest intensity color and similarly for the minumum. If both are selected by the user, then the quantiles will be respected rather than the specified max/min values. <br><br>In the final column, users can specify the color theme associated with the Hi-C visualization as well as the missing data color. By default, the missing data regions are displayed as the minimum interaction color for the plot. Finally, the option to log<sub>2</sub> transform the Hi-C matrix values is afforded. 
 <hr>
 
 <a name="advDL"></a>
@@ -102,9 +113,9 @@ For users that have several tracks that they would like to display in our browse
 ```
 For the Hi-C data tracks, the file name must follow the following format: sample_resolution-chr\*.rds. Otherwise, other samples can be named however as long as they are properly organized within the folder hierarchy. The S3 bucket for **DNAlandscapeR** is <a href="http://s3.amazonaws.com/dnalandscaper" target="_blank">indexed</a> the same way that user buckets need to be specified to be successfull imported. Finally, we note that to successfully import a new bucket or track, the user cannot have any tracks selected on the Visualize panel. For example, we've added additional Hi-C samples from <a href="http://www.ncbi.nlm.nih.gov/pubmed/22495300" target="_blank">this paper</a>, which can be linked by adding the "ren-hic" bucket in the **Import** tab. It's important that no tracks are currently selected in the **Visualize** tab to ensure that the bucket linking is successful. 
 <br><br>
-<img src="renhic.png" width="100%" height="100%" />
+<img src="renhic.png" width="80%" height="80%" align="middle />
 <br><br>
-
+A successful bucket import should resemble the screenshot shown here. 
 <hr>
 <a name="crL"></a>
 ### **Creating .rds for ChIA-PET Visualization**
