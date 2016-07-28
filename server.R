@@ -353,7 +353,8 @@ function(input, output, session) {
     
     observeEvent( input$refresh, { makePlot() })
     observeEvent(input$refresh2, { makePlot() })
-    
+    observeEvent(input$refresh3, { makePlot() })
+
 
     p1 <- function(){  
         if (isolate(is.null(dynamic.val$region))) return()

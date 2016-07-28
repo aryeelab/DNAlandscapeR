@@ -141,7 +141,7 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             hicdata <- readCachedRDS(file)
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl, HiCmin = input$HiCmin,
-                     HiCmax = input$HiCmax, custMaxMin = input$maxMinHiC, Qmin = input$quantMin, Qmax = input$quantMax, QMaxMin = input$hicQuant)
+                     HiCmax = input$HiCmax, custMaxMin = input$HiCcutoff, Qmin = input$quantMin, Qmax = input$quantMax)
             if(datadl) datOut <- append(datOut, setNames(list(o), sample.hic))
         } else if (i < 7000000) { # Local Hi-C plot    
             t <- i - 6000000
@@ -151,7 +151,7 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             sample <- names(dynamic.val$i.l.list)[t]
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA, datadl = datadl, HiCmin = input$HiCmin,
-                     HiCmax = input$HiCmax, custMaxMin = input$maxMinHiC, Qmin = input$quantMin, Qmax = input$quantMax, QMaxMin = input$hicQuant)
+                     HiCmax = input$HiCmax, custMaxMin = input$HiCcutoff, Qmin = input$quantMin, Qmax = input$quantMax)
             if(datadl) datOut <- append(datOut, setNames(list(o), sample.hic))
         } else {return()}
     }
@@ -398,7 +398,7 @@ hicColors <- function(p) {
 }
 
 hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco, showlegend, showGA, datadl,
-                     HiCmin = 0, HiCmax= 0, custMaxMin = FALSE, Qmin = 0, Qmax= 0, QMaxMin = FALSE){
+                     HiCmin = 0, HiCmax= 0, custMaxMin = 3, Qmin = 0, Qmax= 0){
    
     # Set up region
     chrom <- as.character(seqnames(region))
@@ -438,12 +438,12 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     if(is.infinite(max_z) | is.na(max_z) | is.nan(max_z) | max_z == 0) max_z <- 10000
     if(is.infinite(min_z) | is.na(min_z) | is.nan(min_z)) min_z <- 0.0000001
     
-    if(custMaxMin & (HiCmax > HiCmin)){
+    if(custMaxMin == 1 & (HiCmax > HiCmin)){
         max_z <- as.numeric(HiCmax)
         min_z <- as.numeric(HiCmin)
     }
     
-    if(QMaxMin & (as.numeric(Qmax) > as.numeric(Qmin))){
+    if(custMaxMin == 2 & (as.numeric(Qmax) > as.numeric(Qmin))){
         mreg <- melt(hicregion)
         mreg.subset <- mreg[mreg[,3] > 0  & (mreg[,1] != mreg[,2]), ]
         max_z <- quantile(mreg.subset[,3], as.numeric(Qmax)*0.01)

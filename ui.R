@@ -86,22 +86,22 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Pan
                uiOutput("HiCresolutions")),
         column(4, HTML("<h4><b>Configure Hi-C Data</b></h4>"),
                checkboxInput("showlegend", "Show Legend on Plots", value = TRUE, width = NULL),
-                checkboxInput("maxMinHiC", "Set Max/Min Threshold Values", value = FALSE),
+               radioButtons("HiCcutoff", HTML("<h3><b>Set Cutoff Thresholds</b></h3>"),
+                    choices = list("Max/Min" = 1, "Quantile" = 2, "None" = 3), selected = 2),
     conditionalPanel(
-            condition = "input.maxMinHiC == true",
+            condition = "input.HiCcutoff == 1",
             textInput3("HiCmax", HTML("<h5><b>Max Value&nbsp;</b></h5>"), value = 100)
         ),
         conditionalPanel(
-            condition = "input.maxMinHiC == true",
+            condition = "input.HiCcutoff == 1",
             textInput3("HiCmin", HTML("<h5><b>Min Value&nbsp;&nbsp;</b></h5>"), value = 0)
         ),
-        checkboxInput("hicQuant", "Set Quantile Thresholds", value = TRUE),
         conditionalPanel(
-            condition = "input.hicQuant == true",
+            condition = "input.HiCcutoff == 2",
             textInput3("quantMax", HTML("<h5><b>Max Quant.&nbsp;</b></h5>"), value = 95)
         ),
         conditionalPanel(
-            condition = "input.hicQuant == true",
+            condition = "input.HiCcutoff == 2",
             textInput3("quantMin", HTML("<h5><b>Min Quant.&nbsp;&nbsp;</b></h5>"), value = 5)
         )),
         column(4, selectInput("HiCcolor",  HTML("<h4><b>Select Hi-C Color Theme</b></h4>"),
@@ -112,7 +112,7 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Pan
                )
         ),
     tags$hr(),
-    actionButton("refresh2", "Refresh Plot"),
+    actionButton("refresh3", "Refresh Plot"),
     style = "default"),
     
     bsCollapsePanel(title = HTML("<h4><b>Advanced Downloading</b></h4>"), value = "bmPanel",
