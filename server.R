@@ -448,7 +448,7 @@ function(input, output, session) {
     )
     
     makePlot <- function(){ 
-        output$plot <- renderPlot({isolate(p1())}, height = 920)
+        output$plot <- renderPlot({isolate(p1())}, height = 900)
         output$topText <- renderText("")
     }
     
