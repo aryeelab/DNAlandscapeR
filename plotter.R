@@ -251,6 +251,8 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
         }
         
         loplot <- recordPlot()
+        print(bedPE)
+        print(cs)
         plotBedpe(bedPE, chrom, start, end, color = cs, lwd = lwd, 
                   plottype = "loops", heights = h, lwdrange = c(0, 5), 
                   main = sample, adj=0, flip = flip)
@@ -305,12 +307,17 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE, sample, showGA, smoother
     pos <- region.bedgraph$start
     y <- region.bedgraph[,4]
     
-    if(!smoothBool){
-        cluster_id <- clusterMaker(chr=chrom, pos=pos, maxGap = 100)
-        smooth <- locfitByCluster(x=pos, y=y, cluster=cluster_id, bpSpan = 50)
-        plot(pos, smooth$fitted, type="l", xaxt='n',bty = "n",xaxs="i",yaxs="i",main=sample,adj=0,ylab="")
-    } else{
-        plot(pos,y, type="l", xaxt='n',bty = "n",xaxs="i",yaxs="i",main=sample,adj=0,ylab="")
+    
+    if(dim(region.bedgraph)[1] == 0) { # dummyplot
+        plotBedpe(data.frame(), chrom, start, end, color = c("blue"), lwd = 0, plottype = "loops", heights = 0, lwdrange = c(0, 0), main = sample, adj=0)
+    } else { #real plot
+        if(!smoothBool){
+            cluster_id <- clusterMaker(chr=chrom, pos=pos, maxGap = 100)
+            smooth <- locfitByCluster(x=pos, y=y, cluster=cluster_id, bpSpan = 50)
+            plot(pos, smooth$fitted, type="l", xaxt='n',bty = "n",xaxs="i",yaxs="i",main=sample,adj=0,ylab="")
+        } else{
+            plot(pos,y, type="l", xaxt='n',bty = "n",xaxs="i",yaxs="i",main=sample,adj=0,ylab="")
+        }
     }
     
     if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20, n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
@@ -351,9 +358,11 @@ bigwig.trackplot <- function(file, region, smoother, datadl, FUN, ylab, sample, 
     end <- as.integer(end(ranges(range(region))))
 
     trackplot <- recordPlot()
-    plotBedgraph(region.bedgraph, chromchr, start, end, 
-                 main = sample, adj=0, flip = flip)
-    #mtext(ylab,side=2,line=2.5,cex=1,font=2)
+    if(dim(region.bedgraph)[1] == 0) { # dummyplot
+        plotBedpe(data.frame(), chrom, start, end, color = c("blue"), lwd = 0, plottype = "loops", heights = 0, lwdrange = c(0, 0), main = sample, adj=0)
+    } else { #real plot
+        plotBedgraph(region.bedgraph, chromchr, start, end, main = sample, adj=0, flip = flip)
+    }
     axis(side=2,las=2,tcl=.2)
     if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20, n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
     return(trackplot)
