@@ -211,7 +211,8 @@ function(input, output, session) {
         gNome <- "hg19"
         if(input$organism == 2) gNome <- "mm9"
         urlGo <- paste0("https://genome.ucsc.edu/cgi-bin/hgTracks?db=", gNome, "&position=", coordS)
-        actionButton("openUCSC", label = "View Region in UCSC", onclick ="window.open('http://google.com', '_blank')")
+        urlQ <- paste0("\'", urlGo, "\'")
+        actionButton("openUCSC", label = "View Region in UCSC", onclick =paste0("window.open(",urlQ,", '_blank')"))
     })
     
     observeEvent(input$plot.region, {
