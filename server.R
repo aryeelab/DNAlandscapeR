@@ -202,21 +202,16 @@ function(input, output, session) {
         }
     })
     
-    output$inc<-renderUI({
-        x <- input$test  
-        getPage()
-    })
-    
-    observeEvent(input$ucscGo, {
+
+    output$ucscGo <- renderUI({
         c <- as.character(data.frame(dynamic.val$region)[1,1])
         s <- as.character(start(ranges(range(dynamic.val$region))))
         e <- as.character(end(ranges(range(dynamic.val$region))))
         coordS <- paste0("chr", c, ":", s, "-", e)
         gNome <- "hg19"
-        if(dynamic.val$organism == "mouse") gNome <- "mm9"
+        if(input$organism == 2) gNome <- "mm9"
         urlGo <- paste0("https://genome.ucsc.edu/cgi-bin/hgTracks?db=", gNome, "&position=", coordS)
-        browseURL(urlGo)
-
+        actionButton("openUCSC", label = "View Region in UCSC", onclick ="window.open('http://google.com', '_blank')")
     })
     
     observeEvent(input$plot.region, {
