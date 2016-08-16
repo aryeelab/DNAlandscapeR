@@ -31,9 +31,11 @@ headerPanel(fluidRow(column(6, tags$h1(tags$b('DNA Landscape'))),
     #actionButton("left.skip", "<<<", style='padding:10px; font-size:100%'),
     #actionButton("right.skip", ">>>", style='padding:10px; font-size:100%'),
     tags$hr(),
+    actionButton("ucscGo", HTML("View Region in UCSC")),
+    tags$br(), tags$br(),
     downloadButton("downQuick", "Download Plot"), tags$br(), tags$br(),
     conditionalPanel(condition="input.initializeExample==0", uiOutput("initExamp")),
-    tags$hr(),tags$br(),tags$br()), 
+    tags$hr()), 
 
   mainPanel( plotOutput("plot", dblclick = "plot_dblclick",brush = "plot_brush") ),
   fluid = TRUE

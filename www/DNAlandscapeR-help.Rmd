@@ -28,6 +28,8 @@ After selecting tracks, the genomic coordinates can be specified for the region 
 
 Other buttoms below the "Plot Region" option behave intuitively. These options allow the user to zoom in and out, shift left and right, and wipe the environment before reselecting options to plot. Check out the [interactive zooming](#iz) guide to more easily specify a zoomed in region of interest. 
 
+While **DNAlandscapeR** has a considerable repository of data, it lacks much of the functional annotation available in the [UCSC Genome Browser](https://genome.ucsc.edu/). To facilitate a more integrative user experience, the region currently displayed in the **DNAlandscapeR** will be opened in the UCSC Browser when selecting the UCSC button.  
+
 By selecting the "Download Quick Plot" button, a 8.5 x 11 inch PDF of the currently displayed landscape will save locally. To render publication-quality images of the currently displayed landscape, see the [advanced downloading](#advDL) section.
 <hr>
 
