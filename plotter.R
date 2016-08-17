@@ -435,8 +435,11 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     cvs <- as.numeric(colnames(hicregion))
     min_bp <-  min(c(rvs, cvs))
     max_bp <-  max(c(rvs, cvs))
-    resolution <- min(c(diff(rvs), diff(cvs)))
-    
+    if(length(c(diff(rvs), diff(cvs))) == 0){
+        resolution <- 0
+    } else {
+        resolution <-  min(c(diff(rvs), diff(cvs)))
+    }
     if(is.infinite(resolution)){ resolution <- max(rvs,cvs) - min(rvs,cvs)} #1x1 matrix 
     
     if(resolution != 0) {  nbins <- (max_bp-min_bp)/resolution } else { nbins <- 1 }
@@ -455,8 +458,13 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     if(custMaxMin == 2 & (as.numeric(Qmax) > as.numeric(Qmin))){
         mreg <- melt(hicregion)
         mreg.subset <- mreg[mreg[,3] > 0  & (mreg[,1] != mreg[,2]), ]
-        max_z <- quantile(mreg.subset[,3], as.numeric(Qmax)*0.01)
-        min_z <- quantile(mreg.subset[,3], as.numeric(Qmin)*0.01)
+        if(dim(mreg.subset)[1] == 0){
+            max_z <- as.numeric(hicregion)
+            min_z <- as.numeric(hicregion)
+        } else {
+            max_z <- quantile(mreg.subset[,3], as.numeric(Qmax)*0.01)
+            min_z <- quantile(mreg.subset[,3], as.numeric(Qmin)*0.01)
+        }
     }    
     
     # map to colors
