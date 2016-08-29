@@ -43,8 +43,8 @@ g_h.c.full <- list.files("data/human/loops", full.names = TRUE)
 g_h.t.files <- list.files("data/human/tracks", full.names = TRUE)
 g_h.m.files <- list.files("data/human/methylation", full.names = TRUE)
 
-# Local HiC
-g_h.i.samples <- list.dirs("data/human/hic/", full.names = FALSE, recursive = FALSE)
+# Local HiC-- voided currently
+g_h.i.samples <- list.files("data/human/hic", full.names = FALSE, recursive = FALSE)
 res.temp <- list.dirs(paste0("data/human/hic/", g_h.i.samples), full.names = FALSE, recursive = FALSE)
 g_h.i.res <- lapply(g_h.i.samples, function(t){unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))[c(FALSE,TRUE)]})
 g_h.i.full <- list.files("data/human/hic", recursive = TRUE, full.names = TRUE)
@@ -57,13 +57,11 @@ g_h.m.files <- c(g_h.m.files, amazon.filenames[grepl("data/human/methylation/.{1
 # Append Amazon HiC data
 i.temp <- amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)]
 i.base <- basename(i.temp)
-amazon.hic.samples <- basename(i.base[!grepl(".rds", i.base) & !grepl("000", i.base)])
+amazon.hic.samples <- file_path_sans_ext(i.base[grepl(".rds", i.base)])
 g_h.i.samples <- c(g_h.i.samples, amazon.hic.samples)
-res.temp2 <-  unlist(strsplit(basename(i.temp[grepl(".rds", i.temp) & grepl("_", i.temp)]), "-chr"))
-res.temp <- unique(res.temp2[!grepl(".rds", res.temp2) ])
 g_h.i.res <- c(g_h.i.res, lapply(amazon.hic.samples, function(t){
-    opts <- unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))
-    unique(opts[grep("000", opts)])
+    restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".resolutions.txt", i.temp)], skip = 2)
+    strsplit(as.character(restab[1,1]), split = ",")[[1]]
 }))
 names(g_h.i.res) <- g_h.i.samples
 g_h.i.full <- c(g_h.i.full, i.temp[grepl(".rds", i.temp)])
@@ -112,7 +110,7 @@ if(length(g_h.m.bg.full) != 0){
 # From 5,000,001-6,000,000-- HiC Tracks-- .rds
 if(length(g_h.i.samples) != 0){
     g_h.i.list <- as.list(seq(1, length(g_h.i.samples), by = 1) + 5000000)
-    names(g_h.i.list) <- paste(g_h.i.samples, "-HiC", sep="")
+    names(g_h.i.list) <- g_h.i.samples
 } else {g_h.i.list <- list()}
 
 # From 6,000,001-7,000,000-- Local HiC Tracks-- .rds
@@ -132,7 +130,6 @@ for(k in 1:dim(h.d)[1]){
 }
 
 ## MOUSE INITIALIZATION ##
-#Currently does not support HiC
 
 # Import locally hosted data file names
 g_m.c.full <- list.files("data/mouse/loops", full.names = TRUE)
@@ -153,13 +150,11 @@ g_m.m.files <- c(g_m.m.files, amazon.filenames[grepl("data/mouse/methylation/.{1
 # Append Amazon HiC data
 i.temp <- amazon.filenames[grepl("data/mouse/hic/.{1,}", amazon.filenames)]
 i.base <- basename(i.temp)
-amazon.hic.samples <- basename(i.base[!grepl(".rds", i.base) & !grepl("000", i.base)])
+amazon.hic.samples <- file_path_sans_ext(i.base[grepl(".rds", i.base)])
 g_m.i.samples <- c(g_m.i.samples, amazon.hic.samples)
-res.temp2 <-  unlist(strsplit(basename(i.temp[grepl(".rds", i.temp) & grepl("_", i.temp)]), "-chr"))
-res.temp <- unique(res.temp2[!grepl(".rds", res.temp2) ])
 g_m.i.res <- c(g_m.i.res, lapply(amazon.hic.samples, function(t){
-    opts <- unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))
-    unique(opts[grep("000", opts)])
+    restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".resolutions.txt", i.temp)], skip = 2)
+    strsplit(as.character(restab[1,1]), split = ",")[[1]]
 }))
 names(g_m.i.res) <- g_m.i.samples
 g_m.i.full <- c(g_m.i.full, i.temp[grepl(".rds", i.temp)])
@@ -208,7 +203,7 @@ if(length(g_m.m.bg.full) != 0){
 # From 5,000,001-6,000,000-- HiC Tracks-- .rds
 if(length(g_m.i.samples) != 0){
     g_m.i.list <- as.list(seq(1, length(g_m.i.samples), by = 1) + 5000000)
-    names(g_m.i.list) <- paste(g_m.i.samples, "-HiC", sep="")
+    names(g_m.i.list) <- g_m.i.samples
 } else {g_m.i.list <- list()}
 
 # From 6,000,001-7,000,000-- Local HiC Tracks-- .rds

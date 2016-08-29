@@ -15,13 +15,11 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     # Append Amazon HiC data
     i.temp <- amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)]
     i.base <- basename(i.temp)
-    amazon.hic.samples <- basename(i.base[!grepl(".rds", i.base) & !grepl("000", i.base)])
-    g_h.i.samples <- c(gsub("-HiC", "", names(dynamic.val$h.i.list)), amazon.hic.samples)
-    res.temp2 <-  unlist(strsplit(basename(i.temp[grepl(".rds", i.temp) & grepl("_", i.temp)]), "-chr"))
-    res.temp <- unique(res.temp2[!grepl(".rds", res.temp2) ])
+    amazon.hic.samples <-file_path_sans_ext(i.base[grepl(".rds", i.base)])
+    g_h.i.samples <- c(names(dynamic.val$h.i.list), amazon.hic.samples)
     g_h.i.res <- c(dynamic.val$h.i.res, lapply(amazon.hic.samples, function(t){
-        opts <- unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))
-        unique(opts[grep("000", opts)])
+        restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".resolutions.txt", i.temp)], skip = 2)
+        strsplit(as.character(restab[1,1]), split = ",")[[1]]
     }))
     names(g_h.i.res) <- g_h.i.samples
     g_h.i.full <- c(dynamic.val$h.i.full, i.temp[grepl(".rds", i.temp)])
@@ -69,7 +67,7 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     # From 5,000,001-6,000,000-- HiC Tracks-- .rds
     if(length(g_h.i.samples) != 0){
         g_h.i.list <- as.list(seq(1, length(g_h.i.samples), by = 1) + 5000000)
-        names(g_h.i.list) <- paste(g_h.i.samples, "-HiC", sep="")
+        names(g_h.i.list) <- g_h.i.samples
     } else {g_h.i.list <- list()}
     
     # From 6,000,001-7,000,000-- Local HiC Tracks-- .rds
@@ -96,13 +94,11 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     # Append Amazon HiC data
     i.temp <- amazon.filenames[grepl("data/mouse/hic/.{1,}", amazon.filenames)]
     i.base <- basename(i.temp)
-    amazon.hic.samples <- basename(i.base[!grepl(".rds", i.base) & !grepl("000", i.base)])
-    g_m.i.samples <- c(gsub("-HiC", "", names(dynamic.val$m.i.list)), amazon.hic.samples)
-    res.temp2 <-  unlist(strsplit(basename(i.temp[grepl(".rds", i.temp) & grepl("_", i.temp)]), "-chr"))
-    res.temp <- unique(res.temp2[!grepl(".rds", res.temp2) ])
+    amazon.hic.samples <-file_path_sans_ext(i.base[grepl(".rds", i.base)])
+    g_m.i.samples <- c(names(dynamic.val$h.i.list), amazon.hic.samples)
     g_m.i.res <- c(dynamic.val$m.i.res, lapply(amazon.hic.samples, function(t){
-        opts <- unlist(strsplit(res.temp[grepl(t, res.temp)],split="_"))
-        unique(opts[grep("000", opts)])
+        restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".resolutions.txt", i.temp)], skip = 2)
+        strsplit(as.character(restab[1,1]), split = ",")[[1]]
     }))
     names(g_m.i.res) <- g_m.i.samples
     g_m.i.full <- c(dynamic.val$m.i.full, i.temp[grepl(".rds", i.temp)])
@@ -148,10 +144,10 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
         names(g_m.m.bg.list) <- g_m.m.bg.names
     } else { g_m.m.bg.list <- list(); g_m.m.bg.full <- list()}
     
-    # From 5,000,001-6,000,000-- HiC Tracks-- .rds -- not currently supported
+    # From 5,000,001-6,000,000-- HiC Tracks-- .rds
     if(length(g_m.i.samples) != 0){
         g_m.i.list <- as.list(seq(1, length(g_m.i.samples), by = 1) + 5000000)
-        names(g_m.i.list) <- paste(g_m.i.samples, "-HiC", sep="")
+        names(g_m.i.list) <- g_m.i.samples 
     } else {g_m.i.list <- list()}
     
     # From 6,000,001-7,000,000-- Local HiC Tracks-- .rds

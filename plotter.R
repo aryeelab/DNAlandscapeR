@@ -132,13 +132,13 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
         } else if (i < 6000000){ # Hi-C Plot for Stuff that's preloaded on the server
             t <- i - 5000000
             sample.hic <- names(dynamic.val$i.list)[t]
-            sample <- gsub("-HiC", "", sample.hic)
+            sample <- sample.hic
             fs <- dynamic.val$i.full
             res <- as.character(input[[paste0(sample, "HiCRes")]])
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
-            file <- fs[grepl(paste0(chrom, ".rds"), fs) & grepl(res, fs) & grepl(sample, fs)]
-            file <- file[grep(paste0("^", sample), basename(file))]
-            hicdata <- readCachedRDS(file)
+            file <- fs[grepl(".rds", fs) & grepl(sample, fs)]
+            hics4 <- readCachedRDS(file)
+            hicdata <- hics4@resolutionNamedList[[res]][[chrom]]
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl, HiCmin = input$HiCmin,
                      HiCmax = input$HiCmax, custMaxMin = input$HiCcutoff, Qmin = input$quantMin, Qmax = input$quantMax)

@@ -98,20 +98,16 @@ For users that have several tracks that they would like to display in our browse
 /data/
     human/
         hic/
-            sample/
-                sample_resolution/
         loops/
         methylation/
         tracks/
     mouse/
        hic/
-            sample/
-                sample_resolution/
         loops/
         methylation/
         tracks/
 ```
-For the Hi-C data tracks, the file name must follow the following format: sample_resolution-chr\*.rds. Otherwise, other samples can be named however as long as they are properly organized within the folder hierarchy. The S3 bucket for **DNAlandscapeR** is <a href="http://s3.amazonaws.com/dnalandscaper" target="_blank">indexed</a> the same way that user buckets need to be specified to be successfull imported. Finally, we note that to successfully import a new bucket or track, the user cannot have any tracks selected on the Visualize panel. For example, we've added additional Hi-C samples from <a href="http://www.ncbi.nlm.nih.gov/pubmed/22495300" target="_blank">this paper</a>, which can be linked by adding the "ren-hic" bucket in the **Import** tab. It's important that no tracks are currently selected in the **Visualize** tab to ensure that the bucket linking is successful. 
+The S3 bucket for **DNAlandscapeR** is <a href="http://s3.amazonaws.com/dnalandscaper" target="_blank">indexed</a> the same way that user buckets need to be specified to be successfull imported. Finally, we note that to successfully import a new bucket or track, the user cannot have any tracks selected on the Visualize panel. For example, we've added additional Hi-C samples from <a href="http://www.ncbi.nlm.nih.gov/pubmed/22495300" target="_blank">this paper</a>, which can be linked by adding the "ren-hic" bucket in the **Import** tab. It's important that no tracks are currently selected in the **Visualize** tab to ensure that the bucket linking is successful. 
 <br><br>
 <img src="renhic.png" width="80%" height="80%" align="middle />
 <br><br>
@@ -174,25 +170,25 @@ The newly constructed .rds can be directly uploaded into the browser or added in
 <hr>
 <a name="hic"></a>
 ### **Hi-C Visualization**
-Due to the prohibitive size of Hi-C data, we've created our own compression format that is optimally designed to be used in **DNAlandscapeR**. We've bundled this compression algorithm in an R package that can be downloaded from the AryeeLab Github page. For example, a 24 gigabyte normalized output matrix from <a href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x" target="_blank">HiC-Pro</a> was compressed to only 44 megabytes from the GM12878 cell line at 20kb resolution. Users who wish to visualize their own Hi-C data locally using the upload feature should use the following code as an outline--
+Due to the prohibitive size of Hi-C data, we've created our own compression format that is optimally designed to be used in **DNAlandscapeR**. We've bundled this compression algorithm in an R package that can be downloaded from the AryeeLab Github page. For example, a 24 gigabyte normalized output matrix from <a href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0831-x" target="_blank">HiC-Pro</a> was compressed to roughly 100 megabytes from the GM12878 cell line at five default resolutions from Hi-C Pro output. Users who wish to visualize their own Hi-C data locally using the upload feature should use the following code as an outline--
 
 ```
-devtools::install_github("aryeelab/sparseHiC") #Run once
-
+# devtools::install_github("aryeelab/sparseHiC")
 library(sparseHiC)
-matrix.file <- "gm12878_1000000_iced.matrix"
-bed.file <-  "gm12878_1000000_abs.bed"
-genomeBuild <- "hg19"
-res <- "1000000"
-x <- sparseCompress.HiCPro(matrix.file, bed.file, res, genomeBuild)
-saveRDS(x, file = "gm12878-local_1MB.rds)
+library(BiocParallel)
+
+base <- "~/output/hicpro/rao_imr90/hic_results/matrix/imr90"
+
+resolutions <- c("20000", "40000", "15000", "500000", "1000000")
+matrix.files <- paste0(base, "/iced/", resolutions, "/imr90_", resolutions, "_iced.matrix")
+bed.files <- paste0(base, "/raw/", resolutions, "/imr90_", resolutions, "_abs.bed")
+
+HiCPro2DNAlandscapeR(matrix.files = matrix.files, bed.files = bed.files, resolutions = resolutions,
+                     sampleName = "IMR90", genomeBuild = "hg19", BPPARAM = SerialParam())
 ```
-The resulting .rds for the Hi-C compression format is a list of sparse matrices indexed by the chromosome. This can be directly imported into the browser on the **Import** tab. For the pre-loaded data in S3 buckets, we further split this list into individual chromosomes for even faster data viewing. Users who similarly choose to link their own Hi-C data from their own S3 Bucket should also split their .rds files into one matrix per chromosome per file, which can conveniently be achieved by this call--
-```
-x <- sparseCompress.HiCPro(matrix.file, bed.file, res, genomeBuild, list = FALSE, save = TRUE,
-                           out.pre = "gm12878-local", dir.create = TRUE, compress = TRUE)
-```
-Unlike the first call that returns a list, this call automatically will write the folder that should be placed in the S3 bucket for data visualization. Currently, the **sparseHiC** package handles output from HiC-Pro. If you have other preprocessed Hi-C data that uses a common preprocessing tool, contact us and we'll be happy to add a new function to this compression package.  
+In this example, the default resolutions from Hi-C Pro are compressed together into a single object that is exported as a .rds file. The resulting .rds for the Hi-C compression format is an S4 object indexed by the resolution and the chromosome chromosome. This can be directly imported into the browser on the **Import** tab or linked via an AWS bucket. An additional .txt file containing the resolutions needs to be coupled with the .rds file for **DNAlandscapeR** to handle the  configuration of the specific sample. 
+
+Currently, the **sparseHiC** package handles output from HiC-Pro. If you have other preprocessed Hi-C data that uses a common preprocessing tool, contact us and we'll be happy to add a new function to this compression package.  
 <hr>
 <a name="faq"></a>
 ### **FAQ**
@@ -215,6 +211,9 @@ paste(amazon, amazon.filenames, sep = "/")
 
 #### **How do I access the code used to make the plots/browser?**
 **DNAlandscapeR** was built in the R/Shiny environment. All of our source code is made freely available in our <a href="https://github.com/aryeelab/DNAlandscapeR" target="_blank">open-source repository</a>.<br><br>
+
+#### **Why does the Hi-C data take a (relatively) long time to plot?**
+We use a data caching system to keep the overall memory burden associated with our server low. The first time that a user plots a Hi-C sample, we load that sample to an instance-specific disk space and cache the object. Thus, the first time that a particular sample is plotted, it will take longer to download that Hi-C data and then render it. However, subsequent configurations that change the region displayed for that sample should have a fast experience since the sample is now cached.<br><br>
 
 #### **I want to use a plot similar to what I made in DNAlandscapeR for a paper/presentation/etc., but I need greater control over the plot characteristics. What do I do?**
 Our browser makes extensive use of the <a href="https://www.bioconductor.org/packages/release/bioc/html/Sushi.html" target="_blank">Sushi</a> package in rendering images. We recommend that users use our source code and data in a local R environment alongside this library to generate more specialized plots. This can easily be facilitated by downloading a .rds of the data currently being displayed and parsing the ensuring R object in a local framework. <br><br>
