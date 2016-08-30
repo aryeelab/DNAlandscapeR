@@ -5,6 +5,8 @@ source("global.R")
 
 function(input, output, session) {
     
+    session$onSessionEnded(stopApp)
+    
     # Set up dataframe for data description tab
     dDF <- read.table("http://textuploader.com/5buvy/raw", header = TRUE, sep = "\t")
     dDF$PMID <- paste0('<a href="http://www.ncbi.nlm.nih.gov/pubmed/', dDF$PMID, '" target="_blank">', dDF$PMID, '</a>')

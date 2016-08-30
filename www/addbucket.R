@@ -95,7 +95,7 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     i.temp <- amazon.filenames[grepl("data/mouse/hic/.{1,}", amazon.filenames)]
     i.base <- basename(i.temp)
     amazon.hic.samples <-file_path_sans_ext(i.base[grepl(".rds", i.base)])
-    g_m.i.samples <- c(names(dynamic.val$h.i.list), amazon.hic.samples)
+    g_m.i.samples <- c(names(dynamic.val$m.i.list), amazon.hic.samples)
     g_m.i.res <- c(dynamic.val$m.i.res, lapply(amazon.hic.samples, function(t){
         restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".resolutions.txt", i.temp)], skip = 2)
         strsplit(as.character(restab[1,1]), split = ",")[[1]]
