@@ -136,7 +136,11 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             fs <- dynamic.val$i.full
             res <- as.character(input[[paste0(sample, "HiCRes")]])
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
-            file <- fs[grepl(".rds", fs) & grepl(sample, fs)]
+            if(any(grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs))){
+                file <- fs[grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs)]
+            } else {
+                file <- fs[grepl(".rds", fs) & grepl(sample, fs)]
+            }
             hics4 <- readCachedRDS(file)
             hicdata <- hics4@resolutionNamedList[[res]][[chrom]]
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,

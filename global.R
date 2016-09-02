@@ -57,10 +57,10 @@ g_h.m.files <- c(g_h.m.files, amazon.filenames[grepl("data/human/methylation/.{1
 # Append Amazon HiC data
 i.temp <- amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)]
 i.base <- basename(i.temp)
-amazon.hic.samples <- file_path_sans_ext(i.base[grepl(".rds", i.base)])
+amazon.hic.samples <- file_path_sans_ext(file_path_sans_ext(i.base[grepl("resolutions.txt", i.base)]))
 g_h.i.samples <- c(g_h.i.samples, amazon.hic.samples)
 g_h.i.res <- c(g_h.i.res, lapply(amazon.hic.samples, function(t){
-    restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".resolutions.txt", i.temp)], skip = 2)
+    restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".resolutions.txt", i.temp)], skip = 3)
     strsplit(as.character(restab[1,1]), split = ",")[[1]]
 }))
 names(g_h.i.res) <- g_h.i.samples
