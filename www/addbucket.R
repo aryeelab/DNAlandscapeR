@@ -179,15 +179,13 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     dynamic.val$h.m.bg.full = g_h.m.bg.full
     dynamic.val$h.i.full    = g_h.i.full
     dynamic.val$h.i.res     = g_h.i.res
-    dynamic.val$h.i.l.full  = NULL
     dynamic.val$h.c.list    = g_h.c.list
     dynamic.val$h.t.bw.list = g_h.t.bw.list
     dynamic.val$h.t.bg.list = g_h.t.bg.list
     dynamic.val$h.m.bw.list = g_h.m.bw.list
     dynamic.val$h.m.bg.list = g_h.m.bg.list
     dynamic.val$h.i.list    = g_h.i.list
-    dynamic.val$h.i.l.list  = NULL
-    
+
     # Update mouse variables
     dynamic.val$m.f.list    = g_m.f.list
     dynamic.val$m.t.files   = g_m.t.files
@@ -199,13 +197,11 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     dynamic.val$m.m.bg.full = g_m.m.bg.full
     dynamic.val$m.i.full    = g_m.i.full
     dynamic.val$m.i.res     = g_m.i.res
-    dynamic.val$m.i.l.full  = NULL
     dynamic.val$m.c.list    = g_m.c.list
     dynamic.val$m.t.bw.list = g_m.t.bw.list
     dynamic.val$m.t.bg.list = g_m.t.bg.list
     dynamic.val$m.m.bw.list = g_m.m.bw.list
     dynamic.val$m.m.bg.list = g_m.m.bg.list
     dynamic.val$m.i.list    = g_m.i.list
-    dynamic.val$m.i.l.list  = NULL
     return(dynamic.val)
 }

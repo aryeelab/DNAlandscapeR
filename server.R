@@ -93,14 +93,12 @@ function(input, output, session) {
         dynamic.val$m.bw.full <- dynamic.val$h.m.bw.full
         dynamic.val$m.bg.full <- dynamic.val$h.m.bg.full
         dynamic.val$i.full <- dynamic.val$h.i.full
-        dynamic.val$i.l.full <- dynamic.val$h.i.l.full
         dynamic.val$c.list <- dynamic.val$h.c.list
         dynamic.val$t.bw.list <- dynamic.val$h.t.bw.list
         dynamic.val$t.bg.list <- dynamic.val$h.t.bg.list
         dynamic.val$m.bw.list <- dynamic.val$h.m.bw.list
         dynamic.val$m.bg.list <- dynamic.val$h.m.bg.list
         dynamic.val$i.list <- dynamic.val$h.i.list  
-        dynamic.val$i.l.list <- dynamic.val$h.i.l.list
         dynamic.val$i.res <- dynamic.val$h.i.res
     }
     
@@ -113,14 +111,12 @@ function(input, output, session) {
         dynamic.val$m.bw.full <- dynamic.val$m.m.bw.full
         dynamic.val$m.bg.full <- dynamic.val$m.m.bg.full
         dynamic.val$i.full    <- dynamic.val$m.i.full 
-        dynamic.val$i.l.full <- dynamic.val$m.i.l.full
         dynamic.val$c.list <- dynamic.val$m.c.list
         dynamic.val$t.bw.list <- dynamic.val$m.t.bw.list
         dynamic.val$t.bg.list <- dynamic.val$m.t.bg.list
         dynamic.val$m.bw.list <- dynamic.val$m.m.bw.list
         dynamic.val$m.bg.list <- dynamic.val$m.m.bg.list
         dynamic.val$i.list <- dynamic.val$m.i.list 
-        dynamic.val$i.l.list <- dynamic.val$m.i.l.list 
         dynamic.val$i.res <- dynamic.val$m.i.res
     }
 
