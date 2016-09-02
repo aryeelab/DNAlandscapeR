@@ -215,6 +215,11 @@ pageWithSidebar(
         tags$hr(),
         textInput3("newTrackName", h5(tags$b("Specify track name:"), value = "")),
         tags$hr(),
+        conditionalPanel(
+            condition = "input.datType == 6",
+            textInput3("uploadHiCRes", HTML("<h5><b>Specify Resolutions:</b></h5>"),
+                       value = "1000000,500000,150000,40000,20000")
+        ),
         selectInput("datType", label = h5(tags$b("Data type:")), 
                 choices = uploadchoices, #defined in global.R
                             selected = 1, width = "90%"),

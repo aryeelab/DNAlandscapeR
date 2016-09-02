@@ -135,6 +135,9 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             sample <- sample.hic
             fs <- dynamic.val$i.full
             res <- as.character(input[[paste0(sample, "HiCRes")]])
+            print(sample)
+            print(sample.hic)
+            print(fs)
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
             if(any(grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs))){
                 file <- fs[grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs)]
@@ -145,16 +148,6 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             hicdata <- hics4@resolutionNamedList[[res]][[chrom]]
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl, HiCmin = input$HiCmin,
-                     HiCmax = input$HiCmax, custMaxMin = input$HiCcutoff, Qmin = input$quantMin, Qmax = input$quantMax)
-            if(datadl) datOut <- append(datOut, setNames(list(o), sample.hic))
-        } else if (i < 7000000) { # Local Hi-C plot    
-            t <- i - 6000000
-            chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
-            list.dat <- readRDS(dynamic.val$i.l.full[t])
-            hicdata <- list.dat[[chrom]]
-            sample <- names(dynamic.val$i.l.list)[t]
-            o <- hic.plot(hicdata, dynamic.val$region, sample = sample, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
-                     missingco = input$missingco, showlegend = input$showlegend, showGA = showGA, datadl = datadl, HiCmin = input$HiCmin,
                      HiCmax = input$HiCmax, custMaxMin = input$HiCcutoff, Qmin = input$quantMin, Qmax = input$quantMax)
             if(datadl) datOut <- append(datOut, setNames(list(o), sample.hic))
         } else {return()}

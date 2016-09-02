@@ -113,9 +113,6 @@ if(length(g_h.i.samples) != 0){
     names(g_h.i.list) <- g_h.i.samples
 } else {g_h.i.list <- list()}
 
-# From 6,000,001-7,000,000-- Local HiC Tracks-- .rds
-# Do Nothing; just keeping track. 
-
 g_h.f.list <- append(g_h.c.list, append(append(g_h.t.bw.list, g_h.t.bg.list), append(append(g_h.m.bw.list, g_h.m.bg.list), g_h.i.list)))
 
 # Now order it
@@ -206,8 +203,6 @@ if(length(g_m.i.samples) != 0){
     names(g_m.i.list) <- g_m.i.samples
 } else {g_m.i.list <- list()}
 
-# From 6,000,001-7,000,000-- Local HiC Tracks-- .rds
-# Do Nothing; just keeping track. 
 
 g_m.f.list <- append(g_m.c.list, append(append(g_m.t.bw.list, g_m.t.bg.list), append(append(g_m.m.bw.list, g_m.m.bg.list), g_m.i.list)))
 

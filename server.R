@@ -29,7 +29,6 @@ function(input, output, session) {
         m.bw.full   = g_h.m.bw.full,
         m.bg.full   = g_h.m.bg.full, 
         i.full      = g_h.i.full,
-        i.l.list    = NULL,
         c.list      = g_h.c.list,
         t.bw.list   = g_h.t.bw.list,
         t.bg.list   = g_h.t.bg.list,
@@ -37,7 +36,6 @@ function(input, output, session) {
         m.bg.list   = g_h.m.bg.list,
         i.list      = g_h.i.list,
         i.res       = g_h.i.res,
-        i.l.list    = NULL,
         organism    = "human",
         
         # Initialize human values
@@ -50,7 +48,6 @@ function(input, output, session) {
         h.m.bw.full = g_h.m.bw.full,
         h.m.bg.full = g_h.m.bg.full,
         h.i.full    = g_h.i.full,
-        h.i.l.full  = NULL,
         h.c.list    = g_h.c.list,
         h.t.bw.list = g_h.t.bw.list,
         h.t.bg.list = g_h.t.bg.list,
@@ -58,8 +55,7 @@ function(input, output, session) {
         h.m.bg.list = g_h.m.bg.list,
         h.i.list    = g_h.i.list,
         h.i.res     = g_h.i.res,
-        h.i.l.list  = NULL,
-        
+
         # Initialize mouse values
         m.f.list    = g_m.f.list,
         m.c.full    = g_m.c.full,
@@ -70,7 +66,6 @@ function(input, output, session) {
         m.m.bw.full = g_m.m.bw.full,
         m.m.bg.full = g_m.m.bg.full,
         m.i.full    = g_m.i.full,
-        m.i.l.full  = NULL, 
         m.c.list    = g_m.c.list,
         m.t.bw.list = g_m.t.bw.list,
         m.t.bg.list = g_m.t.bg.list,
@@ -78,8 +73,7 @@ function(input, output, session) {
         m.m.bg.list = g_m.m.bg.list,
         m.i.list    = g_m.i.list,
         m.i.res     = g_m.i.res,
-        m.i.l.list  = NULL,
-        
+
         regionRow = 0,
         regions.df = NULL,
         fileAvail = FALSE,
@@ -391,7 +385,10 @@ function(input, output, session) {
     
     ## Hi-C Resolution Display ##
     output$HiCresolutions <- renderUI({
-        hictracks <- input$tracks[as.integer(input$tracks) <= 6000000 & as.integer(input$tracks) > 5000000] 
+        hictracks <- input$tracks[as.integer(input$tracks) <= 7000000 & as.integer(input$tracks) > 5000000]
+        print(dynamic.val$i.list)
+        print(dynamic.val$i.l.list)
+        print(dynamic.val$i.res)
         plotSamples <- names( dynamic.val$i.res[match(hictracks, dynamic.val$i.list)])
         lapply(plotSamples, function(sample) {
                 res <- sort(as.integer(dynamic.val$i.res[[sample]]))
@@ -409,6 +406,7 @@ function(input, output, session) {
     
     
     ## Drop down buttons##
+    
     output$flipMe <- renderUI({
         dropdownButton(label = "Flip Tracks", status = "default", width = 100,
         checkboxGroupInput(inputId = "flipper", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names))
@@ -418,6 +416,7 @@ function(input, output, session) {
         checkboxGroupInput(inputId = "showGA", label = "", choices = setNames(as.list(input$tracks), dynamic.val$track.names),
         selected = setNames(as.list(input$tracks), dynamic.val$track.names) )
     )})
+    
     
     ## Download Handlers ##
     
@@ -565,20 +564,30 @@ function(input, output, session) {
                 dynamic.val$m.m.bg.list <- append(dynamic.val$m.m.bg.list, valu)
             }
             
-        # Hi C data; .l is for "local"
+        # Hi C data
         } else { #datType is 6
-            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 7000000]), 6000000)) + 1 )
+            old <- curfile
+            curfile <- paste0(curfile, name, ".rds")
+            file.rename(old, curfile)
+            print(curfile)
+            valu <- as.list(suppressWarnings(max(max(unlist(y)[unlist(y) < 6000000]), 5000000)) + 1 )
             names(valu) <- name
             if(input$organismUpload == 1){
-                dynamic.val$h.i.l.full <- c(dynamic.val$h.i.l.full, curfile)
-                dynamic.val$h.i.l.list <- append(dynamic.val$h.i.l.list, valu)
-                dynamic.val$i.l.full <- dynamic.val$h.i.l.full
-                dynamic.val$i.l.list <- dynamic.val$h.i.l.list
+                dynamic.val$h.i.full <- c(dynamic.val$h.i.full, curfile)
+                dynamic.val$h.i.list <- append(dynamic.val$h.i.list, valu)
+                dynamic.val$h.i.res <- append(dynamic.val$h.i.res, 
+                                              setNames(list(strsplit(input$uploadHiCRes, split = ",")[[1]]), name))
+                dynamic.val$i.full <- dynamic.val$h.i.full
+                dynamic.val$i.list <- dynamic.val$h.i.list
+                dynamic.val$i.res <- dynamic.val$h.i.res
             } else {
-                dynamic.val$m.i.l.full <- c(dynamic.val$m.i.l.full, curfile)
-                dynamic.val$m.i.l.list <- append(dynamic.val$m.i.l.list, valu)
-                dynamic.val$i.l.full <- dynamic.val$m.i.l.full
-                dynamic.val$i.l.list <- dynamic.val$m.i.l.list
+                dynamic.val$m.i.full <- c(dynamic.val$m.i.full, curfile)
+                dynamic.val$m.i.list <- append(dynamic.val$m.i.list, valu)
+                dynamic.val$m.i.res <- append(dynamic.val$m.i.res, 
+                                              setNames(list(strsplit(input$uploadHiCRes, split = ",")[[1]]), name))
+                dynamic.val$i.full <- dynamic.val$m.i.full
+                dynamic.val$i.list <- dynamic.val$m.i.list
+                dynamic.val$i.res <- dynamic.val$m.i.res
             }
         }
         
@@ -607,11 +616,5 @@ function(input, output, session) {
         } else {
             updateToMouse()
         }
-        
-        # Wipe record of individual local file upload
-        dynamic.val$alldat <- NULL
-        dt <- as.data.frame(dynamic.val$alldat)
-        output$dt <- renderDataTable({dt})
-        
     })
 }
