@@ -15,10 +15,10 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     # Append Amazon HiC data
     i.temp <- amazon.filenames[grepl("data/human/hic/.{1,}", amazon.filenames)]
     i.base <- basename(i.temp)
-    amazon.hic.samples <-file_path_sans_ext(i.base[grepl(".rds", i.base)])
+    amazon.hic.samples <- file_path_sans_ext(file_path_sans_ext(i.base[grepl(".sparseHiC.meta", i.base)]))
     g_h.i.samples <- c(names(dynamic.val$h.i.list), amazon.hic.samples)
     g_h.i.res <- c(dynamic.val$h.i.res, lapply(amazon.hic.samples, function(t){
-        restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".resolutions.txt", i.temp)], skip = 2)
+        restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".sparseHiC.meta", i.temp)], skip = 3)
         strsplit(as.character(restab[1,1]), split = ",")[[1]]
     }))
     names(g_h.i.res) <- g_h.i.samples
@@ -94,10 +94,10 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     # Append Amazon HiC data
     i.temp <- amazon.filenames[grepl("data/mouse/hic/.{1,}", amazon.filenames)]
     i.base <- basename(i.temp)
-    amazon.hic.samples <-file_path_sans_ext(i.base[grepl(".rds", i.base)])
+    amazon.hic.samples <- file_path_sans_ext(file_path_sans_ext(i.base[grepl(".sparseHiC.meta", i.base)]))
     g_m.i.samples <- c(names(dynamic.val$m.i.list), amazon.hic.samples)
     g_m.i.res <- c(dynamic.val$m.i.res, lapply(amazon.hic.samples, function(t){
-        restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".resolutions.txt", i.temp)], skip = 2)
+        restab <- read.table(i.temp[grepl(t, i.temp) & grepl(".sparseHiC.meta", i.temp)], skip = 3)
         strsplit(as.character(restab[1,1]), split = ",")[[1]]
     }))
     names(g_m.i.res) <- g_m.i.samples

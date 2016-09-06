@@ -143,6 +143,7 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             }
             hics4 <- readCachedRDS(file)
             hicdata <- hics4@resolutionNamedList[[res]][[chrom]]
+            print(hicdata)
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl, HiCmin = input$HiCmin,
                      HiCmax = input$HiCmax, custMaxMin = input$HiCcutoff, Qmin = input$quantMin, Qmax = input$quantMax)
@@ -418,7 +419,7 @@ hic.plot <- function(hicdata, region, sample, color, log2trans, flip, missingco,
     
     if(log2trans) {hicregion <- log2(hicregion); hicregion[is.infinite(hicregion)] <- 0}
     
-    if(dim(hicregion)[1]==0 | dim(hicregion)[2]==0){ #Nothing comes up from subsetting
+    if(dim(hicregion)[1]==0 | dim(hicregion)[2]==0 | sum(hicregion) == 0){ #Nothing comes up from subsetting
         hicregion <- matrix(0)  
         colnames(hicregion) <- as.character(as.integer(start))
         rownames(hicregion) <- as.character(as.integer(end))
