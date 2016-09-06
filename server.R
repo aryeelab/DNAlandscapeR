@@ -382,9 +382,6 @@ function(input, output, session) {
     ## Hi-C Resolution Display ##
     output$HiCresolutions <- renderUI({
         hictracks <- input$tracks[as.integer(input$tracks) <= 7000000 & as.integer(input$tracks) > 5000000]
-        print(dynamic.val$i.list)
-        print(dynamic.val$i.l.list)
-        print(dynamic.val$i.res)
         plotSamples <- names( dynamic.val$i.res[match(hictracks, dynamic.val$i.list)])
         lapply(plotSamples, function(sample) {
                 res <- sort(as.integer(dynamic.val$i.res[[sample]]))

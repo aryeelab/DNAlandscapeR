@@ -9,8 +9,8 @@ Repos: BioCsoft=https://bioconductor.org/packages/3.3/bioc,
 
 Package: AnnotationDbi
 Source: Bioconductor
-Version: 1.34.3
-Hash: 7568393dcac17955850ed764d2c8da86
+Version: 1.34.4
+Hash: 769647d2eee1b97f06aee4d353d00048
 Requires: Biobase, BiocGenerics, DBI, IRanges, RSQLite, S4Vectors
 
 Package: BH
@@ -48,8 +48,8 @@ Requires: BiocGenerics, IRanges, S4Vectors, XVector
 
 Package: DBI
 Source: CRAN
-Version: 0.4-1
-Hash: 6524d5c5d30ff74084ac028eeb19eb1b
+Version: 0.5
+Hash: b4baa1938fb20e76519e8aa253fe60a6
 
 Package: DT
 Source: CRAN
@@ -65,8 +65,8 @@ Requires: Biobase, RCurl, XML, httr
 
 Package: GenomeInfoDb
 Source: Bioconductor
-Version: 1.8.3
-Hash: f467d1022f6ce732b1dbcbf156553ffb
+Version: 1.8.7
+Hash: ed3c1480c56bb44f81bd8621d4ccc80a
 Requires: BiocGenerics, IRanges, S4Vectors
 
 Package: GenomicAlignments
@@ -142,8 +142,8 @@ Requires: DBI
 
 Package: Rcpp
 Source: CRAN
-Version: 0.12.6
-Hash: 79f89fabd832de0a2e60aa05d9027f32
+Version: 0.12.7
+Hash: f0ba7322cfb66f1b563462faa9c2b2ab
 
 Package: Rsamtools
 Source: Bioconductor
@@ -319,7 +319,7 @@ Requires: foreach, iterators, pkgmaker, rngtools
 Package: dplyr
 Source: CRAN
 Version: 0.4.3
-Hash: 8491e653d11359ff4bce253cb7507510
+Hash: 2e86fd69794b231c3c91a1f8861ebce9
 Requires: BH, DBI, R6, Rcpp, assertthat, lazyeval, magrittr
 
 Package: edgeR
@@ -397,7 +397,7 @@ Hash: c1b6ded8c65ae31a98d73a312b2e6574
 Package: htmltools
 Source: CRAN
 Version: 0.3.5
-Hash: f81546c00234653ca3a7dcd0b7e1a757
+Hash: a96dc1cfe628e66337c86be732567df2
 Requires: Rcpp, digest
 
 Package: htmlwidgets
@@ -409,7 +409,7 @@ Requires: htmltools, jsonlite, yaml
 Package: httpuv
 Source: CRAN
 Version: 1.3.3
-Hash: fbb5e8447f797c5148046b1ce999d000
+Hash: 12c4ec43e5609293576e368c740c1f84
 Requires: Rcpp
 
 Package: httr
@@ -561,7 +561,7 @@ Requires: codetools, digest, registry, stringr, xtable
 Package: plyr
 Source: CRAN
 Version: 1.8.4
-Hash: e76f4b6b2ba5cb8309b10308cea03967
+Hash: 75ca080b10a9314a9b293964331e5df7
 Requires: Rcpp
 
 Package: preprocessCore
@@ -582,7 +582,7 @@ Hash: 69000b7dc41b09977dcf781f909d235c
 Package: readr
 Source: CRAN
 Version: 1.0.0
-Hash: f0c16bdda604c63deb335ca54b618130
+Hash: d7cf8e4bfe7f5fa25d908362735bc9ae
 Requires: BH, R6, Rcpp, curl, hms, tibble
 
 Package: registry
@@ -599,7 +599,7 @@ Requires: plyr
 Package: reshape2
 Source: CRAN
 Version: 1.4.1
-Hash: 55a31e20f8a216855e138ca83756a4b0
+Hash: c9a8d2349fe969cf519dd0ced9cc1414
 Requires: Rcpp, plyr, stringr
 
 Package: rmarkdown
@@ -636,7 +636,7 @@ Requires: BiocGenerics, Biostrings, GenomeInfoDb, GenomicAlignments,
 Package: scales
 Source: CRAN
 Version: 0.4.0
-Hash: 99ca163a301d7c1d959424a2cccdcacd
+Hash: c4a91e7a322e03813b68b73940ce031f
 Requires: RColorBrewer, Rcpp, dichromat, labeling, munsell, plyr
 
 Package: shiny
@@ -676,13 +676,14 @@ Hash: eece5c9075772f1029a417cb417390b5
 
 Package: sparseHiC
 Source: github
-Version: 0.2.0
-Hash: 6b4bec2d8d4c6c7a55ab84b0663c233d
-Requires: BiocParallel, GenomicRanges, Matrix, readr, reshape2
+Version: 0.4.0
+Hash: c29acd3e037ec3754b4be0c0e7bfa364
+Requires: BiocGenerics, BiocParallel, GenomicRanges, Matrix, RCurl,
+    Sushi, colorRamps, gsubfn, readr, reshape2
 GithubRepo: sparseHiC
 GithubUsername: aryeelab
 GithubRef: master
-GithubSha1: 4202eeb299e5a802dc0201587b0cde76359e87b5
+GithubSha1: 7ed44596b6b6b51d97bfbd7d28b7baeb4e453bb5
 
 Package: statmod
 Source: CRAN
@@ -708,8 +709,8 @@ Requires: Matrix
 
 Package: tibble
 Source: CRAN
-Version: 1.1
-Hash: 5467b4aa158b2d984538f7ffde17171c
+Version: 1.2
+Hash: 3b35b556ef7acddb0d28fe6a27ad50e4
 Requires: Rcpp, assertthat, lazyeval
 
 Package: whisker
@@ -725,7 +726,7 @@ Hash: e3d37838719e5d66652364e2aefebcee
 Package: xml2
 Source: CRAN
 Version: 1.0.0
-Hash: 8da0955090dad9790c706369db027845
+Hash: a55c497b694e044296830eb8ac5c2fee
 Requires: BH, Rcpp
 
 Package: xtable

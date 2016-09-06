@@ -135,9 +135,6 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             sample <- sample.hic
             fs <- dynamic.val$i.full
             res <- as.character(input[[paste0(sample, "HiCRes")]])
-            print(sample)
-            print(sample.hic)
-            print(fs)
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
             if(any(grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs))){
                 file <- fs[grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs)]
