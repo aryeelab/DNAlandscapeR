@@ -3,6 +3,8 @@
 source("www/libraries.R")
 source("www/adv-shiny.R")
 source("www/addbucket.R")
+source("www/js.R")
+source("www/libraryNormHiC.R")
 
 options(shiny.error=browser)
 options(shiny.maxRequestSize=1*1024^3) #1 GB Max file size

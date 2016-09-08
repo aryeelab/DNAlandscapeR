@@ -31,12 +31,18 @@ readCachedRDS <- function(file) {
 
 
 masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
+    
+    # ChIA-PET Outer Loop Support
     chia_pet_samples <- list() #Tracks samples linking with i
     chia_pet_objects <- c() #Tracks subsetted objects
     j <- 1 #Index of subsetted objects vector
     map_chia_pet.indices <- c() #maps i to order in vector of subsetted objects
     mc <- 1 #max counts
     one_anchor_samples <- list() #Tracks samples linking with i
+    
+    #Hi-C Outer Loop Support
+    allSamplesRes <- NULL
+    hicdatalist <- list()
     
     #Handle download if requested
     if(loopsdl) loopsTotal <- data.frame()
@@ -80,6 +86,26 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             chia_pet_objects <- append(chia_pet_objects, objReg)
             map_chia_pet.indices[j] <- i
             j <- j + 1
+        } else if(i < 6000000){ #Hi-C Data
+            
+            # Read all the Hi-C data in and perform normalization if desired 
+            t <- i - 5000000
+            sample.hic <- names(dynamic.val$i.list)[t]
+            sample <- sample.hic
+            fs <- dynamic.val$i.full
+            res <- as.character(input[[paste0(sample, "HiCRes")]])
+            chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
+            if(any(grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs))){
+                file <- fs[grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs)]
+            } else {
+                file <- fs[grepl(".rds", fs) & grepl(sample, fs)]
+            }
+            hics4 <- readCachedRDS(file)
+            
+            # Append data and keep it organized
+            allSamplesRes <- c(allSamplesRes, res)
+            hicdatalist[[sample]] <- hics4@resolutionNamedList[[res]][[chrom]]
+            print(str(hicdatalist))
         }
     }
     
@@ -88,6 +114,13 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
     if(input$loopWidthNorm == 2) mc = -2
     
     if(loopsdl) return(loopsTotal)
+    
+    # Normalize the Hi-C data if the user wants and the resolutions permit
+    yyyy <- as.numeric(allSamplesRes)
+    resBoo <- all( abs(yyyy - mean(yyyy)) < 1 ) 
+    hicnamez <- names(hicdatalist)
+    if(resBoo & length(allSamplesRes) > 1 & input$hiclibnorm) hicdatalist <- .libraryNormHiC(hicdatalist)
+    names(hicdatalist) <- hicnamez
     
     #Second loop does all the plotting
     for(i in input$tracks){ 
@@ -129,20 +162,15 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             o <- bedgraph.trackplot(dynamic.val$m.bg.full[[t]], dynamic.val$region, "Methylation", sample = sample, flip = flipped,
                      showGA = showGA,  datadl = datadl)
             if(datadl) datOut <- append(datOut, setNames(list(o), sample))
-        } else if (i < 6000000){ # Hi-C Plot for Stuff that's preloaded on the server
+        } else if (i < 6000000){
             t <- i - 5000000
             sample.hic <- names(dynamic.val$i.list)[t]
             sample <- sample.hic
             fs <- dynamic.val$i.full
             res <- as.character(input[[paste0(sample, "HiCRes")]])
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
-            if(any(grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs))){
-                file <- fs[grepl(".rds", fs) & grepl(sample, fs) & grepl(chrom, fs)]
-            } else {
-                file <- fs[grepl(".rds", fs) & grepl(sample, fs)]
-            }
-            hics4 <- readCachedRDS(file)
-            hicdata <- hics4@resolutionNamedList[[res]][[chrom]]
+            print(sample)
+            hicdata <- hicdatalist[[sample]]
             print(hicdata)
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl, HiCmin = input$HiCmin,

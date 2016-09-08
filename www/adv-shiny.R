@@ -49,7 +49,7 @@ uploadchoices <- list(
     "ReadDepth/.bedgraph" = 3,
     "Methylation/.bigWig" = 4,
     "Methylation/.bedgraph" = 5,
-    "Hi-C/.rds" = 6
+    "Hi-C/.tgz" = 6
 )
 
 color.choices <- list(

@@ -1,40 +1,6 @@
 # DNAlandscapeR UI # 
 source("global.R")
 
-# CSS Loading Wheel
-
-mycss <- "
-#plot-container {
-  position: relative;
-}
-#loading-spinner {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: -1;
-  margin-top: -33px;  /* half of the spinner's height */
-  margin-left: -33px; /* half of the spinner's width */
-}
-#plot.recalculating {
-  z-index: -2;
-}
-"
-
-# Loading Screen
-
-appCSS <- "
-#loading-content {
-  position: absolute;
-  background: #000000;
-  opacity: 0.9;
-  z-index: 100;
-  left: 0;
-  right: 0;
-  height: 100%;
-  text-align: center;
-  color: #FFFFFF;
-}
-"
 
 shinyUI(navbarPage(HTML("<img src='harvard-logo.png'/>"),
                    
@@ -46,7 +12,10 @@ headerPanel(fluidRow(column(6, tags$h1(tags$b('DNA Landscape'))),
   sidebarPanel(
     uiOutput("trackoptions"), 
     tags$hr(),
-    textInput("ucscCoord", HTML("<h4><b>Select Region Coordinates</b></h4>"), value = ucsc_coord),
+    tagAppendAttributes( # allows you to hit enter
+        textInput("ucscCoord", HTML("<h4><b>Select Region Coordinates</b></h4>"), value = ucsc_coord),
+        `data-proxy-click` = "plot.region2"
+    ),
     actionButton("plot.region2", "Plot Region", style='padding:10px; font-size:80%'),
     tags$br(),tags$hr(),
     uiOutput("plotGeneName"),
@@ -153,8 +122,9 @@ bsCollapse(id = "collapseAdvancedPlotOptions", open = c("Panel1", "Panel2", "Pan
                     choices = color.choices, selected = 16),
                   selectInput("missingco",  HTML("<h4><b>Specify Missing Data Color</b></h4>"),
                     choices = missingco.choices, selected = "min"),
-                  checkboxInput("log2hic", "Log Transform Hi-C Values", value = TRUE, width = NULL)
-               )
+                  checkboxInput("log2hic", "Log Transform Hi-C Values", value = TRUE, width = NULL),
+               checkboxInput("hiclibnorm", "Normalize for Hi-C Library Complexity", value = FALSE, width = NULL)
+        )
         ),
     tags$hr(),
     actionButton("refresh3", "Refresh Plot"),
