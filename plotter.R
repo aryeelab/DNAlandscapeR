@@ -105,7 +105,6 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             # Append data and keep it organized
             allSamplesRes <- c(allSamplesRes, res)
             hicdatalist[[sample]] <- hics4@resolutionNamedList[[res]][[chrom]]
-            print(str(hicdatalist))
         }
     }
     
@@ -171,7 +170,6 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             chrom <- paste0("chr", as.character(seqnames(dynamic.val$region)))
             print(sample)
             hicdata <- hicdatalist[[sample]]
-            print(hicdata)
             o <- hic.plot(hicdata, dynamic.val$region, sample = sample.hic, color = input$HiCcolor, log2trans = input$log2hic, flip = flipped,
                      missingco = input$missingco, showlegend = input$showlegend, showGA = showGA,  datadl = datadl, HiCmin = input$HiCmin,
                      HiCmax = input$HiCmax, custMaxMin = input$HiCcutoff, Qmin = input$quantMin, Qmax = input$quantMax)
@@ -274,8 +272,6 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
         }
         
         loplot <- recordPlot()
-        print(bedPE)
-        print(cs)
         plotBedpe(bedPE, chrom, start, end, color = cs, lwd = lwd, 
                   plottype = "loops", heights = h, lwdrange = c(0, 5), 
                   main = sample, adj=0, flip = flip)

@@ -1,6 +1,6 @@
 PackratFormat: 1.4
-PackratVersion: 0.4.7.1
-RVersion: 3.3.0
+PackratVersion: 0.4.8.1
+RVersion: 3.3.1
 Repos: BioCsoft=https://bioconductor.org/packages/3.3/bioc,
     BioCann=https://bioconductor.org/packages/3.3/data/annotation,
     BioCexp=https://bioconductor.org/packages/3.3/data/experiment,
@@ -53,8 +53,8 @@ Hash: b4baa1938fb20e76519e8aa253fe60a6
 
 Package: DT
 Source: CRAN
-Version: 0.1
-Hash: 66d3d04d40c505e567c1328eae0409ee
+Version: 0.2
+Hash: 36b032203797956fedad5a25055016a9
 Requires: htmltools, htmlwidgets, magrittr
 
 Package: GEOquery
@@ -78,8 +78,8 @@ Requires: BiocGenerics, BiocParallel, Biostrings, GenomeInfoDb,
 
 Package: GenomicFeatures
 Source: Bioconductor
-Version: 1.24.2
-Hash: 51d37bf31c8fecf542a939a87da639a4
+Version: 1.24.5
+Hash: 871b3655ddd80e88137c0648767375ec
 Requires: AnnotationDbi, Biobase, BiocGenerics, Biostrings, DBI,
     GenomeInfoDb, GenomicRanges, IRanges, RCurl, RSQLite, S4Vectors,
     XVector, biomaRt, rtracklayer
@@ -100,12 +100,6 @@ Package: MASS
 Source: CRAN
 Version: 7.3-45
 Hash: 0650d5701aa7e369e77c9e2c8e1dc913
-
-Package: Matrix
-Source: CRAN
-Version: 1.2-6
-Hash: 6d5b4689f994e2af7e9cc11324c5cbeb
-Requires: lattice
 
 Package: PKI
 Source: CRAN
@@ -195,18 +189,18 @@ Hash: 0afb92b59b02593c70ff8046700ba9d3
 
 Package: aws.s3
 Source: github
-Version: 0.1.26
-Hash: bdac261808a48689d03b7286de23e8ba
+Version: 0.1.29
+Hash: 8ebae2664ccc5f1c3d19f1792f03fff8
 Requires: aws.signature, base64enc, curl, digest, httr, xml2
 GithubRepo: aws.s3
 GithubUsername: cloudyr
 GithubRef: master
-GithubSha1: aedc7c26b3d0578d792524ed6c39f6db09c6063a
+GithubSha1: d9f62daf4f04ee1d4e497a9c582df2798b905bdc
 
 Package: aws.signature
 Source: CRAN
-Version: 0.2.2
-Hash: eff80b71a1c0396457a46201f5b2210e
+Version: 0.2.5
+Hash: 96923c0709ae1cd83b2087581960224e
 Requires: base64enc, digest
 
 Package: base64
@@ -283,8 +277,8 @@ Requires: chron
 
 Package: devtools
 Source: CRAN
-Version: 1.11.1
-Hash: 4c6aa014d917044bf376a363c3c8ee1a
+Version: 1.12.0
+Hash: bbad95109ae75cbb14099281cda43af2
 Requires: digest, git2r, httr, jsonlite, memoise, rstudioapi, whisker,
     withr
 
@@ -403,8 +397,8 @@ Requires: Rcpp, digest
 
 Package: htmlwidgets
 Source: CRAN
-Version: 0.6
-Hash: 267a36d738dd98cec3dc9c471becb717
+Version: 0.7
+Hash: f60506850a2d752dff69fc2a31c5a339
 Requires: htmltools, jsonlite, yaml
 
 Package: httpuv
@@ -415,8 +409,8 @@ Requires: Rcpp
 
 Package: httr
 Source: CRAN
-Version: 1.2.0
-Hash: cd5c30acde81117f6b9da436dffeaedf
+Version: 1.2.1
+Hash: 7de1f8f760441881804af7c1ff324340
 Requires: R6, curl, jsonlite, mime, openssl
 
 Package: illuminaio
@@ -432,14 +426,14 @@ Hash: 488b93c2a4166db0d15f1e8d882cb1d4
 
 Package: jsonlite
 Source: CRAN
-Version: 0.9.22
-Hash: a465329f66afd33012e1aedfe5ba2e20
+Version: 1.0
+Hash: f32817e181c39ede83fdd3e699348b69
 
 Package: knitr
 Source: CRAN
 Version: 1.13
 Hash: 8d686cbee88c93b735281a22b2ca59dd
-Requires: digest, evaluate, formatR, highr, markdown, stringr, yaml
+Requires: digest, formatR, highr, yaml, markdown, stringr, evaluate
 
 Package: labeling
 Source: CRAN
@@ -453,8 +447,8 @@ Hash: d303aea60871b91892fa3815aac6a725
 
 Package: lattice
 Source: CRAN
-Version: 0.20-33
-Hash: d7158cf4e63e8c12cb227738076b37d8
+Version: 0.20-34
+Hash: 4390fc5602fd36017be70a27f7123ff3
 
 Package: lazyeval
 Source: CRAN
@@ -506,8 +500,8 @@ Hash: b08c52dae92a0a11e64a4deea032ec33
 
 Package: minfi
 Source: Bioconductor
-Version: 1.18.2
-Hash: c2e743e1ae49f8ef002692be1bf98ab0
+Version: 1.18.6
+Hash: 0c91f90ef050f9b42fa5c3a2b33d7ebb
 Requires: Biobase, BiocGenerics, Biostrings, GEOquery, GenomeInfoDb,
     GenomicRanges, IRanges, MASS, RColorBrewer, S4Vectors,
     SummarizedExperiment, beanplot, bumphunter, data.table, genefilter,
@@ -540,8 +534,8 @@ Requires: lattice
 
 Package: nor1mix
 Source: CRAN
-Version: 1.2-1
-Hash: 645a3a3f3e3df65ab5e0354235df2be3
+Version: 1.2-2
+Hash: be1ea5f0438233fe40c395787f46b122
 
 Package: openssl
 Source: CRAN
@@ -550,8 +544,8 @@ Hash: 5ceb5d83bba44e8e5a764ac6ad32e9fb
 
 Package: packrat
 Source: CRAN
-Version: 0.4.7-1
-Hash: 16ca16d36eb18d1d16113606ecc5c400
+Version: 0.4.8-1
+Hash: 6ad605ba7b4b476d84be6632393f5765
 
 Package: pbapply
 Source: CRAN
@@ -612,7 +606,7 @@ Package: rmarkdown
 Source: CRAN
 Version: 0.9.6
 Hash: c60250bb3dd9107d6d3ecf626e86d8a6
-Requires: caTools, htmltools, knitr, yaml
+Requires: yaml, caTools, htmltools, knitr
 
 Package: rngtools
 Source: CRAN
@@ -628,8 +622,8 @@ Requires: PKI, RCurl, RJSONIO, digest, packrat, rstudioapi, yaml
 
 Package: rstudioapi
 Source: CRAN
-Version: 0.5
-Hash: f942db72a8f51e968b061f28058e2c57
+Version: 0.6
+Hash: fd256f8bfb9a64cc35f98b0decb1a79f
 
 Package: rtracklayer
 Source: Bioconductor
@@ -659,8 +653,8 @@ Requires: htmltools, shiny
 
 Package: shinyFiles
 Source: CRAN
-Version: 0.6.0
-Hash: 9352370e114d101acfc38dcde9b5920e
+Version: 0.6.2
+Hash: 2ce5b22893b4f8b3de72fa79e9e417c1
 Requires: RJSONIO, htmltools, shiny
 
 Package: shinythemes
@@ -684,8 +678,8 @@ Package: sparseHiC
 Source: github
 Version: 0.4.0
 Hash: c29acd3e037ec3754b4be0c0e7bfa364
-Requires: BiocGenerics, BiocParallel, GenomicRanges, Matrix, RCurl,
-    Sushi, colorRamps, gsubfn, readr, reshape2
+Requires: BiocGenerics, BiocParallel, GenomicRanges, RCurl, Sushi,
+    colorRamps, gsubfn, readr, reshape2
 GithubRepo: sparseHiC
 GithubUsername: aryeelab
 GithubRef: master
@@ -709,9 +703,8 @@ Requires: magrittr, stringi
 
 Package: survival
 Source: CRAN
-Version: 2.39-4
-Hash: 16b71d32b9a873a3ee93dd59d07ce4bc
-Requires: Matrix
+Version: 2.39-5
+Hash: 1a9baca10e872c728143d44c2c642405
 
 Package: tibble
 Source: CRAN
@@ -726,14 +719,18 @@ Hash: 803d662762e532705c2c066a82d066e7
 
 Package: withr
 Source: CRAN
-Version: 1.0.1
-Hash: e3d37838719e5d66652364e2aefebcee
+Version: 1.0.2
+Hash: 774eb7be9087cdc24b53b74e5359cfac
 
 Package: xml2
-Source: CRAN
-Version: 1.0.0
-Hash: a55c497b694e044296830eb8ac5c2fee
+Source: github
+Version: 1.0.0.9000
+Hash: 0e294b166d0387827c4671278f3e8389
 Requires: BH, Rcpp
+GithubRepo: xml2
+GithubUsername: hadley
+GithubRef: master
+GithubSha1: 1a75d4aada6155a31fabac486ae241fb6bcbef49
 
 Package: xtable
 Source: CRAN
