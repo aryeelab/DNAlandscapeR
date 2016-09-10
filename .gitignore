@@ -1,7 +1,4 @@
-packrat/lib*/
 .Rproj.user
 *.Rproj
 *.Rhistory
 *.Rdata
-.git
-Dockerfile

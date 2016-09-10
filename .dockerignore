@@ -1,3 +1,5 @@
 *.Rproj
 .Rproj.user
 packrat/lib*/
+.git
+Dockerfile
