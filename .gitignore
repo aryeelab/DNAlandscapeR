@@ -3,3 +3,5 @@ packrat/lib*/
 *.Rproj
 *.Rhistory
 *.Rdata
+.git
+Dockerfile
