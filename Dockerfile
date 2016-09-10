@@ -10,6 +10,8 @@ WORKDIR /srv/shiny-server/DNAlandscapeR
 RUN Rscript -e 'install.packages("packrat"); \
                 packrat::restore()'
 
+RUN Rscript -e 'packrat::restore()'
+
 # Temporary permissions hack
 RUN chown shiny:shiny -R packrat && \
     chown shiny:shiny .gitignore 
