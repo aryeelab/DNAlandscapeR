@@ -10,6 +10,8 @@ WORKDIR /srv/shiny-server/DNAlandscapeR
 RUN Rscript -e 'install.packages("packrat"); \
                 packrat::restore()'
 
+RUN githubsha1=`cat packrat/packrat.lock | grep -A4 diffloop | grep GithubSha1 | cut -f2 -d":" | tr -d ' '`; R CMD INSTALL packrat/src/diffloop/$githubsha1.tar.gz
+
 # Temporary permissions hack
 RUN chown shiny:shiny -R packrat && \
     chown shiny:shiny .gitignore 
