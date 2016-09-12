@@ -86,7 +86,7 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
             chia_pet_objects <- append(chia_pet_objects, objReg)
             map_chia_pet.indices[j] <- i
             j <- j + 1
-        } else if(i < 6000000){ #Hi-C Data
+        } else if(i < 6000000 & i > 5000000){ #Hi-C Data
             
             # Read all the Hi-C data in and perform normalization if desired 
             t <- i - 5000000
@@ -137,9 +137,9 @@ masterPlotter <- function(input, dynamic.val, loopsdl = FALSE, datadl = FALSE){
                          showGA = showGA, datadl = datadl)
             if(datadl) datOut <- append(datOut, setNames(list(o), chia_pet_samples[[as.character(i)]]))
         } else if (i < 2000000) { # Track; BigWig
-            t <- i - 1000000
-            sample <- names(dynamic.val$t.bw.list)[t]
-            o <- bigwig.trackplot(dynamic.val$t.bw.full[[t]], dynamic.val$region, input$smoother, datadl = datadl,
+            tt <- i - 1000000
+            sample <- names(dynamic.val$t.bw.list)[tt]
+            o <- bigwig.trackplot(dynamic.val$t.bw.full[[tt]], dynamic.val$region, input$smoother, datadl = datadl,
                              FUN = input$FUN, "Depth", sample = sample, log2 = input$log2BW, flip = flipped, showGA = showGA)
             if(datadl) datOut <- append(datOut, setNames(list(o), sample))
         } else if (i < 3000000){ # Track; Bedgraph
