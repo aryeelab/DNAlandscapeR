@@ -440,7 +440,7 @@ function(input, output, session) {
             paste('DNAlandscapeR-plot-', Sys.Date(), '.pdf', sep='') },
         content <- function(file) {
             pdf(file, width = 8.5, height = 11)
-            p1()
+            isolate(p1())
             dev.off()}
     )
     

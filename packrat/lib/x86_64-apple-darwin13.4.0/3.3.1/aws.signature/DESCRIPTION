@@ -1,0 +1,31 @@
+Package: aws.signature
+Type: Package
+Title: Amazon Web Services Request Signatures
+Version: 0.2.5
+Date: 2016-08-09
+Author: Thomas J. Leeper
+Maintainer: Thomas J. Leeper <thosjleeper@gmail.com>
+Description: Generates request signatures for Amazon Web Services (AWS)
+    APIs.
+License: GPL (>= 2)
+Imports: digest, base64enc
+Suggests: testthat
+URL: https://github.com/cloudyr/aws.signature
+BugReports: https://github.com/cloudyr/aws.signature/issues
+NeedsCompilation: no
+Packaged: 2016-08-09 09:49:08 UTC; THOMAS
+Repository: CRAN
+Date/Publication: 2016-08-09 13:08:23
+Built: R 3.3.0; ; 2016-08-10 10:42:36 UTC; unix
+RemoteType: cran
+RemoteSha: 0.2.5
+RemoteRepos: structure(c("https://bioconductor.org/packages/3.3/bioc",
+    "https://bioconductor.org/packages/3.3/data/annotation",
+    "https://bioconductor.org/packages/3.3/data/experiment",
+    "https://bioconductor.org/packages/3.3/extra",
+    "https://cran.rstudio.com/"), .Names = c("BioCsoft", "BioCann",
+    "BioCexp", "BioCextra", "CRAN"))
+RemotePkgType: mac.binary.mavericks
+InstallAgent: packrat 0.4.8.1
+InstallSource: CRAN
+Hash: 96923c0709ae1cd83b2087581960224e

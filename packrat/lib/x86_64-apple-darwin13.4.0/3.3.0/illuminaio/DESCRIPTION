@@ -1,0 +1,29 @@
+Package: illuminaio
+Version: 0.14.0
+Title: Parsing Illumina Microarray Output Files
+Description: Tools for parsing Illumina's microarray output files,
+    including IDAT.
+Authors@R: c(person("Keith", "Baggerly", role = "aut"),
+    person("Henrik", "Bengtsson", role = "aut"), person(c("Kasper",
+    "Daniel"), "Hansen", role = c("aut", "cre"), email =
+    "kasperdanielhansen@gmail.com"), person("Matt", "Ritchie", role =
+    "aut"), person(c("Mike", "L."), "Smith", role = "aut"),
+    person("Tim", "Triche Jr.", role = "ctb"))
+Suggests: RUnit, BiocGenerics, IlluminaDataTestFiles (>= 1.0.2),
+    BiocStyle
+Imports: base64
+License: GPL-2
+URL: https://github.com/HenrikBengtsson/illuminaio
+BugReports: https://github.com/HenrikBengtsson/illuminaio/issues
+biocViews: Infrastructure, DataImport, Microarray, ProprietaryPlatforms
+NeedsCompilation: yes
+Packaged: 2016-05-04 03:35:44 UTC; biocbuild
+Author: Keith Baggerly [aut], Henrik Bengtsson [aut], Kasper Daniel
+    Hansen [aut, cre], Matt Ritchie [aut], Mike L. Smith [aut], Tim
+    Triche Jr. [ctb]
+Maintainer: Kasper Daniel Hansen <kasperdanielhansen@gmail.com>
+Built: R 3.3.0; x86_64-apple-darwin13.4.0; 2016-05-04 14:45:54 UTC;
+    unix
+InstallAgent: packrat 0.4.7.1
+InstallSource: Bioconductor
+Hash: 2432b58a64ef9f47015249402a27bba3

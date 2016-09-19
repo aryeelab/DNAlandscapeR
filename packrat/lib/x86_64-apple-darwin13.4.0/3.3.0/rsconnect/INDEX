@@ -1,0 +1,37 @@
+accountUsage            Show Account Usage
+accounts                Account Management Functions
+addAuthorizedUser       Add authorized user to application
+addLinter               Add a Linter
+appDependencies         Detect Application Dependencies
+applications            List Deployed Applications
+authorizedUsers         (Deprecated) List authorized users for an
+                        application
+configureApp            Configure an Application
+connectUser             Connect User Account
+deployApp               Deploy an Application
+deployDoc               Deploy a Document
+deploySite              Deploy a Website
+deployments             List Application Deployments
+lint                    Lint a Project
+linter                  Create a Linter
+makeLinterMessage       Construct a Linter Message
+removeAuthorizedUser    Remove authorized user from an application
+restartApp              Restart an Application
+rpubsUpload             Upload a file to RPubs
+rsconnect-package       rsconnect
+rsconnectOptions        Package Options
+rsconnectPackages       Using Packages with rsconnect
+rsconnectProxies        HTTP Proxy Configuration
+servers                 Server Management Functions
+setAccountInfo          Set ShinyApps Account Info
+setProperty             Set Application property
+showInvited             List invited users for an application
+showLogs                Show Application Logs
+showMetrics             Show Application Metrics
+showProperties          Show Application property
+showUsage               Show Application Usage
+showUsers               List authorized users for an application
+taskLog                 Show task log
+tasks                   List Tasks
+terminateApp            Terminate an Application
+unsetProperty           Unset Application property

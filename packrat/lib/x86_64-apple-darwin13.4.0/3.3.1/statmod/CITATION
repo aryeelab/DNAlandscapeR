@@ -1,0 +1,69 @@
+citHeader("To cite statmod in publications, please use one of the following articles:")
+
+citEntry(
+	entry = "article",
+	author = "Goknur Giner and Gordon K. Smyth",
+	year = 2016,
+	title = "statmod: probability calculations for the inverse Gaussian distribution",
+	journal = "R Journal",
+	volume = 8,
+	pages = "Accepted 28 April 2016",
+	url = "http://arxiv.org/abs/1603.06687",
+	textVersion = "Giner, G, and Smyth, GK (2016). statmod: probability calculations for the inverse Gaussian distribution. R Journal, Accepted 28 April 2016."
+)
+
+citEntry(
+	entry = "article",
+	author = "Belinda Phipson and Gordon K. Smyth",
+	year = 2010,
+	title = "Permutation p-values should never be zero: calculating exact p-values when permutations are randomly drawn",
+	journal = "Statistical Applications in Genetics and Molecular Biology",
+	volume = 9,
+	numbers = 1,
+	pages = "Article 39",
+	textVersion = "Phipson B, and Smyth GK (2010). Permutation p-values should never be zero: calculating exact p-values when permutations are randomly drawn. Statistical Applications in Genetics and Molecular Biology, Volume 9, Issue 1, Article 39."
+)
+
+citEntry(
+	entry = "article",
+	author = "Gordon K. Smyth",
+	title = "Optimization and nonlinear equations",
+	journal = "Encyclopedia of Biostatistics",
+	year = 2005,
+	publisher = "John Wiley and Sons, Ltd",
+	pages = "3088-3095",
+	textVersion = "Smyth, G. K. (1998). Optimization and nonlinear equations. In: Encyclopedia of Biostatistics, P. Armitage and T. Colton (eds.), Wiley, London, pp. 3174-3180."
+)
+
+citEntry(
+	entry = "article",
+	author = "Gordon K. Smyth",
+	title = "Numerical integration",
+	journal = "Encyclopedia of Biostatistics",
+	year = 2005,
+	publisher = "John Wiley and Sons, Ltd",
+	pages = "3088-3095",
+	textVersion = "Smyth, G. K. (1998). Numerical integration. In: Encyclopedia of Biostatistics, P. Armitage and T. Colton (eds.), Wiley, London, pp. 3088-3095."
+)
+
+citEntry(
+	entry = "article",
+	author = "Gordon K. Smyth",
+	year = 2002,
+	title = "An efficient algorithm for REML in heteroscedastic regression",
+	journal = "Journal of Computational and Graphical Statistics",
+	volume = 11,
+	pages = "836-847",
+	textVersion = "Smyth, G. K. (2002). An efficient algorithm for REML in heteroscedastic regression. Journal of Computational and Graphical Statistics 11, 836-847."
+)
+
+citEntry(
+	entry = "article",
+	author = "Peter K. Dunn and Gordon K. Smyth",
+	year = 1996,
+	title = "Randomized quantile residuals",
+	journal = "J. Comput. Graph. Statist",
+	volume = 5,
+	pages = "236-244",
+	textVersion = "Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals. J. Comput. Graph. Statist., 5, 236-244."
+)

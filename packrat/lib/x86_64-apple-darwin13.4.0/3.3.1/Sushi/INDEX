@@ -1,0 +1,41 @@
+SushiColors             Generates a Sushi color palette
+Sushi_5C.bedpe          Sushi_5C.bedpe
+Sushi_ChIAPET_pol2.bedpe
+                        Sushi_ChIAPET_pol2.bedpe
+Sushi_ChIPExo_CTCF.bedgraph
+                        Sushi_ChIPExo_CTCF.bedgraph
+Sushi_ChIPSeq_CTCF.bedgraph
+                        Sushi_ChIPSeq_CTCF.bedgraph
+Sushi_ChIPSeq_pol2.bed
+                        Sushi_ChIPSeq_pol2.bed
+Sushi_ChIPSeq_pol2.bedgraph
+                        Sushi_ChIPSeq_pol2.bedgraph
+Sushi_ChIPSeq_severalfactors.bed
+                        Sushi_ChIPSeq_severalfactors.bed
+Sushi_DNaseI.bedgraph   Sushi_DNaseI.bedgraph
+Sushi_GWAS.bed          Sushi_GWAS.bed
+Sushi_HiC.matrix        Sushi_HiC.matrix
+Sushi_RNASeq_K562.bedgraph
+                        Sushi_RNASeq_K562.bedgraph
+Sushi_genes.bed         Sushi_genes.bed
+Sushi_hg18_genome       Sushi_hg18_genome
+Sushi_transcripts.bed   Sushi_transcripts.bed
+addlegend               adds a legend to a Sushi plot
+chromOffsets            defines chromosome offsets for plotting multi
+                        chromosomal plot (eg plotManhattan)
+convertstrandinfo       Converts strand info to 1 / -1
+labelgenome             Adds genome coordinates to the x-axis of a
+                        Sushi plot
+labelplot               adds a letter and a title to a plot
+maptocolors             maps numeric vector to color palette
+maptolwd                maps numeric vector to line widths
+opaque                  makes colors transparent (or opaque)
+plotBed                 plots data stored in bed file format
+plotBedgraph            plots data stored in bed file format
+plotBedpe               plots data stored in bed file format
+plotGenes               plots gene structure or transcript structures
+plotHic                 plots HiC interactio matrix
+plotManhattan           plots a Manhattan plot
+sortChrom               sort chromosome files by chom name
+zoombox                 Adds a zoom box to a plot
+zoomsregion             Adds a zoom region to a plot

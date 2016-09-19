@@ -1,0 +1,1003 @@
+%\VignetteIndexEntry{siggenes Manual}
+%\VignetteKeywords{Expression Analysis}
+%\VignetteDepends{siggenes}
+%\VignettePackage{siggenes}
+
+
+\documentclass[a4paper]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+
+
+\setlength{\parindent}{0cm} \setlength{\parskip}{12pt}
+
+\renewcommand{\baselinestretch}{1.2}
+
+
+\begin{document}
+\title{Identifying differentially expressed genes with
+\texttt{siggenes}}
+
+\author{Holger Schwender\\  holger.schw@gmx.de}
+\date{}
+
+\maketitle
+
+%\setlength{\parskip}{0pt}
+
+\vspace{12pt}
+
+\begin{abstract}
+\noindent In this vignette, we show how the functions contained in
+the \texttt{R} package \texttt{siggenes} can be used to perform
+both the Significance Analysis of Microarrays (SAM) proposed by
+Tusher et al.\ (2001) and the Empirical Bayes Analysis of
+Microarrays (EBAM) suggested by Efron et al.\ (2001).
+\end{abstract}
+
+
+\section{Introduction}
+
+Both the Significance Analysis of Microarrays (SAM) proposed by
+Tusher et al.\ (2001) and the Empirical Bayes Analysis of
+Microarrays (EBAM) suggested by Efron et al.\ (2001) can be used
+to identify differentially expressed genes and to estimate the
+False Discovery Rate (FDR). They are, however, not restricted to
+gene expression data, but can also be applied in any other multiple testing
+si\-tuation. Since SAM and EBAM have been developed for high-dimensional data,
+it, however, might be better to use more classical multiple testing approaches
+such as Bonferroni correction if there are only a few variables that should be tested. 
+
+In this vignette, it is described how the
+functions implemented in the \texttt{R} package
+\texttt{siggenes} can be used to perform a SAM or an EBAM analysis. 
+For details on the algorithms behind these functions, see Schwender (2003), Schwender
+et al.\ (2003), and Schwender (2007).
+
+
+As usual, it is necessary to load the package.
+
+<<echo=F,results=hide>>=
+library(siggenes)
+@
+
+<<>>=
+library(siggenes)
+@
+
+
+
+In the following, we use the Golub et al.\ (1999) data set as it
+is provided by the \texttt{multtest} package to illustrate how the
+SAM and the EBAM analyses can be performed.
+
+<<>>=
+data(golub)
+@
+
+
+\texttt{data(golub)} consists of a $3,051 \times 38$ matrix \texttt{golub}
+containing the expression levels of 3,051 genes and 38 samples, a
+vector \texttt{golub.cl} containing the class labels of the 38
+samples, and a $3,051\times 3$ matrix \texttt{golub.gnames} whose third
+column consists of the names of the genes.
+
+Another example of how SAM can be applied to an \texttt{ExpressionSet}
+object can be found in Schwender et al.\ (2006). This article is part of
+a special issue of RNews that can be obtained by available
+
+\begin{verbatim}
+> browseURL("http://cran.r-project.org/doc/Rnews/Rnews_2006-5.pdf")
+\end{verbatim}
+
+This article is also available in the doc-folder of the \texttt{siggenes} package 
+and can be opened by
+
+\begin{verbatim}
+> openPDF(file.path(find.package("siggenes"),"doc","siggenesRnews.pdf"))
+\end{verbatim}
+
+\section{General Information}\label{info}
+
+While a SAM analysis starts by calling the function \texttt{sam}, an EBAM
+analysis starts -- depending on whether an optimal choice for the fudge
+factor $a_0$ should be specified or not -- either with \texttt{find.a0} or 
+\texttt{ebam}. This is due to the fact that in SAM the fudge factor -- if required --
+is computed during the actual analysis, whereas in EBAM it has to be determined prior to
+the actual analysis.
+
+In \texttt{siggenes}, functions for performing a SAM or an EBAM analysis with
+mo\-de\-ra\-ted $t$-statistics (one-class or two-class, paired or unpaired, assuming
+equal or unequal group-variances), a moderated $F$-statistic, Wilcoxon rank statistics (one-class
+or two-class, paired or unpaired), and
+Pearson's $\chi^2$-statistic as well as the Cochran-Armitage trend test statistic $C$
+(for analyzing categorical data such as SNP data) are
+available. \texttt{siggenes} also provides the possibility to write your own function
+for using your own test score in \texttt{sam}, \texttt{find.a0} and \texttt{ebam} (see
+Chapter \ref{own} for how to write such functions).
+
+The different test scores can be selected by specifying the argument
+\texttt{method} of \texttt{sam} and \texttt{ebam}. In Table \ref{tab:method}, the 
+specifications of \texttt{method} for the different analyses are summarized.
+
+\begin{table}[!hb]
+\centering \caption{Specification of the argument \texttt{method} for the different
+analyses.}\label{tab:method}
+\vspace*{8pt}
+\begin{tabular}{l l l l}
+\hline
+Test Score & \texttt{sam} &\texttt{ebam} & \texttt{find.a0}\\
+\hline
+$t$&\texttt{d.stat}&\texttt{z.ebam}&\texttt{z.find}\\
+$F$&\texttt{d.stat}&\texttt{z.ebam}&\texttt{z.find}\\
+Wilcoxon&\texttt{wilc.stat}&\texttt{wilc.ebam}&\hspace*{2ex}--\\
+$\chi^2$&\texttt{chisq.stat}&\texttt{chisq.ebam}&\hspace*{2ex}--\\
+$C$&\texttt{trend.stat}&\texttt{trend.ebam}&\hspace*{2ex}--\\
+\hline
+\end{tabular}
+\end{table}
+
+Note that for \texttt{find.a0} only a function for the moderated
+$t$- and $F$-scores is available, since the fudge factor is not required -- neither in EBAM nor in SAM --
+if Wilcoxon rank sums or Pearson's $\chi^2$-statistic are employed.
+
+To get the general arguments of \texttt{sam}, \texttt{ebam} and \texttt{find.a0},
+\texttt{args} or \texttt{?} can be used, whereas method-specific arguments can be 
+obtained by \texttt{args(foo)} or \texttt{?foo}, where \texttt{foo} is one
+of the functions/methods summarized in Table \ref{tab:method}. So, e.g.,
+
+<<>>=
+args(sam)
+@
+
+gives you the general arguments for a SAM analysis, whereas
+
+<<>>=
+args(d.stat)
+@
+
+returns the additional arguments for a SAM analysis with a moderated $t$- or $F$-statistic. These
+arguments can also be specified in \texttt{sam} because of the \texttt{...} in \texttt{sam}.
+
+Note that one of the arguments of \texttt{sam} (and of \texttt{ebam} and \texttt{find.a0}) is
+\texttt{control}, which is essentially a list of further arguments for controlling the respective
+analysis. These further arguments can typically be ignored, as they are only provided for very special purposes 
+(e.g., for trying to reproduce the results of an application of the Excel SAM version), and their defaults
+typically work well. All these arguments should only be changed if their meaning is completely understood,
+as their defaults have been chosen sensibly. 
+
+For \texttt{d.stat}, the most important arguments are \texttt{data} and \texttt{cl} (see Section \ref{required}). 
+Additionally, \texttt{B}, \texttt{var.equal}, and \texttt{rand} might also be of importance. 
+All the other arguments should only be changed if their meaning is completely understood, 
+as their defaults have been chosen sensibly.
+
+To obtain, e.g., the general help file for an EBAM analysis, use
+
+\begin{verbatim}
+> ?ebam
+\end{verbatim}
+
+and to get the \texttt{z.ebam}-specific help files, use
+
+\begin{verbatim}
+> ?z.ebam
+\end{verbatim}
+
+The arguments or the help files for the class-specific methods \texttt{plot}, \texttt{print},
+\texttt{summary}, ... can be received by calling the functions \texttt{args.sam}, \texttt{args.ebam}, and
+\texttt{args.finda0}, or \texttt{help.sam}, \texttt{help.ebam}, and \texttt{help.finda0}. So, e.g.,
+
+<<>>=
+args.sam(summary)
+@
+
+returns all arguments of the \texttt{SAM}-class specific method \texttt{summary}, and
+
+\begin{verbatim}
+> help.finda0(plot)
+\end{verbatim}
+
+opens an html-file containing the help for the \texttt{FindA0}-class specific method \texttt{plot}.
+
+In the analysis with \texttt{sam} and \texttt{ebam}, all required statistics for a SAM
+or an EBAM analysis, respectively, are computed. Additionally, the number of differentially expressed
+genes and the estimated FDR is determined for an initial (set of) value(s) for the threshold \texttt{delta}.
+
+Note that even though the threshold for calling a gene differentially expressed is called \texttt{delta}
+in both \texttt{sam} and \texttt{ebam}, its meaning is totally different in both analyses: In SAM,
+\texttt{delta} is the distance between the observed and the expected (ordered) test scores, whereas 
+in EBAM \texttt{delta} is the (posterior) probability that a gene with a specific test score is 
+differentially expressed.
+
+After the analysis with \texttt{sam} and \texttt{ebam}, the following functions can be employed for
+obtaining general and gene-specific information:
+\begin{itemize}
+\item \texttt{print}: Obtain the number of identified genes and the estimated FDR for other values
+of \texttt{delta}.
+\item \texttt{summary}: Get specific information on the genes called differentially expressed for a
+specified value of \texttt{delta}.
+\item \texttt{plot}: Generate a SAM plot or a plot of the posterior probabilities.
+\item \texttt{findDelta}: For a given value of the FDR, find the value of \texttt{delta} --
+and thus the number of identified variables -- that provides the control of the FDR at the specified level.
+Alternatively, find the value of \texttt{delta} -- and thus the level at which the FDR is controlled -- 
+for a specified number of variables.
+\item \texttt{sam2excel}/\texttt{ebam2excel}: Generate a csv-file containing the information returned
+by \texttt{summary} for the use in Excel.
+\item \texttt{sam2html}/\texttt{ebam2html}: Generate an html-file containing the information on the
+genes called differentially expressed with links to public repositories.
+\item \texttt{list.siggenes}: Get the names (as a character vector) of the genes called differentially
+expressed when using a specific value of \texttt{delta}.
+\item \texttt{link.siggenes}: Generate an html-file containing the output of \texttt{list.siggenes}
+with links to public repositories.
+\end{itemize}
+
+More details on these functions are given in the Chapters \ref{sam} and \ref{ebam}.
+ 
+
+\section{Required Arguments: \texttt{data} and \texttt{cl}}\label{required}
+
+In the first step of both a SAM and an EBAM analysis,
+two arguments are required: \texttt{data} and \texttt{cl}. 
+
+The first required argument, \texttt{data}, is the matrix (or the
+data frame) containing the gene expression data that should be
+analyzed. Each row of this matrix must correspond to a gene, and
+each column must correspond to a sample. \texttt{data} can also 
+be an \texttt{ExpressionSet} object (e.g., the output of \texttt{rma} or
+\texttt{gcrma}).
+
+The second required argument, \texttt{cl}, is the vector of length \texttt{ncol(data)}
+containing the class labels of the samples. In an analysis of two
+class paired data, \texttt{cl} can also be a matrix. If \texttt{data}
+is an \texttt{ExpressionSet} object, \texttt{cl} can also be the name of the column
+of \texttt{pData(data)} containing the class labels.
+
+The correct specification of the class labels depends on the type of data that
+should be analyzed. On the basis of this specification, the
+functions identify the type of data automatically.
+
+\textbf{One class data.} In the one class case, \texttt{cl} is expected to
+be a vector of length $n$ containing only 1's, where $n$ denotes the number of
+samples but another value than 1 is also accepted. In the latter case,
+this value is automatically set to 1. So for $n = 10$, the vector \texttt{cl} is given by
+
+<<>>=
+n <- 10
+rep(1, n)
+@
+
+
+\textbf{Two class, unpaired data.} In
+this case, the functions expect a vector \texttt{cl} consisting
+only of 0's and 1's, where all the samples with class label '0'
+belong to one group (e.g., the control group), and the samples
+with class label '1' belong to the other group (e.g., the
+case group). So if, for example, the first \texttt{n1} $=5$ columns of the
+data matrix correspond to controls and the next \texttt{n2} $=5$
+columns correspond to cases, then the vector \texttt{cl} is given
+by
+
+<<>>=
+n1 <- n2 <- 5
+rep(c(0, 1), c(n1, n2))
+@
+
+
+The functions also accept other values than 0 and 1. In this case,
+the smaller value is automatically set to 0, and the larger value
+to 1. So if, e.g., 1 is used as the label for group 1, and 2 for
+the label of group 2, then the functions will automatically set the
+class label '1' to 0, and the class label '2' to 1.
+
+
+\textbf{Two class, paired data.} Denoting
+the number of samples by $n$, we here have $K=n/2$ paired
+observations. Each of the $K$ samples belonging to the first group
+(e.g., the after treatment group) is labelled by one of the
+integers between 1 and $K$, and each of the $K$ samples belonging
+to the other group (e.g., the before treatment group) is labelled
+by one of the integers between -1 and $-K$, where the sample with
+class label '$k$' and the sample with label $'-k'$ build an
+observation pair, $k=1,\ldots,K$. So if, e.g., the first $K=5$
+columns of the data matrix contain samples from the before
+treatment group, and the next $K=5$ columns contain samples from
+the after treatment group, where the samples 1 and 6, 2 and 7,
+..., respectively, build a pair, then the vector \texttt{cl} is
+given by
+
+<<>>=
+K <- 5
+c((-1:-5), 1:5)
+@
+
+
+Another example: If the first column contains the before treatment
+measurements of an observation, the second column the after
+treatment measurements of the same observation, the third column
+the before treatment measurements of the second observation, the
+fourth column the after treatment measurements of the second
+observation, and so on, then a possible way to generate the vector
+\texttt{cl} for $K=5$ paired observations is
+
+<<>>=
+K <- 5
+rep(1:K, e = 2) * rep(c(-1 ,1), K)
+@
+
+
+There is another way to specify the class labels in the two class paired
+case: They can be specified by a matrix with $n$ rows and two columns. One of
+the column should contain -1's and 1's specifying the before and after
+treatment samples. The other column should consist of the integers between 1
+and $K$ indicating the observation pairs. So if we consider the previous example,
+\texttt{cl} can also be specified by
+
+<<>>=
+K <- 5
+cbind(rep(c(-1, 1), 5), rep(1:5, e = 2))
+@
+
+While \texttt{cl} must be specify as described above if \texttt{cl} is a vector,
+other values will be accepted if \texttt{cl} is a matrix. In the latter case, the
+smaller value of the column of \texttt{cl} containing two different values will be
+set to -1, and the larger value to 1. The $K$ different values in the other column
+are sorted and set to the integers between 1 and $K$.
+
+\textbf{Multi-class and categorical cases.} In these cases, \texttt{cl} should
+be a vector containing the integers between 1 and $g$, where $g$ is the number of different
+classes/levels. Other labels are also accepted, but will automatically be set to the integers between
+1 and $g$.
+
+
+\section{Significance Analysis of Microarrays}\label{sam}
+
+In this section, we show how the Significance Analysis of
+Microarrays (SAM) proposed by Tusher et al.\ (2001) can be applied
+to the data set of Golub et al.\ (1999). Another example of how SAM
+can be applied to gene expression data can be found in Schwender et
+al.\ (2006). This article can be opened by calling
+
+\begin{verbatim}
+> openPDF(file.path(find.package("siggenes"),"doc","siggenesRnews.pdf"))
+\end{verbatim}
+
+The matrix \texttt{golub} contains the expression values of
+3,051 genes and 38 samples, while the vector \texttt{golub.cl}
+consists of the class labels that are either 0 and 1. Additionally, the gene names
+are provided by the third column of \texttt{golub.gnames}. (Note that if
+the row names of the data matrix already comprise the gene names, \texttt{gene.names}
+need not to be specified in \texttt{sam}.)
+
+A SAM analysis of the Golub et al.\ (1999) data set (i.e.\ a SAM analysis for
+two class unpaired data) can be performed by
+
+<<>>=
+sam.out <- sam(golub, golub.cl, rand = 123, gene.names = golub.gnames[,3])
+sam.out
+@
+
+The argument \texttt{rand} is set to 123 to make the results of \texttt{sam} reproducible.
+
+The output of \texttt{sam.out} consists of
+\begin{itemize}
+\item \texttt{Delta}: the different values of $\Delta$ for which
+the numbers of genes and the estimated FDRs are computed,
+\item \texttt{p0}: the estimated prior probability that a gene is not 
+differentially expressed,
+\item \texttt{False}: the number of falsely called genes (which is \emph{not} the expected
+number of false positives, see below and Tusher et al., 2001),
+\item \texttt{Called}: the number of genes called differentially expressed,
+\item \texttt{FDR}: the estimated FDR computed by \texttt{p0} $\cdot$ \texttt{False} / \texttt{FDR}.
+\end{itemize}
+
+Note that the expected number of false positives is given by \texttt{p0} $\times$ \texttt{False}
+such that the number of falsely called genes denoted by \texttt{False} is only equal to the expected
+number of false positives if \texttt{p0} $=1$.
+
+If one would like to use the Wilcoxon rank sum statistic instead of a moderated
+$t$-statistic, the analysis can be done by
+
+<<>>=
+sam.out2 <- sam(golub, golub.cl, method = wilc.stat, rand = 123)
+@
+
+A little bit more information about the former SAM analysis can be obtained by
+
+<<>>=
+summary(sam.out)
+@
+
+The last four columns of this table show the values of 
+$\text{cut}_\text{up}(\Delta)$ and $\text{cut}_\text{low}(\Delta)$, which are the upper and lower cutoffs
+for a gene to be called differentially expressed, and $i_1$ and $i_2$, which are the indices of the (ordered)
+genes specifying the cutoffs (for details, see Schwender, 2007).
+
+The output of this analysis with \texttt{sam} contains a table of statistics for a set of initial values
+of $\Delta$. If other values of $\Delta$, let's say $1.5, 1.6, 1.7, \ldots,
+2.4$, are of interest, one can use \texttt{print} or \texttt{summary} to get the number
+of significant genes and the estimated FDR for these values of \texttt{delta}.
+
+<<>>=
+print(sam.out, seq(1.5, 2.4, 0.1))
+@
+
+\begin{figure}[!t]
+\centerline{
+\includegraphics[width=8.5cm]{samplot}}\vspace{-15pt}
+\caption{SAM plot for $\Delta=2.4$.}\label{samplot}
+\vspace*{12pt}
+\end{figure}
+
+The function \texttt{plot} can be used to generate a SAM plot for a specific value of
+\texttt{delta}.
+
+\begin{verbatim}
+> plot(sam.out, 2.4)
+\end{verbatim}
+
+Note that the SAM plot is only generated if \texttt{delta} is a numeric value. If \texttt{delta} is
+a vector or \texttt{NULL}, a graphical representation of the table produced by \texttt{print} is
+plotted. 
+
+
+The function \texttt{identify} makes it possible to obtain information about the genes by
+clicking on the SAM plot.
+
+\begin{verbatim}
+> identify(sam.out)
+\end{verbatim}
+
+If \texttt{chip}, i.e.\ the chip name (e.g., "hgu133plus2"), is specified and \texttt{ll = TRUE}
+in \texttt{identify}, then the locus link and the
+symbol of the gene corresponding to the identified point are added to the output. For example,
+clicking on the point nearest to the upper right corner, i.e.\ the point corresponding to the
+gene with the largest positive expression score $d$, produces 
+
+\begin{verbatim}
+          d.value  stdev p.value q.value R.fold
+M27891_at  8.1652 0.2958       0       0 7.2772
+\end{verbatim}
+
+which does not contain the locus links since the chip type has not been specified.
+
+If the chip name has been specified either by \texttt{chip} or by setting \texttt{data} to an
+\texttt{ExpressionSet} object, one can set \texttt{browse = TRUE} in \texttt{identify}. This opens the NCBI
+webpage corresponding to the Entrez / locus link of the gene identified by clicking on the SAM plot.
+
+Gene-specific information about the genes called differentially expressed using a specific
+value of $\Delta$ (here $\Delta=3.3$) can be obtained by
+
+<<>>=
+sum.sam.out <- summary(sam.out, 3.3)
+sum.sam.out
+@
+
+The generated table contains the row numbers of the identified genes in the data matrix used
+(\texttt{Row}), the values of the test statistic (\texttt{d.value}) and the corresponding standard
+deviations, i.e.\ the values of the denominator of this statistic (\texttt{stdev}), 
+the unadjusted p-values (\texttt{rawp}),
+the q-values (\texttt{q.value}), the fold changes (\texttt{R.fold}), and the names of the identified genes
+as specified in \texttt{sam} by \texttt{gene.names} (\texttt{Name}).
+
+By default, in the output of \texttt{summary} the identified variables are called genes (or SNPs if 
+\texttt{method = cat.stat} is used). To change this, use, e.g.,
+
+<<>>=
+print(sum.sam.out, varNames = "Proteins")
+@
+
+if protein data is analyzed.  
+
+The rows of \texttt{golub} that contain the values of the differentially expressed genes
+can also be obtained by
+
+<<>>=
+sum.sam.out@row.sig.genes
+@
+
+the general information about the set of significant genes by
+
+<<>>=
+sum.sam.out@mat.fdr
+@
+
+and the gene-specific information by
+
+<<>>=
+sum.sam.out@mat.sig
+@
+
+To obtain just the names of the genes called significant using $\Delta=3.3$,
+
+<<>>=
+list.siggenes(sam.out, 3.3)
+@
+
+If the value of $\Delta$ and thus the number
+of differentially expressed genes should be identified 
+for which the FDR is controlled at a level of, say, 0.05, call
+
+<<>>=
+findDelta(sam.out, fdr = 0.05)
+@
+
+If there is one value of \texttt{Delta} for which \texttt{FDR} is exactly equal
+to 0.05, only this value of $\Delta$ and the corresponding number of identified
+genes is returned. If there is no such $\Delta$, then a lower and upper bound
+for $\Delta$ is shown. Here, we would use $\Delta = 0.926010$, as our goal is
+to find a value of $\Delta$ for which FDR is less than or equal to 0.05.
+
+Similarly, the estimated FDR can be obtained for a specific number of identified
+genes. E.g., calling 200 genes differentially expressed leads to an estimated FDR
+of 0.00145.
+
+<<>>=
+findDelta(sam.out, genes = 200)
+@
+
+\vspace*{18pt}
+
+\section{Empirical Bayes Analysis of Microarrays}\label{ebam}
+
+If a moderated test score such as a moderated $t$- or $F$-statistic
+should be used in the Empirical Bayes Analysis of Microarray, the
+optimal choice of the fudge factor $a_0$ has to be specified prior to 
+the actual EBAM analysis by a
+stan\-dar\-dized version of the EBAM analysis (for details, see Efron et
+al., 2001). This standardized analysis can be performed using the
+function \texttt{find.a0}.
+
+Considering the Golub et al.\ (1999) data as provided by the
+package \texttt{multtest}, this analysis is thus done by
+
+<<>>=
+find.out <- find.a0(golub, golub.cl, rand = 123)
+@
+
+where \texttt{rand} sets the random number generator in an reproducible
+state.
+
+<<>>=
+find.out
+@
+
+To obtain the number of identified genes and the estimated FDR for
+another than the default value of \texttt{delta}, i.e.\ the minimum posterior
+probability for a gene to be called differentially expressed, say
+\texttt{delta} $=0.95$, call
+
+<<>>=
+print(find.out, 0.95)
+@
+
+Note that a gene is called differentially expressed if
+\begin{itemize}
+\item its posterior probability is larger than or equal to \texttt{delta},
+\item there is no gene with a more extreme test score (i.e\ a larger value
+if the score is positive, or a smaller value if the score is negative) than
+the considered gene that is not called differentially expressed.
+\end{itemize}
+
+The output of \texttt{find.a0} suggest a value for the fudge factor $a_0$. This
+suggestion is based -- as proposed by Efron et al.\ (2001) -- on the number of 
+differentially expressed genes. (The value of $a_0$ is chosen that leads to the
+largest number of differentially expressed genes.)
+
+One, however, should also consider the estimated FDR and take a look on the 
+plot of the logit-transformed posterior probabilities for the different values
+of $a_0$. The plot displayed in Figure \ref{fig:finda0} can be generated by
+
+\begin{figure}[!t]
+\centerline{
+\includegraphics[width=8.5cm]{finda0}}\vspace{-15pt}
+\caption{Logit-transformed posterior probabilities for standardized EBAM analyses
+using different values of the fudge factor $a_0$.}\label{fig:finda0}
+\end{figure}
+
+\begin{verbatim}
+> plot(find.out)
+\end{verbatim}
+
+After having determined the optimal choice for $a_0$, the actual EBAM analysis
+with the choice suggested by \texttt{find.a0} can be done by
+
+<<>>=
+ebam(find.out)
+@
+
+If one would like to use another value of $a_0$, let's say the minimum, i.e. the
+0\% quantile, of the standard deviations of the genes, which is comprised by the
+second row of \texttt{find.out}, then the EBAM analysis can be performed by
+
+<<>>=
+ebam(find.out, which.a0 = 2)
+@
+
+Since in \texttt{find.a0} a fast, crude estimate for the number of falsely called
+genes (i.e.\ the number of genes expected under the null hypothesis to have a posterior
+probability larger than or equal to \texttt{delta}) is used instead of the exact number. If the
+analysis should directly start with calling \texttt{ebam}, it is thus necessary
+to set \texttt{fast = TRUE} to employ this crude estimate, and therefore, obtain the
+same results as with a combination of \texttt{find.a0} and \texttt{ebam}.
+
+Thus,
+
+<<>>=
+ebam(golub, golub.cl, a0 = 0, fast = TRUE, rand = 123)
+@
+
+leads to the same results as
+
+\begin{verbatim}
+ebam(find.out)
+\end{verbatim}
+
+since $a_0 = 0$ is suggested by \texttt{find.out} as the optimal choice for the fudge factor. 
+
+The exact mean number of falsely called genes is used when \texttt{fast = FALSE}, which is the
+default setting for \texttt{fast}. Thus,
+
+<<>>=
+ebam.out <- ebam(golub, golub.cl, a0 = 0, rand = 123)
+@
+
+leads to the results of the EBAM analysis employing the exact mean number of falsely called
+genes and the value for the fudge factor identified in the analysis with \texttt{find.a0}.
+
+By default, the number of differentially expressed genes and the estimated FDR is computed
+for \texttt{delta} $=0.9$. To get these statistics for other values of \texttt{delta}, say
+0.91, 0.92, ..., 0.99, call
+
+<<>>=
+print(ebam.out, seq(0.91, 0.99, 0.01))
+@
+
+The posterior probabilities can be plotted by
+
+\begin{verbatim}
+> plot(ebam.out, 0.9)
+\end{verbatim}
+
+\begin{figure}[!t]
+\centerline{
+\includegraphics[width=8.5cm]{ebamplot}}\vspace{-15pt}
+\caption{Plot of the posterior probabilities from the actual EBAM analysis using
+\texttt{delta} $=0.9$ as threshold for a gene to be called differentially expressed.}\label{ebamplot}
+\vspace*{12pt}
+\end{figure}
+
+where the threshold \texttt{delta} for a gene to be called differentially expressed
+has to be specified (see Figure \ref{ebamplot}).
+
+Having selected a value for \texttt{delta}, say 0.99997, gene-specific information can be
+obtained by
+
+<<>>=
+summary(ebam.out, 0.99997)
+@
+
+The generated table contains the row numbers of the identified genes in the data matrix (\texttt{Row}),
+the values of the test statistic (\texttt{z.value}), the posterior probabilities (\texttt{posterior}),
+and an adhoc estimate of the local FDR (\texttt{local.fdr}, see Efron et al., 2001).
+
+Instead of employing \texttt{find.a0} to identify an optimal value of $a_0$ and using
+this value to compute a moderated $t$-statistic, it is also possible to use the
+ordinary $t$-statistic by setting $a_0=0$ in \texttt{find.a0}. (Since for the Golub
+et al.\ (1999) $a_0=0$ is the optimal choice for the fudge factor, this analysis has
+already been done with output \texttt{ebam.out}).
+
+Note that actually Welch's $t$-statistic (assuming unequal group variances) is computed 
+by default. If you would like to use the (moderated) $t$-statistic assuming equal
+group variances, call
+
+<<>>=
+ebam(golub, golub.cl, a0 = 0, var.equal = TRUE, rand = 123)
+@
+
+If you do not want to find the optimal value for the fudge factor, but would like to use
+a reasonable value for $a_0$, say the median, i.e.\ the 50\% quantile, of the standard 
+deviations of the genes, call
+
+<<>>=
+ebam(golub, golub.cl, quan.a0 = 0.5, rand = 123)
+@
+
+Instead of using a moderated $t$-statistic, it is also possible to employ Wilcoxon
+rank sum statistic. Since in this case it is not necessary to specify a value for
+$a_0$, an EBAM analysis with Wilcoxon rank sums is performed by
+
+<<>>=
+ebam(golub, golub.cl, method = wilc.ebam, rand =123)
+@
+
+\section{Writing your own Score Function}\label{own}
+
+It is also possible to write your own function for computing other test scores as the one
+provided by \texttt{siggenes} (see Chapter \ref{info}).
+
+For all three wrappers \texttt{sam}, \texttt{find.a0} and \texttt{ebam}, this function must have
+as input the two required arguments 
+\begin{description}
+\item[\texttt{data}:] A matrix or data frame containing the data. Each row of this data set should
+correspond to one of the $m$ variables (e.g., genes), and each column to one of the $n$ observations.
+\item[\texttt{cl}:] A vector consisting of the class labels of the observations.
+\end{description}
+
+The function can also have additional optional arguments, i.e.\ arguments for which a default is specified,
+which can be called in \texttt{sam}, \texttt{find.a0} or \texttt{ebam}.
+
+\subsection{\texttt{sam}}
+
+The output of a function that should be used in \texttt{sam} must be a list con\-si\-sting of the following objects:
+\begin{description}
+\item[\texttt{d}:] A numeric vector containing the test scores of the genes.
+\item[\texttt{d.bar}:] A numeric vector of length \texttt{na.exclude(d)} consisting of the sorted test scores
+expected under the null hypothesis.
+\item[\texttt{p.value}:] A numeric vector of the same length and order as \texttt{d} containing the $p$-values
+of the genes.
+\item[\texttt{vec.false}:] A numeric vector of the same length as \texttt{d} consisting of the one-sided
+expected numbers of falsely called genes, i.e.\ the mean numbers of test scores that are larger than the test
+scores of the genes if the test scores of the genes are positive, and the mean number of test scores smaller than the test
+scores of the genes if the test scores of the genes are negative. Let's, e.g., assume that the observed test scores
+are
+\begin{verbatim}
+c(2.4, -1.2, -0.8, 1.3)
+\end{verbatim}
+
+and the test scores obtained by two permutations of the class labels are given by
+\begin{verbatim}
+c(1.4, 2.5, -1.4, -0.8, 2, 1.1, -0.9, -2.3)
+\end{verbatim}
+
+then \texttt{vec.false} is given by
+\begin{verbatim}
+c(0.5, 1, 2, 1.5)
+\end{verbatim}
+
+since, e.g., one value from the two permutations is larger than 2.4 (thus, 1/2 is the one-sided expected number
+of falsely called genes), and two values are smaller than -1.2 (thus, 2/2 is the one-sided expected number of
+falsely called genes).
+
+\item[\texttt{s}:] A numeric vector containing the standard errors of the expression values. If no standard errors
+are available, set \texttt{s = numeric(0)}.
+\item[\texttt{s0}:] A numeric value specifying the fudge factor. If the fudge factor is not computed, set 
+\texttt{s0 = numeric(0)}.
+\item[\texttt{mat.samp}:] A $B \times n$ matrix containing the permuted class labels. Set 
+\texttt{mat.samp = matrix(numeric(0))} if the exact null distribution is known.
+\item[\texttt{msg}:] A character vector containing messages that are displayed when the \texttt{SAM}
+specific \texttt{S4} methods \texttt{print} and \texttt{summary} are called. Should end with
+"$\backslash$\texttt{n}$\backslash$\texttt{n}". If no message should be shown, set \texttt{msg=""}
+\item[\texttt{fold}:] A numeric vector containing the fold changes of the genes. Should be set to
+\texttt{numeric(0)} if another analysis than a two-class analysis is performed.
+\end{description}
+
+Assume, e.g., that we would like to perform a SAM analysis with the ordinary $t$-statistic assuming
+equal group variances and normality. The code of a function \texttt{t.stat} for such an analysis is given by
+
+<<>>=
+t.stat <- function(data, cl){
+    require(genefilter) ||
+        stop("genefilter required.")
+    cl <- as.factor(cl)
+    row.out <- rowttests(data, cl)
+    d <- row.out$statistic
+    m <- length(na.exclude(d))
+    d.bar <- qt(((1:m) - 0.5)/m, length(cl) - 2)
+    p.value <- row.out$p.value
+    vec.false <- m * p.value/2
+    s <- row.out$dm/d
+    msg <- paste("SAM Two-Class Analysis",
+         "Assuming Normality\n\n")
+    list(d = -d, d.bar = d.bar, p.value = p.value,
+        vec.false = vec.false, s = s, s0 = 0,
+        mat.samp = matrix(numeric(0)),
+        msg = msg, fold = numeric(0))
+}
+@
+
+where \texttt{row.out\$dm} is a vector containing the numerators of the $t$-statistics.
+
+
+Note that in the output of \texttt{t.stat} \texttt{d} is set to \texttt{-d}, since in
+\texttt{rowttests} the mean of group 2 is subtracted from the mean of
+group 1, whereas in \texttt{sam} with \texttt{method = d.stat} the difference is taken 
+the other way around.
+
+Now \texttt{t.stat} can be used in \texttt{sam} by setting \texttt{method = t.stat}:
+
+<<>>=
+sam(golub, golub.cl, method = t.stat)
+@
+
+
+
+\subsection{\texttt{find.a0}}
+
+A function that should be used as \texttt{method} in \texttt{find.a0} must return
+a list consisting of
+\begin{description}
+\item[\texttt{r}:] A numeric vector containing the numerator of the observed test scores
+of the genes.
+\item[\texttt{s}:] A numeric vector comprising the denominator of the observed test 
+scores of the genes.
+\item[\texttt{mat.samp}:] A matrix in which each row represents one of the permutations
+of the vector \texttt{cl} of the classlabels.
+\item[\texttt{z.fun}:] A function that computes the values of the test statistics for
+each gene. This function must have the required arguments \texttt{data} and \texttt{cl},
+but no further arguments. Its output must be a list consisting of two objects: One called
+\texttt{r} that contains the numerator of the test statistic, and the other called \texttt{s}
+comprising the denominator of the test score. (This function is used to compute the
+test scores when considering the permuted class labels.)
+\end{description}
+
+In \texttt{find.a0}, both the observed and the permuted $z$-values are monotonically transformed
+such that the observed $z$-values follow a standard normal distribution. If the observed
+$z$-values, however, should follow another distribution, the output of the function that should
+be used in \texttt{find.a0} must also contain an object called
+\begin{description}
+\item[\texttt{z.norm}:] A numeric vector of the same length as \texttt{r} containing the 
+appropriate quantiles of the distribution to which the observed $z$-values should be tranformed.
+\end{description}
+
+It is also possible to specify a header that is shown when \texttt{print}ing the output of 
+\texttt{find.a0} by adding the object
+\begin{description}
+\item[\texttt{msg}:] A character vector containing the message that is displayed when 
+the \texttt{FindA0} specific method \texttt{print} is called. Should end with
+"$\backslash$\texttt{n}$\backslash$\texttt{n}".
+\end{description}
+
+For an example, let's assume that we would like to implement an alternative way for using a moderated
+version of the ordinary $t$-statistic in \texttt{find.a0}. This function based on 
+\texttt{rowttests} from the packages \texttt{genefilter} could, e.g., be specified by
+
+<<>>=
+t.find <- function(data, cl, B = 50){
+    require(genefilter)
+    z.fun <- function(data, cl){
+        cl <- as.factor(cl)
+        out <- rowttests(data, cl)
+        r<- out$dm
+        s<- r / out$statistic
+        return(list(r = -r, s = s))
+    }
+    mat.samp <- matrix(0, B, length(cl))
+    for(i in 1:B)
+        mat.samp[i, ] <- sample(cl)
+    z.out <- z.fun(data, cl)
+    msg <- paste("EBAM Analysis with a Moderated t-Statistic\n\n")
+    list(r = z.out$r, s = z.out$s,
+        mat.samp = mat.samp, z.fun = z.fun, msg = msg)
+}
+@
+
+Note that in the output of \texttt{z.fun} \texttt{r} is set to \texttt{-r}, since in
+\texttt{rowttests} the mean of group 2 is subtracted from the mean of
+group 1, whereas in \texttt{find.a0} with \texttt{method = z.find} the difference is taken 
+the other way around.
+ 
+Now \texttt{t.find} can be employed in \texttt{find.a0} by setting \texttt{method = t.find}:
+
+<<>>=
+t.out <- find.a0(golub, golub.cl, method = t.find, B = 100, rand =123)
+t.out
+@
+
+which produces the same results as
+
+<<>>=
+find.a0(golub, golub.cl, var.equal = TRUE, rand =123)
+@
+
+and can also be used in the actual EBAM analysis:
+
+<<>>=
+ebam(t.out)
+@
+
+\subsection{\texttt{ebam}}
+
+A function that should be employed as \texttt{method} in \texttt{ebam} must output
+a list consisting of the objects
+\begin{description}
+\item[\texttt{z}:] A numeric vector containing the test scores of the genes.
+\item[\texttt{ratio}:] A numeric vector of the same length as \texttt{z} comprising
+the values of the ratio $f_0(z)/f(z)$, where $f_0$ is the distribution of the test
+scores expected under the null hypothesis, and $f$ is the distribution of the 
+observed test scores.
+\item[\texttt{vec.pos}:] A numeric vector of the same length as \texttt{z} consisting
+of the numbers of test scores expected under the null hypothesis to be larger than or
+equal to \texttt{abs(z[i])}, \texttt{i} $=1,\ldots$, \texttt{length(z)}.
+\item[\texttt{vec.neg}:] A numeric vector of the same length as \texttt{z} consisting
+of the numbers of test scores expected under the null hypothesis to be smaller than or
+equal to \texttt{-abs(z[i])}, \texttt{i} $=1,\ldots$, \texttt{length(z)}.
+\end{description}
+
+It is also possible to specify a header that is shown when \texttt{print}ing or
+\texttt{summary}zing the output of \texttt{ebam} by adding the object
+\begin{description}
+\item[\texttt{msg}:] A character vector containing the message that is displayed when 
+the \texttt{EBAM} specific methods \texttt{print} or \texttt{summary} are called. 
+Should end with "$\backslash$\texttt{n}$\backslash$\texttt{n}".
+\end{description}
+
+As an example, let's assume we would like to use the ordinary $t$-statistic in 
+\texttt{ebam} and assume normality. A function for performing this type of analysis
+is, e.g., given by
+
+<<>>=
+t.ebam<-function(data, cl){
+    require(genefilter)
+    cl <- as.factor(cl)
+    out <- rowttests(data, cl)
+    z <- -out$statistic
+    z.dens <- denspr(z)$y
+    m <- length(z)
+    vec.pos <- m * out$p.value / 2
+    z.null <- dt(z, length(cl) - 2)
+    msg<-paste("EBAM Analysis with t-Statistic Assuming Normality.\n\n")
+    list(z = z, ratio = z.null/z.dens, vec.pos = vec.pos,
+        vec.neg = vec.pos, msg = msg)
+}
+@
+
+where \texttt{denspr} is a function for estimating a density based on
+a histogram and a Poisson regression (cf.\ Efron and Tibshirani, 1996,
+and the help file for \texttt{denspr}),
+and \texttt{vec.neg = vec.pos} since the null distribution is symmetric.
+
+Now \texttt{t.ebam} can be used in \texttt{ebam} by setting \texttt{method = t.ebam}:
+
+<<>>=
+ebam(golub, golub.cl, method = t.ebam)
+@
+
+%\vspace{1cm}
+
+\begin{thebibliography}{}
+
+\item[Efron, B.,] and Tibshirani, R.\ (1996). 
+Using Specially Designed Exponential Families for Density Estimation. 
+\textit{Annals of Statistics}, 24, 2431--2461. 
+
+\item[Efron, B.,] and Tibshirani, R.\ (2002). Empirical Bayes Methods
+and False Discovery Rates for Microarrays. \textit{Genetic
+Epidemiology}, 23, 70--86.
+
+\item[Efron, B.,] Tibshirani, R., Storey, J.\ D., and Tusher, V.\ (2001).
+Empirical Bayes Analysis of a Microarray Experiment.
+\textit{Journal of the American Statistical Association}, 96,
+1151--1160.
+
+\item[Golub, T.\ R.,] Slonim, D.\ K., Tamayo, P., Huard, C., Gaasenbeek,
+M., Mesirov, J.\ P., Coller, H., Loh, M.\ L., Downing, J.\ R.,
+Caliguiri, M.\ A., Bloomfield, C.\ D., and Lander, E.\ S.\ (1999).
+Molecular Classification of Cancer: Class Discovery and Class
+Prediction by Gene Expression Moni\-to\-ring. \textit{Science},
+286, 531--537.
+
+\item[Schwender, H.] (2003). Assessing the False Discovery Rate 
+in a Statistical Analysis of Gene Expression Data. \textit{Diploma Thesis}, 
+Department of Statistics, University of Dortmund.
+
+\item[Schwender, H.] (2007). Statistical Analysis of Genotype and Gene
+Expression Data. \textit{Dissertation}, Department of Statistics, 
+University of Dortmund.
+
+\item[Schwender, H.,] Krause, A., and Ickstadt, K.\ (2003). Comparison of
+the Empirical Bayes and the Significance Analysis of Microarrays.
+\textit{Techical Report}, University of Dortmund, Dortmund, Germany.
+
+\item[Schwender, H.,] Krause, A., and Ickstadt, K. (2006). Identifying Interesting
+Genes with siggenes. \textit{RNews}, 6(5), 45--50.
+
+\item[Tusher, V.\ G.,] Tibshirani, R., and Chu, G.\ (2001).
+Significance Analysis of Microarrays Applied to the Ionizing
+Radiation Response. \textit{Proceedings of the National Academy
+of Science}, 98, 5116--5121.
+
+\end{thebibliography}
+
+
+
+\end{document}

@@ -1,0 +1,23 @@
+Package: siggenes
+Version: 1.46.0
+Date: 2012-03-05
+Title: Multiple testing using SAM and Efron's empirical Bayes
+    approaches
+Author: Holger Schwender
+Maintainer: Holger Schwender <holger.schw@gmx.de>
+Depends: methods, Biobase, multtest, splines, graphics
+Imports: stats4
+Suggests: affy, annotate, genefilter, KernSmooth, scrime (>= 1.2.5)
+Description: Identification of differentially expressed genes and
+    estimation of the False Discovery Rate (FDR) using both the
+    Significance Analysis of Microarrays (SAM) and the Empirical Bayes
+    Analyses of Microarrays (EBAM).
+License: LGPL (>= 2)
+biocViews: MultipleComparison, Microarray, GeneExpression, SNP,
+    ExonArray, DifferentialExpression
+NeedsCompilation: no
+Packaged: 2016-05-04 01:40:27 UTC; biocbuild
+Built: R 3.3.0; ; 2016-05-04 15:05:10 UTC; unix
+InstallAgent: packrat 0.4.7.1
+InstallSource: Bioconductor
+Hash: 2b4012f79a32b0782840c857452281b3

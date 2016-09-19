@@ -1,0 +1,32 @@
+Package: SummarizedExperiment
+Title: SummarizedExperiment container
+Description: The SummarizedExperiment container contains one or more
+    assays, each represented by a matrix-like object of numeric or
+    other mode. The rows typically represent genomic ranges of interest
+    and the columns represent samples.
+Version: 1.2.3
+Encoding: UTF-8
+Author: Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès
+Maintainer: Bioconductor Package Maintainer
+    <maintainer@bioconductor.org>
+biocViews: Genetics, Infrastructure, Sequencing, Annotation, Coverage,
+    GenomeAnnotation
+Depends: R (>= 3.2), methods, GenomicRanges (>= 1.23.15), Biobase
+Imports: utils, stats, BiocGenerics (>= 0.15.3), S4Vectors (>= 0.9.36),
+    IRanges (>= 2.5.26), GenomeInfoDb
+Suggests: annotate, AnnotationDbi, hgu95av2.db, GenomicFeatures,
+    TxDb.Hsapiens.UCSC.hg19.knownGene, BiocStyle, knitr, rmarkdown,
+    digest, jsonlite, rhdf5, airway
+VignetteBuilder: knitr
+License: Artistic-2.0
+Collate: utils.R Assays-class.R SummarizedExperiment-class.R
+    RangedSummarizedExperiment-class.R intra-range-methods.R
+    inter-range-methods.R coverage-methods.R findOverlaps-methods.R
+    nearest-methods.R makeSummarizedExperimentFromExpressionSet.R
+    readKallisto.R zzz.R
+NeedsCompilation: no
+Packaged: 2016-06-10 05:07:37 UTC; biocbuild
+Built: R 3.3.0; ; 2016-06-10 15:51:38 UTC; unix
+InstallAgent: packrat 0.4.7.1
+InstallSource: Bioconductor
+Hash: e0660148330ec14925d736b97cfba84e

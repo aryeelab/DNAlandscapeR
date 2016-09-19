@@ -6,7 +6,8 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     amazon <- paste0("http://s3.amazonaws.com/", newBucket)
     t <- unlist(get_bucket(bucket = newBucket))
     amazon.filenames <- paste(amazon, t[grep("data", t)], sep = "/")
-
+    print(amazon.filenames)
+    
     # Append Amazon data
     g_h.c.full <-  c(dynamic.val$h.c.full, amazon.filenames[grepl("data/human/loops/.{1,}", amazon.filenames)])
     g_h.t.files <- c(dynamic.val$h.t.files, amazon.filenames[grepl("data/human/tracks/.{1,}", amazon.filenames)])
@@ -118,6 +119,7 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
         g_m.t.bw.list <- as.list(seq(1, length(g_m.t.bw.names), by = 1) + 1000000)
         names(g_m.t.bw.list) <- g_m.t.bw.names
     } else {g_m.t.bw.full <- c();  g_m.t.bw.list <- list(); g_m.t.bw.full <- list()}
+    print(g_m.t.bw.list)
     
     # From 2,000,001-3,000,000-- ReadDepth Tracks-- Bedgraph
     g_m.t.bg.full <- g_m.t.files[grep(".bedgraph", g_m.t.files, fixed=T)]

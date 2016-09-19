@@ -1,0 +1,26 @@
+Package: GEOquery
+Type: Package
+Title: Get data from NCBI Gene Expression Omnibus (GEO)
+Version: 2.38.4
+Date: 2016-05-10
+Author: Sean Davis <sdavis2@mail.nih.gov>
+Maintainer: Sean Davis <sdavis2@mail.nih.gov>
+BugReports: https://github.com/seandavi/GEOquery/issues/new
+Depends: methods, Biobase
+Imports: XML, RCurl, httr
+Suggests: limma, knitr, rmarkdown, RUnit, BiocGenerics
+VignetteBuilder: knitr
+URL: https://github.com/seandavi/GEOquery
+biocViews: Microarray, DataImport, OneChannel, TwoChannel, SAGE
+Description: The NCBI Gene Expression Omnibus (GEO) is a public
+    repository of microarray data.  Given the rich and varied nature of
+    this resource, it is only natural to want to apply BioConductor
+    tools to these data.  GEOquery is the bridge between GEO and
+    BioConductor.
+License: GPL-2
+NeedsCompilation: no
+Packaged: 2016-05-16 01:43:05 UTC; biocbuild
+Built: R 3.3.0; ; 2016-05-16 15:11:29 UTC; unix
+InstallAgent: packrat 0.4.7.1
+InstallSource: Bioconductor
+Hash: 711229fc3f9ba172f59fe406f7f1f6cf

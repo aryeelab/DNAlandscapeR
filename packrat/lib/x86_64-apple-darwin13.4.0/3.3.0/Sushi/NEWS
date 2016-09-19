@@ -1,0 +1,53 @@
+Sushi News
+
+CHANGES IN R 1.6.1:
+
+    * added 'ribbons' feature to plotBedpe
+
+CHANGES IN R 1.6.0:
+
+    * edited README.md
+
+    * plotBedgraph now plots empty plot when there is not enough data in range
+
+CHANGES IN R 1.1.3:
+
+    * edited README.md
+
+    * Lines connecting regions in plotBedpe plots now only connect the inner region.  Only noticable if plot is drawn with opaque colors
+
+
+CHANGES IN R 1.1.2:
+
+    * Added more install info to README.md
+
+
+CHANGES IN R 1.1.1:
+
+    * Added README.md
+
+    * Added Tips section to Vignette
+
+
+CHANGES IN R 0.99.2:
+
+    * fixed name of NEWS file
+    
+    * imports graphics, grDevices in DESCRIPTION file
+
+
+CHANGES IN R 0.99.1:
+
+    * Made package lighter by adding more specific imports and exports
+    
+    * added examples for all exported functions
+
+
+Package: Sushi
+Title: Tools for visualizing genomics data
+Description: Flexible, quantitative, and integrative genomic visualizations for publication-quality multi-panel figures
+Author: Douglas H Phanstiel <dphansti@stanford.edu>
+Maintainer: Douglas H Phanstiel <dphansti@stanford.edu>
+biocViews: DataRepresentation, Visualization, Genetics, Sequencing, Infrastructure,
+License: GPL (>= 2)
+Depends: R (>= 2.10), zoo,biomaRt

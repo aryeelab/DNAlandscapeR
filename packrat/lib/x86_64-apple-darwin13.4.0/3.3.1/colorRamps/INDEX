@@ -1,0 +1,8 @@
+blue2red                Returns a gradient color map
+blue2yellow             Returns a gradient color map
+colorRamps-package      Builds color maps
+matlab.like             Generate color palettes similar to the matlab
+                        default
+primary.colors          generates expanded sets of primary colors
+rgb.tables              constructs color palettes with sharp breaks
+ygobb                   Returns a gradient color map

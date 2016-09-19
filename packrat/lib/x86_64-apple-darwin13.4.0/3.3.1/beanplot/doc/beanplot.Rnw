@@ -1,0 +1,256 @@
+\documentclass[codesnippet,nojss]{jss}
+\usepackage{thumbpdf}
+
+\author{Peter Kampstra\\VU University Amsterdam}
+\Plainauthor{Peter Kampstra}
+
+\title{Beanplot: A Boxplot Alternative for Visual Comparison of Distributions}
+
+\Abstract{
+  This introduction to the \proglang{R} package \pkg{beanplot} is a (slightly)
+  modified version of \cite{beanplot}, published in the
+  \emph{Journal of Statistical Software}.
+
+  Boxplots and variants thereof are frequently used to compare univariate data.
+  Boxplots have the disadvantage that they are not easy to explain to non-mathematicians,
+  and that some information is not visible. A beanplot is an alternative to the
+  boxplot for visual comparison of univariate data between groups.
+  In a beanplot, the individual observations are shown as small lines in a
+  one-dimensional scatter plot. Next to that, the estimated density of the
+  distributions is visible and the average is shown. It is easy to compare different
+  groups of data in a beanplot and to see if a group contains enough observations
+  to make the group interesting from a statistical point of view. Anomalies in
+  the data, such as bimodal distributions and duplicate measurements, are easily
+  spotted in a beanplot. For groups with two subgroups (e.g., male and female), there
+  is a special asymmetric beanplot. For easy usage, an implementation was made
+  in \proglang{R}.
+}
+
+\Keywords{exploratory data analysis, descriptive statistics, box plot, boxplot, violin plot, density plot, comparing univariate data, visualization, beanplot, \proglang{R}, graphical methods, visualization}
+\Plainkeywords{exploratory data analysis, descriptive statistics, box plot, boxplot, violin plot, density plot, comparing univariate data, visualization, beanplot, R, graphical methods, visualization}
+
+\Volume{28}
+\Issue{1}
+\Month{November}
+\Year{2008}
+\Submitdate{2008-09-19}
+\Acceptdate{2008-10-28}
+
+\Address{
+  Peter Kampstra\\
+  Faculty of Exact Sciences\\
+  VU University Amsterdam\\
+  De Boelelaan 1081a\\
+  NL-1081 HV Amsterdam, The Netherlands\\
+  E-mail: \email{pkampst@cs.vu.nl}\\
+  URL: \url{http://www.cs.vu.nl/~pkampst/}
+}
+
+%% need no \usepackage{Sweave.sty}
+\SweaveOpts{engine=R, eps=FALSE, keep.source=TRUE}
+
+%\VignetteIndexEntry{Beanplot: A Boxplot Alternative for Visual Comparison of Distributions}
+%\VignetteDepends{beanplot,lattice,vioplot}
+%\VignetteKeywords{exploratory data analysis, descriptive statistics, box plot, boxplot, violin plot, density plot, comparing univariate data, visualization, beanplot, R, graphical methods, visualization}
+%\VignettePackage{beanplot}
+
+\begin{document}
+
+<<preliminaries, echo=FALSE, results=hide>>=
+library("beanplot")
+options(prompt = "R> ", continue = "+  ")
+@
+
+\section{Introduction}
+
+There are many known plots that are used to show distributions of univariate data. There are histograms, stem-and-leaf-plots, boxplots, density traces, and many more. Most of these plots are not handy when comparing multiple batches of univariate data. For example, comparing multiple histograms or stem-and-leaf plots is difficult because of the space they take. Multiple density traces are difficult to compare when there are many of them plotted in one plot, because the space becomes cluttered. 
+Therefore, when comparing distributions between batches, Tukey's boxplot is commonly used. 
+
+There are many variations of the boxplot. For example, a variable-width notched box-plot \citep{McG1978} shows the number of observations in a batch using the width of the box, while the notches give an indication of the statistical difference between two batches. Another variation of the boxplot is the violin plot described in \cite{Hin1998}, in which a density trace is combined with the quartiles of a boxplot. Individual outliers are not visible in a violin plot.
+
+For smaller datasets there is an alternative to the boxplot, namely a one-dimensional (1d) scatter plot, or
+stripchart. In such a plot, one dot is plotted for each observation. This alternative to the boxplot is
+sometimes used \citep[e.g.,][]{Bpx1978}, but it only works if there are very few points per batch, because no summarization is provided.
+
+All of the known methods for comparing distributions between batches suffer from some problems. A 1d-scatter
+plot is only useful in case there are very few values per batch. A boxplot uses quartiles, which are difficult
+to explain to non-mathematicians \citep[e.g.,][]{Bakk2005}. Next to that, the detection of outliers is quite arbitrary, especially in case of non-normal underlying distributions. Even for normal distributions the number of outliers detected will grow if the number of observations grows, which makes individual outliers undetectable. In a violin plot the underlying distribution is more visible, but individual data points besides the minimum and maximum are not visible at all and no indication of the number of observations in a group is given.
+
+This article therefore proposes a combination between a 1d-scatter plot and a density trace,
+which is called a beanplot. In such a plot, outliers do not have to be detected, because all
+individual observations are visible in the scatter plot. Slightly complicated concepts such
+as quartiles are not used, but instead simply the average is used to summarize the batches.
+Next to that, a density trace similar to the violin plot is used to summarize the distribution
+of the batches. The rest of this article explains the details of the beanplot and the
+implementation in \proglang{R} \citep{R}. The implementation is available 
+from the Comprehensive \proglang{R} Archive Network at \url{http://CRAN.R-project.org/package=beanplot}.
+Next to that, some examples are shown, like comparisons with a boxplot and a violin plot.
+
+\begin{figure}[bt]
+  \begin{center}
+  \setkeys{Gin}{width=\textwidth}
+<<rug, fig=TRUE, echo=FALSE, height=3.5, width=8>>=
+set.seed(1)
+par(mfrow = c(1, 2), mai = c(0.8, 0.5, 0.5, 0.5))
+plot(density(d <- rnorm(50)), main = "plot(density(d <- rnorm(50))); rug(d)")
+rug(d)
+beanplot(d, bw = "nrd0", horizontal = TRUE, main = "beanplot(d, bw = \"nrd0\", horizontal = TRUE)")
+@
+\caption{\label{rug} A density trace of a normal distribution with a \code{rug} (1d-scatter plot) and its corresponding beanplot. The small lines represent individual data points.}
+  \end{center}
+\end{figure}
+
+\section{The beanplot}
+A beanplot is a plot in which (one or) multiple batches ("beans") are shown. An example of such a bean is shown in Figure~\ref{rug}. Each bean consists of a density trace, which is mirrored to form a polygon shape. Next to that, a one-dimensional scatter plot shows all the individual measurements, like in a stripchart. The scatter plot is drawn using one small line for each observation in a batch. If a small line is drawn outside of the density shape, a different color is used to draw the line. This ensures that the density of a batch is still visible, even if there are many small lines that fall partly outside the density shape. To enable easy comparison, a per-batch average and an overall average is drawn (see Figure~\ref{singers} for an overall line). For groups with two subgroups (e.g., male and female), there is a special asymmetric beanplot.
+
+\paragraph{The name} The name beanplot stems from green beans. The density shape can be seen as the pod of a green bean, while the scatter plot shows the seeds inside the pod. 
+% Alternatively, the shapes are kind of strange at first, and the same can be said for Mr. Bean in the famous television series. Next to that, beanplot also refers to an alternative way of thinking about cutting string beans that reduces the amount of manual labor described by Nobel Prize winner \cite{Feyn1985}.
+
+\paragraph{The density shape}
+The density shape used is a polygon given by a normal density trace and its mirrored version. Such a polygon often looks a bit like a violin, and is also used in a violin plot. In \proglang{R} a density trace can be computed by using \code{density}. For computing such a density trace, a bandwidth has to be selected. Per default, the implementation of \code{beanplot} uses the
+Sheather-Jones method to select a bandwidth per batch, which seems to be preferred and close to optimal
+\cite[page~129]{VR2002}. The bandwidths per batch are averaged over all batches in order to have a fair comparison between batches.
+
+The use of the same bandwidth for all beans has a small side-effect for batches that contain few data points. In such a case, the width of such a bean can become quite huge, drawing attention to a less-interesting bean in terms of statistical significance. To overcome this problem, the width of beans with fewer than 10 data points is scaled linearly (so a bean with 3 data points is only 3/10 of its normal width).
+
+\paragraph{1d-scatter plot and multiple equal observations}
+Combining a density trace with a 1d-scatter plot is frequently done. The left side of Figure~\ref{rug} shows an example produced by \proglang{R}. In this figure the corresponding beanplot is also shown, which is a simple manipulation of the density plot. The most complicated thing that needs to be done is the change in color when a scatter plot line becomes outside of the polygon shape. Fortunately, the crossings can simply be calculated by linear interpolation (\code{approx} in \proglang{R}). In case there are multiple observations with the same value in a batch, the individual small lines are added together, increasing the length of the line (see Figure~\ref{singers} for an example). Therefore, duplicate observations are easily spotted. 
+Observations that are almost equal to each other can also be spotted if transparent drawing is used (in \proglang{R} this only works on some devices, currently \code{pdf} and \code{quartz}).
+
+\paragraph{The (overall) average}
+While a boxplot and its variants make use of the median of a group of data points, per default a beanplot uses the average of the group and also shows an overall average. This is because an average is easier to explain to non-mathematicians, and an average usually gives useful information if a density trace is useful. 
+
+\paragraph{Asymmetric beanplots}
+Normally, the beans are symmetric to compare them easily. Sometimes, the group data being analysed contains two subgroups for each group, for example male and female subjects. In these situations, each subgroup can take one side of a complete bean (see Figure~\ref{singersasym} for an example).
+
+\begin{figure}[bt]
+\begin{center}
+  \setkeys{Gin}{width=\textwidth}
+<<distributions, fig=TRUE, echo=FALSE, height=4.5, width=8>>=
+library("beanplot")
+par(mfrow = c(1, 2), mai = c(0.5, 0.5, 0.5, 0.1))
+mu <- 2
+si <- 0.6
+c <- 500
+bimodal <- c(rnorm(c/2, -mu, si), rnorm(c/2, mu, si))
+uniform <- runif(c, -4, 4)
+normal <- rnorm(c, 0, 1.5)
+ylim <- c(-7, 7)
+boxplot(bimodal, uniform, normal, ylim = ylim, main = "boxplot",
+  names = 1:3)
+beanplot(bimodal, uniform, normal, ylim = ylim, main = "beanplot",
+  col = c("#CAB2D6", "#33A02C", "#B2DF8A"), border = "#CAB2D6")
+@
+\caption{\label{distributions} Plots for a bimodal, a uniform and a normal distribution. In the beanplot the green lines show individual observations, while the purple area shows the distribution.}
+\end{center}
+\end{figure}
+
+\section{Examples of usage}
+
+\begin{figure}[bt]
+  \begin{center}
+  \setkeys{Gin}{width=\textwidth}
+<<singers, fig=TRUE, echo=FALSE, results=hide, height=7.7, width=9.5>>=
+library("vioplot")
+data("singer", package = "lattice")
+ylim <- c(55, 80)
+par(mfrow = c(2, 1), mai = c(0.8, 0.8, 0.5, 0.5))
+data <- split(singer$height, singer$voice.part)
+names(data)[1] <- "x"
+do.call("vioplot", c(data,
+  list(ylim = ylim, names = levels(singer$voice.part), col = "white")))
+title(main = "vioplot", ylab = "body height (inch)")
+beanplot(height ~ voice.part, data = singer, ll = 0.04, main = "beanplot",
+  ylim = ylim, ylab = "body height (inch)")
+@
+%$
+\caption{\label{singers} The height in inches of different singers. The beanplot clearly shows the individual measurements were rounded to whole inches.}
+  \end{center}
+\end{figure}
+
+\subsection{Some distributions}
+In Figure~\ref{distributions} some distributions are drawn in a boxplot and in a beanplot. In the boxplot the
+location of the quartiles does not clearly indicate a difference between the distributions, while the beanplot
+clearly shows the difference between the distributions. The colors are compatible with the paired colorset
+from \pkg{RColorBrewer} \citep{RColorBrewer}. The plot was produced using the following code:
+<<distributionscode, eval=FALSE>>=
+<<distributions>>
+@
+
+
+\begin{figure}[bth]
+  \begin{center}
+  \setkeys{Gin}{width=.85\textwidth}
+<<singersasym, fig=TRUE, echo=FALSE, results=hide, height=5, width=6>>=
+par(lend = 1, mai = c(0.8, 0.8, 0.5, 0.5))
+beanplot(height ~ voice.part, data = singer, ll = 0.04,
+  main = "beanplot", ylab = "body height (inch)", side = "both",
+  border = NA, col = list("black", c("grey", "white")))
+legend("bottomleft", fill = c("black", "grey"),
+  legend = c("Group 2", "Group 1"))
+@
+%$
+\caption{\label{singersasym} An asymmetric beanplot of the singers.}
+  \end{center}
+\end{figure}
+
+\subsection{Singers}
+
+Figure~\ref{singers} shows a violin plot \citep[as produced by \pkg{vioplot},][]{vioplot}
+and a beanplot for the body heights of different singers taken from \cite{Cham1983}
+and available in the \pkg{lattice} package \citep{lattice}. While the violin plot also
+clearly shows that different groups of singers appear to have different body heights, the beanplot shows extra information. In the beanplot it is visible that the measurements are in whole inches, and that there were many singers with a height of 65 inches in group Soprano 1. Also, an indication of the number of measurements is visible. The plots were produced by using the following code:
+<<singerscode, eval=FALSE>>=
+<<singers>>
+@
+%$
+
+The dataset contains two subgroups per group, and is therefore suitable for an asymmetric version, which is shown in Figure~\ref{singersasym}. This plot was produced by the following code:
+<<singersasymcode, eval=FALSE>>=
+<<singersasym>>
+@
+
+\begin{figure}[bt]
+  \begin{center}
+  \setkeys{Gin}{width=\textwidth}
+<<orchards, fig=TRUE, echo=FALSE, height=6, width=8>>=
+beanplot(decrease ~ treatment, data = OrchardSprays, exp(rnorm(20, 3)),
+  xlab = "threatment method", ylab = "decrease in potency",
+  main = "OrchardSprays")
+@
+\caption{\label{orchards} Comparing the potency of various constituents of orchard sprays in repelling honeybees for different threatments with a normal distribution (method `1').}
+  \end{center}
+\end{figure}
+
+\subsection[Easy usage in R]{Easy usage in \proglang{R}}
+The implementation of \code{beanplot} in package \pkg{beanplot} has kept easy usage in mind. It is compatible with similar functions like \code{boxplot}, \code{stripchart}, and \code{vioplot} in package \pkg{vioplot} \citep{vioplot}. Next to that, the \pkg{beanplot} package also supports usages that are not possible with these commands. For example, it is possible to combine formulas and vectors as input data if an user wants to compare some things quickly. Therefore, the following code works if the user wants to visually compare data from a formula with a generated normal distribution:
+<<orchardscode, eval=FALSE>>=
+<<orchards>>
+@
+The results are shown in Figure~\ref{orchards}. As an additional aid to the user, a log-axis is automatically selected in this case by checking the outcomes of a \code{shapiro.test} and the user is notified about this. In case of a log-axis, the density trace is computed using a log-transformation and the geometric average is used instead of the normal average. Therefore, using \code{beanplot} with a lognormal distribution on a log-axis does not produce strange results, like the direct usage of \code{boxplot} does, which will show lots of `outliers' in this scenario.
+
+\section{Conclusions}
+
+This article showed that a beanplot is a plot that is easy to explain, and enables
+us to visually compare different batches of data. On the one end it shows a
+summary of the data, while on the other end all data points are still visible.
+Thereby, it enables us to discuss individual interesting data points. Next to
+that, it gives an indication of the number of data points, which helps when
+comparing groups with a widely varying number of data points. An implementation
+was made in \proglang{R} that keeps the user in mind and supports fast usage in
+scenarios like comparing multiple data sources and displaying exponential data.
+The \pkg{beanplot} package is available from the Comprehensive \proglang{R} Archive
+Network at \url{http://CRAN.R-project.org/package=beanplot}. 
+
+\section*{Acknowledgments}
+
+This research received full support
+by the Dutch \emph{Joint Academic and Commercial Quality Research \&
+Development (Jacquard)} program on Software Engineering Research via
+contract 638.004.405 \emph{EQUITY:  Exploring Quantifiable Information
+Technology Yields}.
+Asymmetric beanplots were suggested by an anonymous referee.
+
+\bibliography{beanplot}
+
+\end{document}

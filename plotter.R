@@ -231,6 +231,7 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
         strand_2 <- rep(".", n * 1)
         score <- matrix(objReg@counts, ncol = 1)
         score[score[,1] < minPets ] <- 0
+        print(score)
         bedPE <- data.frame(LA, RA, name, score, strand_1, strand_2, sample)
 
         w <- loopWidth(objReg)
@@ -272,8 +273,9 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
         }
         
         loplot <- recordPlot()
-        plotBedpe(bedPE, chrom, start, end, color = cs, lwd = lwd, 
-                  plottype = "loops", heights = h, lwdrange = c(0, 5), 
+        b <- which(bedPE$score != 0)
+        plotBedpe(bedPE[b,], chrom, start, end, color = cs[b], lwd = lwd[b], 
+                  plottype = "loops", heights = h[b], lwdrange = c(0, 5), 
                   main = sample, adj=0, flip = flip)
         if(showGA) labelgenome(chromchr, start, end, side = 1, scipen = 20, n = 3, scale = "Mb", line = 0.18, chromline = 0.5, scaleline = 0.5)
         return(loplot)

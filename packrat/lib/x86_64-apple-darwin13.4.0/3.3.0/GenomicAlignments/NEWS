@@ -1,0 +1,188 @@
+CHANGES IN VERSION 1.8.0
+------------------------
+
+NEW FEATURES
+
+    o Add coercion from GAlignments or GAlignmentPairs to DataFrame, and from
+      GAlignmentsList to GAlignmentPairs.
+
+SIGNIFICANT USER-LEVEL CHANGES
+
+    o Use DESeq2 instead of DESeq in summarizeOverlaps examples (better late
+      than never).
+
+DEPRECATED AND DEFUNCT
+
+    o After being deprecated in BioC 3.2, the left() and right() getters and
+      strand() setter for GAlignmentPairs objects are now defunct.
+
+    o After being deprecated in BioC 3.2, the 'invert.strand' argument of the
+      first() and last() getters for GAlignmentPairs objects are now defunct.
+
+    o After being deprecated in BioC 3.2, the 'order.as.in.query' argument of
+      the "grglist" method for GAlignmentPairs objects is now defunct.
+
+    o After being deprecated in BioC 3.2, the 'order.as.in.query' argument of
+      the "rglist" and "grglist" methods for GAlignmentsList objects are now
+      defunct.
+
+    o Remove the "mapCoords" and "pmapCoords" methods (were defunct in BioC
+      3.2).
+
+    o Remove the readGAlignment*FromBam() functions (were defunct in BioC 3.2).
+
+BUG FIXES
+
+    o seqnames() setter for GAlignments objects is now consistent with
+      seqnames() setter for GRanges objects.
+
+
+CHANGES IN VERSION 1.6.0
+------------------------
+
+NEW FEATURES
+
+    o Add strandMode() getter and setter for GAlignmentPairs objects in
+      response to the following post:
+
+        https://support.bioconductor.org/p/65844/
+
+      See ?strandMode for more information.
+
+    o The readGAlignment*() functions now allow repeated seqnames in the BAM
+      header.
+
+    o Add "coverage" method for GAlignmentsList objects.
+
+    o The strand setter now works on a GAlignmentsList object in a restricted
+      way (only strand(x) <- "+" or "-" or "*" is supported).
+
+SIGNIFICANT USER-LEVEL CHANGES
+
+    o summarizeOverlaps() now returns a RangedSummarizedExperiment object
+      (defined in the new SummarizedExperiment package) instead of an "old"
+      SummarizedExperiment object (defined in the GenomicRanges package).
+
+    o Slightly modify the behavior of junctions() on a GAlignmentPairs object
+      so that the returned ranges now have the "real strand" set on them.
+      See ?junctions and the documentation of the 'real.strand' argument in
+      the man page of GAlignmentPairs objects for more information.
+
+    o Add 'real.strand' argument to first() and last() getters for
+      GAlignmentPairs objects.
+
+DEPRECATED AND DEFUNCT
+
+    o Deprecate left() and right() getters and strand() setter for
+      GAlignmentPairs objects.
+
+    o Deprecate 'invert.strand' argument of first() and last() getters for
+      GAlignmentPairs objects.
+
+    o Deprecate 'order.as.in.query' argument of "grglist" method for
+      GAlignmentPairs objects.
+
+    o Deprecate 'order.as.in.query' argument in "rglist" method for
+      GAlignmentsList objects (this concept is not defined for these objects
+      in general and the argument was ignored anyway).
+
+    o After being deprecated in BioC 3.1, the "mapCoords" and "pmapCoords"
+      methods are now defunct. mapToAlignments() should be used instead.
+
+    o After being deprecated in BioC 3.1, the readGAlignment*FromBam()
+      functions are now defunct. Everybody says "Let's all use the
+      readGAlignment*() functions instead! (no FromBam suffix). Yeah!"
+
+BUG FIXES
+
+    o Various fixes to grglist/granges/rglist/ranges methods for
+      GAlignmentsList objects:
+      - Respect cigar information (as claimed in man page).
+      - Restore 'drop.D.ranges' argument in "grglist" method (mistakenly got
+        deprecated at the beginning of BioC 3.2 devel cycle).
+      - The 'drop.D.ranges' argument in "rglist" method now works (was
+        ignored).
+      - Handle empty list elements.
+
+
+CHANGES IN VERSION 1.4.0
+------------------------
+
+NEW FEATURES
+
+    o All "findOverlaps" methods now support 'select' equal "last" or
+      "arbitrary" (in addition to "all" and "first").
+
+SIGNIFICANT USER-LEVEL CHANGES
+
+    o Add mapToAlignments(), pmapToAlignments(), mapFromAlignments(), and
+      pmapFromAlignments() as replacements for the "mapCoords" and "pmapCoords"
+      methods for GAlignments objects.
+
+    o Clarify use of 'fragments' in summarizeOverlaps() man page.
+
+    o Tweak "show" method for GAlignments objects to display a shorter
+      version of long CIGARs.
+
+    o Add checks and more helpful error message for summarizeOverlaps() when
+      "file does not exist"
+
+DEPRECATED AND DEFUNCT
+
+    o Deprecated readGAlignment*FromBam() functions in favor of 
+      readGAlignments(), readGAlignmentPairs(), readGAlignmentsList() and
+      readGappedReads().
+
+    o Deprecated "mapCoords" and "pmapCoords" methods.
+
+    o Removed Lngap(), Rngap(), introns(), and
+      makeGAlignmentsListFromFeatureFragments() functions, and "ngap", "map",
+      "pmap", and "splitAsListReturnedClass" methods (were defunct in
+      GenomicAlignments 1.2.0).
+
+BUG FIXES
+
+    o Fix off-by-one error when processing 'S' in query_locs_to_ref_locs().
+
+
+CHANGES IN VERSION 1.2.0
+------------------------
+
+NEW FEATURES
+
+    o Add 'preprocess.reads' argument to "summarizeOverlaps" methods.
+
+    o Add alphabetFrequencyFromBam().
+
+SIGNIFICANT USER-LEVEL CHANGES
+
+    o Export GappedReads() constructor.
+
+    o coverage,Bamfile-method now returns empty RleList rather than NULL 
+
+    o Add "mapCoords" and "pmapCoords" methods.
+
+    o Defunct "map" and "pmap" methods (skip deprecation).
+
+BUG FIXES
+
+    o Bug fix in flipQuery().
+
+    o Fix issue with "show" method for GAlignments and GAlignmentPairs objects
+      when 'showHeadLines' global option is set to Inf.
+
+
+CHANGES IN VERSION 1.0.0
+------------------------
+
+The first version of GenomicAlignments was included in Bioconductor 2.14. 
+The package was created from existing code in IRanges, ShortRead, 
+Rsamtools and GenomicRanges. 
+
+NEW FEATURES
+
+    o coverage,BamFile-method uses \code{yieldSize} to iterate through 
+      large files
+
+    o coverage,character-method calculates coverage from a BAM file
+

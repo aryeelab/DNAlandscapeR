@@ -1,0 +1,111 @@
+import(methods)
+importFrom(utils, read.delim)
+importFrom(stats, setNames)
+import(BiocGenerics)
+import(S4Vectors)
+import(IRanges)
+import(GenomeInfoDb)
+import(GenomicRanges)
+import(Biobase)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 classes
+###
+
+exportClasses(
+    Assays, ShallowData, ShallowSimpleListAssays,
+    SummarizedExperiment, SummarizedExperiment0,
+    RangedSummarizedExperiment
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 methods for generics not defined in SummarizedExperiment
+###
+
+exportMethods(
+    length, names, "names<-",
+    dim, dimnames, "dimnames<-",
+    "[", "[<-", "[[", "[[<-", "$", "$<-",
+    as.data.frame,
+    coerce,
+    show,
+    c,
+    merge,
+    Compare,
+
+    ## Generics defined in BiocGenerics:
+    cbind, rbind,
+    duplicated, match,
+    is.unsorted, order, rank, sort,
+    start, "start<-", end, "end<-", width, "width<-",
+    strand, "strand<-",
+    updateObject,
+
+    ## Generics defined in S4Vectors:
+    "metadata<-",
+    mcols, "mcols<-",
+    elementMetadata, "elementMetadata<-",
+    values, "values<-",
+    extractROWS, replaceROWS,
+    subset,
+    pcompare,
+
+    ## Generics defined in IRanges:
+    ranges, "ranges<-",
+    shift, narrow, resize, flank, promoters, restrict, trim,
+    isDisjoint, disjointBins,
+    coverage,
+    findOverlaps,
+    precede, follow, nearest, distance, distanceToNearest,
+
+    ## Generics defined in GenomeInfoDb:
+    seqinfo, "seqinfo<-",
+    seqnames, "seqnames<-"
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export non-generic functions
+###
+
+export(
+    Assays,
+    .DollarNames.SummarizedExperiment,
+    makeSummarizedExperimentFromExpressionSet,
+    naiveRangeMapper, probeRangeMapper, geneRangeMapper,
+    readKallisto, readKallistoBootstrap, KALLISTO_ASSAYS
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 generics defined in SummarizedExperiment + export corresponding
+### methods
+###
+
+export(
+    arbind, acbind,
+    SummarizedExperiment,
+    exptData, "exptData<-",
+    rowRanges, "rowRanges<-",
+    rowData, "rowData<-",
+    colData, "colData<-",
+    assayNames, "assayNames<-",
+    assays, "assays<-",
+    assay, "assay<-"
+)
+
+### Exactly the same list as above.
+exportMethods(
+    arbind, acbind,
+    SummarizedExperiment,
+    exptData, "exptData<-",
+    rowRanges, "rowRanges<-",
+    rowData, "rowData<-",
+    colData, "colData<-",
+    assayNames, "assayNames<-",
+    assays, "assays<-",
+    assay, "assay<-"
+)
+

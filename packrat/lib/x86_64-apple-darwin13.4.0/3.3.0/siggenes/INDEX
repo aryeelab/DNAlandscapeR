@@ -1,0 +1,42 @@
+EBAM-class              Class EBAM
+FindA0-class            Class FindA0
+SAM-class               Class SAM
+chisq.ebam              EBAM Analysis for Categorical Data
+chisq.stat              SAM Analysis for Categorical Data
+d.stat                  SAM Analysis Using a Modified t-statistic
+delta.plot              Delta Plots
+denspr                  Density Estimation
+ebam                    Empirical Bayes Analysis of Microarrays
+ebamControl             Further EBAM Arguments
+find.a0                 Computation of the Fudge Factor
+findDelta               Finding the Threshold Delta
+fudge2                  Fudge Factor
+fuzzy.ebam              EBAM and SAM for Fuzzy Genotype Calls
+help.ebam               Help files or argument list for EBAM-specific
+                        methods
+help.finda0             Help files or argument list for FindA0-specific
+                        methods
+help.sam                Help files or argument list for SAM-specific
+                        methods
+limma2sam               limma to SAM or EBAM
+link.genes              Links for a list of genes
+link.siggenes           Links for a SAM or an EBAM object
+list.siggenes           List of the significant genes
+md.plot                 MD Plot
+nclass.wand             Number of cells in a histogram
+pi0.est                 Estimation of the prior probability
+plotArguments           Plot Arguments
+plotFindArguments       Plot Arguments
+qvalue.cal              Computation of the q-value
+rowWilcoxon             Rowwise Wilcoxon Rank Sum Statistics
+sam                     Significance Analysis of Microarray
+sam.plot2               SAM Plot
+samControl              Further SAM Arguments
+siggenes2excel          CSV file of a SAM or an EBAM object
+siggenes2html           HTML page for a SAM or an EBAM object
+sumSAM-class            Classes sumSAM and sumEBAM
+trend.ebam              EBAM Analysis of Linear Trend
+trend.stat              SAM Analysis of Linear Trend
+wilc.ebam               EBAM Analysis Using Wilcoxon Rank Statistics
+wilc.stat               SAM Analysis Using Wilcoxon Rank Statistics
+z.ebam                  EBAM analysis Using t- or F-test

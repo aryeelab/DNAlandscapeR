@@ -1,0 +1,17 @@
+GDS-class               Class "GDS"
+GDS2MA                  Convert a GDS data structure to a BioConductor
+                        data structure
+GEOData-class           Class "GEOData"
+GEODataTable-class      Class "GEODataTable"
+GPL-class               Class "GPL"
+GSE-class               Class "GSE"
+GSM-class               Class "GSM"
+dataTable               Generic functions for GEOquery
+getGEO                  Get a GEO object from NCBI or file
+getGEOSuppFiles         Get Supplemental Files from GEO
+getGEOfile              Download a file from GEO soft file to the local
+                        machine
+getGSEDataTables        Get GSE data tables from GEO into R data
+                        structures.
+gunzip                  Gunzip a file
+parseGEO                Parse GEO text

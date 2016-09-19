@@ -1,0 +1,27 @@
++,sparseHiCdatum,sparseHiCdatum-method
+                        Combining together multiple Hi-C Samples
+HiCPro2DNAlandscapeR    Export DNAlandscapeR files straight from HiC
+                        Pro Output
+IMR90datum1             IMR90 Sample
+exportDNAlandscapeR     Export sparseHiCdatum to DNAlandscapeR files
+geneinfo                Human/mouse exon locations
+getChromosome           Grab a specific chromosome
+getHiCMatrix            Grab a specific sparse Hi-C matrix
+getHiCcolor             Get a color ramp for plotting
+getResolution           Grab a sample's specific resolution
+getSampleFromBucket     Import HiC Sample from AWS Bucket
+getSamplesFromBucket    Import multiple Hi-C samples from AWS Bucket
+hESCdata                hESC Samples
+hESCdatum1              hESC1 Sample
+hESCdatum2              hESC2 Sample
+import.HiCPro           Compress Hi-C Pro output data
+import.HiCPro.full      Compress all Hi-C Pro output data, including
+                        interchromosomal interactions
+plotHiC                 Plot HiC samples
+samplesInBucket         List Available Hi-C Samples from an AWS Bucket
+sparseHiC               sparseHiC: Efficient parallelized compression
+                        of Hi-C Data
+sparseHiCdata-class     A class to Hi-C data from multiple samples;
+                        collection of the sparseHiCdatum objects
+sparseHiCdatum-class    A class to Hi-C data from a single sample but
+                        multiple resolutions

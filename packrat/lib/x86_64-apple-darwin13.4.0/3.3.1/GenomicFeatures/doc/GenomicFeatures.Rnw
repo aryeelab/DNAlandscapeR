@@ -1,0 +1,527 @@
+%\VignetteIndexEntry{Making and Utilizing TxDb Objects}
+%\VignetteDepends{GenomicFeatures,TxDb.Hsapiens.UCSC.hg19.knownGene,BSgenome.Hsapiens.UCSC.hg19}
+%\VignetteKeywords{annotation, database}
+%\VignettePackage{GenomicFeatures}
+%\VignetteEngine{knitr::knitr}
+
+\documentclass[11pt]{article}
+
+<<style, eval=TRUE, echo=FALSE, results='asis'>>=
+BiocStyle::latex()
+@
+
+%% Question, Exercise, Solution
+\usepackage{theorem}
+\theoremstyle{break}
+\newtheorem{Ext}{Exercise}
+\newtheorem{Question}{Question}
+
+
+\newenvironment{Exercise}{
+  \renewcommand{\labelenumi}{\alph{enumi}.}\begin{Ext}%
+}{\end{Ext}}
+\newenvironment{Solution}{%
+  \noindent\textbf{Solution:}\renewcommand{\labelenumi}{\alph{enumi}.}%
+}{\bigskip}
+
+
+\title{Making and Utilizing TxDb Objects}
+\author{Marc Carlson, Patrick Aboyoun, Hervé Pagès, Seth Falcon, Martin Morgan}
+
+
+\begin{document}
+
+\maketitle
+
+
+\section{Introduction}
+
+The \Rpackage{GenomicFeatures} package retrieves and manages
+transcript-related features from the UCSC Genome
+Bioinformatics\footnote{\url{http://genome.ucsc.edu/}} and
+BioMart\footnote{\url{http://www.biomart.org/}} data resources. The
+package is useful for ChIP-chip, ChIP-seq, and RNA-seq analyses.
+
+<<loadGenomicFeatures>>=
+library("GenomicFeatures")
+@
+
+
+
+\section{\Rclass{TxDb} Objects}
+
+The \Rpackage{GenomicFeatures} package uses \Rclass{TxDb}
+objects to store transcript metadata. This class maps the 5' and 3'
+untranslated regions (UTRs), protein coding sequences (CDSs) and exons
+for a set of mRNA transcripts to their associated
+genome. \Rclass{TxDb} objects have numerous accessors functions to
+allow such features to be retrieved individually or grouped together
+in a way that reflects the underlying biology.
+
+All \Rclass{TxDb} objects are backed by a SQLite database that
+manages genomic locations and the relationships between pre-processed
+mRNA transcripts, exons, protein coding sequences, and their related
+gene identifiers.
+
+
+\section{Retrieving Data from \Rclass{TxDb} objects}
+
+
+\subsection{Loading Transcript Data}
+
+There are two ways that users can load pre-existing data to generate a
+\Rclass{TxDb} object.  One method is to use the
+\Rfunction{loadDb} method to load the object directly from an
+appropriate .sqlite database file.
+
+Here we are loading a previously created \Rclass{TxDb} object
+based on UCSC known gene data.  This database only contains a small
+subset of the possible annotations for human and is only included to
+demonstrate and test the functionality of the
+\Rpackage{GenomicFeatures} packageas a demonstration.
+
+<<loadDb>>=
+samplefile <- system.file("extdata", "hg19_knownGene_sample.sqlite",
+                          package="GenomicFeatures")
+txdb <- loadDb(samplefile)
+txdb
+@
+
+In this case, the \Rclass{TxDb} object has been returned by
+the \Rfunction{loadDb} method.
+
+
+More commonly however, we expect that users will just load a
+TxDb annotation package like this:
+
+<<loadPackage>>=
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene #shorthand (for convenience)
+txdb
+@
+
+Loading the package like this will also create a \Rclass{TxDb}
+object, and by default that object will have the same name as the
+package itself.
+
+
+
+
+
+\subsection{Pre-filtering data based on Chromosomes}
+It is possible to filter the data that is returned from a
+\Rclass{TxDb} object based on it's chromosome.  This can be a
+useful way to limit the things that are returned if you are only
+interested in studying a handful of chromosomes.
+
+
+To determine which chromosomes are currently active, use the
+\Rfunction{seqlevels} method.  For example:
+
+<<seqlevels>>=
+head(seqlevels(txdb))
+@ 
+
+Will tell you all the chromosomes that are active for the
+TxDb.Hsapiens.UCSC.hg19.knownGene \Rclass{TxDb} object (by
+default it will be all of them).
+
+If you then wanted to only set Chromosome 1 to be active you could do
+it like this:
+<<seqlevels2>>=
+seqlevels(txdb) <- "chr1"
+@ 
+
+So if you ran this, then from this point on in your R session only
+chromosome 1 would be consulted when you call the various retrieval
+methods...  If you need to reset back to the original seqlevels (i.e.
+to the seqlevels stored in the db), then set the seqlevels to
+\Rcode{seqlevels0(txdb)}.
+<<seqlevels3>>=
+seqlevels(txdb) <- seqlevels0(txdb)
+@ 
+
+
+\begin{Exercise}
+Use \Rfunction{seqlevels} to set only chromsome 15 to be active.  BTW,
+the rest of this vignette will assume you have succeeded at this.
+\end{Exercise}
+\begin{Solution}
+<<seqlevels4>>=
+seqlevels(txdb) <- "chr15"
+@
+\end{Solution}
+
+
+
+\subsection{Retrieving data using the select method}
+
+The \Rclass{TxDb} objects inherit from \Rclass{AnnotationDb}
+objects (just as the \Rclass{ChipDb} and \Rclass{OrgDb} objects do).
+One of the implications of this relationship is that these object
+ought to be used in similar ways to each other.  Therefore we have
+written supporting \Rfunction{columns}, \Rfunction{keytypes}, \Rfunction{keys}
+and \Rfunction{select} methods for \Rclass{TxDb} objects.
+
+These methods can be a useful way of extracting data from a
+\Rclass{TxDb} object.  And they are used in the same way that
+they would be used to extract information about a \Rclass{ChipDb} or
+an \Rclass{OrgDb} object.  Here is a simple example of how to find the
+UCSC transcript names that match with a set of gene IDs.
+
+<<selectExample>>=
+keys <- c("100033416", "100033417", "100033420")
+columns(txdb)
+keytypes(txdb)
+select(txdb, keys = keys, columns="TXNAME", keytype="GENEID")
+@ 
+
+\begin{Exercise}
+For the genes in the example above, find the chromosome and strand
+information that will go with each of the transcript names.
+\end{Exercise}
+\begin{Solution}
+<<selectExercise>>=
+columns(txdb)
+cols <- c("TXNAME", "TXSTRAND", "TXCHROM")
+select(txdb, keys=keys, columns=cols, keytype="GENEID")
+@
+\end{Solution}
+
+
+
+%% TODO: add exercises to the sections that follow
+
+\subsection{Methods for returning \Rclass{GRanges} objects}
+
+Retrieving data with select is useful, but sometimes it is more
+convenient to extract the result as \Rclass{GRanges} objects.  This is
+often the case when you are doing counting or specialized overlap
+operations downstream.  For these use cases there is another family of
+methods available.
+
+Perhaps the most common operations for a \Rclass{TxDb} object
+is to retrieve the genomic coordinates or \textit{ranges} for exons,
+transcripts or coding sequences.  The functions
+\Rfunction{transcripts}, \Rfunction{exons}, and \Rfunction{cds} return
+the coordinate information as a \Rclass{GRanges} object.
+
+As an example, all transcripts present in a \Rclass{TxDb} object
+can be obtained as follows:
+
+<<transcripts1>>=
+GR <- transcripts(txdb)
+GR[1:3]
+@
+
+The \Rfunction{transcripts} function returns a \Rclass{GRanges} class
+object.  You can learn a lot more about the manipulation of these
+objects by reading the \Rpackage{GenomicRanges} introductory
+vignette.  The \Rfunction{show} method for a \Rclass{GRanges} object
+will display the ranges, seqnames (a chromosome or a contig), and
+strand on the left side and then present related metadata on the right
+side.  At the bottom, the seqlengths display all the possible seqnames
+along with the length of each sequence.
+
+
+In addition, the \Rfunction{transcripts} function can also be used to
+retrieve a subset of the transcripts available such as those on the
+$+$-strand of chromosome 1.
+
+<<transcripts2>>=
+GR <- transcripts(txdb, filter=list(tx_chrom = "chr15", tx_strand = "+"))
+length(GR)
+unique(strand(GR))
+@
+
+The \Rfunction{exons} and \Rfunction{cds} functions can also be used
+in a similar fashion to retrive genomic coordinates for exons and
+coding sequences.
+
+\begin{Exercise}
+Use \Rfunction{exons} to retrieve all the exons from chromosome 15.
+How does the length of this compare to the value returned by
+\Rfunction{transcripts}?
+\end{Exercise}
+\begin{Solution}
+<<exonsExer1>>=
+EX <- exons(txdb)
+EX[1:4]
+length(EX)
+length(GR)
+@
+\end{Solution}
+
+
+\subsection{Working with Grouped Features}
+
+Often one is interested in how particular genomic features relate to
+each other, and not just their location.  For example, it might be of
+interest to group transcripts by gene or to group exons by transcript.
+Such groupings are supported by the \Rfunction{transcriptsBy},
+\Rfunction{exonsBy}, and \Rfunction{cdsBy} functions.
+
+The following call can be used to group transcripts by genes:
+
+<<transcriptsBy>>=
+GRList <- transcriptsBy(txdb, by = "gene")
+length(GRList)
+names(GRList)[10:13]
+GRList[11:12]
+@
+
+The \Rfunction{transcriptsBy} function returns a \Rclass{GRangesList}
+class object.  As with \Rclass{GRanges} objects, you can learn more
+about these objects by reading the \Rpackage{GenomicRanges}
+introductory vignette.  The \Rfunction{show} method for a
+\Rclass{GRangesList} object will display as a list of \Rclass{GRanges}
+objects.  And, at the bottom the seqlengths will be displayed once for
+the entire list.
+
+For each of these three functions, there is a limited set of options
+that can be passed into the \Rcode{by} argument to allow grouping.
+For the \Rfunction{transcriptsBy} function, you can group by gene,
+exon or cds, whereas for the \Rfunction{exonsBy} and \Rfunction{cdsBy}
+functions can only be grouped by transcript (tx) or gene.
+
+
+So as a further example, to extract all the exons for each transcript
+you can call:
+
+<<exonsBy>>=
+GRList <- exonsBy(txdb, by = "tx")
+length(GRList)
+names(GRList)[10:13]
+GRList[[12]]
+@
+
+As you can see, the \Rclass{GRangesList} objects returned from each
+function contain locations and identifiers grouped into a list like
+object according to the type of feature specified in the \Rcode{by}
+argument. The object returned can then be used by functions like
+\Rfunction{findOverlaps} to contextualize alignments from
+high-throughput sequencing.
+
+The identifiers used to label the \Rclass{GRanges} objects depend upon
+the data source used to create the \Rclass{TxDb} object.  So
+the list identifiers will not always be Entrez Gene IDs, as they were
+in the first example.  Furthermore, some data sources do not provide a
+unique identifier for all features.  In this situation, the group
+label will be a synthetic ID created by \Rpackage{GenomicFeatures} to
+keep the relations between features consistent in the database this
+was the case in the 2nd example.  Even though the results will
+sometimes have to come back to you as synthetic IDs, you can still
+always retrieve the original IDs.  
+
+
+\begin{Exercise}
+Starting with the tx\_ids that are the names of the GRList object we
+just made, use \Rfunction{select} to retrieve that matching transcript
+names.  Remember that the list used a \Rcode{by} argument = "tx", so
+the list is grouped by transcript IDs.
+\end{Exercise}
+\begin{Solution}
+<<internalID>>=
+GRList <- exonsBy(txdb, by = "tx")
+tx_ids <- names(GRList)
+head(select(txdb, keys=tx_ids, columns="TXNAME", keytype="TXID"))
+@ 
+\end{Solution}
+
+
+Finally, the order of the results in a \Rclass{GRangesList} object can
+vary with the way in which things were grouped. In most cases the
+grouped elements of the \Rclass{GRangesList} object will be listed in
+the order that they occurred along the chromosome.  However, when
+exons or CDS are grouped by transcript, they will instead be grouped
+according to their position along the transcript itself.  This is
+important because alternative splicing can mean that the order along
+the transcript can be different from that along the chromosome.
+
+
+\subsection{Predefined grouping functions}
+
+The \Rfunction{intronsByTranscript}, \Rfunction{fiveUTRsByTranscript}
+and \Rfunction{threeUTRsByTranscript} are convenience functions that
+provide behavior equivalent to the grouping functions, but in
+prespecified form. These functions return a \Rclass{GRangesList}
+object grouped by transcript for introns, 5' UTR's, and 3' UTR's,
+respectively.  Below are examples of how you can call these methods.
+
+<<introns-UTRs>>=
+length(intronsByTranscript(txdb))
+length(fiveUTRsByTranscript(txdb))
+length(threeUTRsByTranscript(txdb))
+@
+
+
+
+
+
+\subsection{Getting the actual sequence data}
+
+The \Rpackage{GenomicFeatures} package also provides provides
+functions for converting from ranges to actual sequence (when paired
+with an appropriate \Rpackage{BSgenome} package).
+
+
+<<extract>>=
+library(BSgenome.Hsapiens.UCSC.hg19)
+tx_seqs1 <- extractTranscriptSeqs(Hsapiens, TxDb.Hsapiens.UCSC.hg19.knownGene,
+                                  use.names=TRUE)
+@
+
+And, once these sequences have been extracted, you can translate them
+into proteins with \Rfunction{translate}:
+
+<<translate1>>=
+suppressWarnings(translate(tx_seqs1))
+@ 
+
+\begin{Exercise}
+But of course this is not a meaningful translation, because the call
+to \Rfunction{extractTranscriptSeqs} will have extracted all
+the transcribed regions of the genome regardless of whether or not
+they are translated. Look at the manual page for
+\Rfunction{extractTranscriptSeqs} and see how you can use cdsBy
+to only translate only the coding regions.
+\end{Exercise}
+\begin{Solution}
+<<betterTranslation>>=
+cds_seqs <- extractTranscriptSeqs(Hsapiens,
+                                  cdsBy(txdb, by="tx", use.names=TRUE))
+translate(cds_seqs)
+@ 
+\end{Solution}
+
+
+
+\section{Creating New \Rclass{TxDb} Objects or Packages}
+
+The \Rpackage{GenomicFeatures} package provides functions to create
+\Rclass{TxDb} objects based on data downloaded from UCSC
+Genome Bioinformatics or BioMart. The following subsections
+demonstrate the use of these functions.  There is also support for
+creating \Rclass{TxDb} objects from custom data sources using
+\Rfunction{makeTxDb}; see the help page for this function for
+details.
+
+\subsection{Using \Rfunction{makeTxDbFromUCSC}}
+
+The function \Rfunction{makeTxDbFromUCSC} downloads UCSC
+Genome Bioinformatics transcript tables (e.g. \Rcode{"knownGene"},
+\Rcode{"refGene"}, \Rcode{"ensGene"}) for a genome build (e.g.
+\Rcode{"mm9"}, \Rcode{"hg19"}).  Use the
+\Rfunction{supportedUCSCtables} utility function to get the list of
+supported tables.
+%%
+<<supportedUCSCtables>>=
+supportedUCSCtables()[1:4, ]
+@
+<<makeTxDbFromUCSC, eval=FALSE>>=
+mm9KG <- makeTxDbFromUCSC(genome = "mm9", tablename = "knownGene")
+@
+
+The function \Rfunction{makeTxDbFromUCSC} also takes an
+important argument called \Robject{circ\_seqs} to label which
+chromosomes are circular.  The argument is a character vector of
+strings that correspond to the circular chromosomes (as labeled by the
+source).  To discover what the source calls their chromosomes, use the
+\Rfunction{getChromInfoFromUCSC} function to list them.  By default,
+there is a supplied character vector that will attempt to label all
+the mitochondrial chromosomes as circular by matching to them.  This
+is the \Robject{DEFAULT\_CIRC\_SEQS} vector.  It contains strings that
+usually correspond to mitochondrial chromosomes.  Once the database
+has been generated with the circular chromosomes tagged in this way,
+all subsequent analysis of these chromosomes will be able to consider
+their circularity for analysis.  So it is important for the user to
+make sure that they pass in the correct strings to the
+\Robject{circ\_seqs} argument to ensure that the correct sequences are
+tagged as circular by the database.
+
+<<discoverChromNames>>=
+head(getChromInfoFromUCSC("hg19"))
+@ 
+
+\subsection{Using \Rfunction{makeTxDbFromBiomart}}
+
+Retrieve data from BioMart by specifying the mart and the data set to
+the \Rfunction{makeTxDbFromBiomart} function (not all BioMart
+data sets are currently supported):
+%%
+<<makeTxDbFromBiomart, eval=FALSE>>=
+mmusculusEnsembl <- makeTxDbFromBiomart(dataset="mmusculus_gene_ensembl")
+@
+
+As with the \Rfunction{makeTxDbFromUCSC} function, the
+\Rfunction{makeTxDbFromBiomart} function also has a
+\Robject{circ\_seqs} argument that will default to using the contents
+of the \Robject{DEFAULT\_CIRC\_SEQS} vector.  And just like those UCSC
+sources, there is also a helper function called
+\Rfunction{getChromInfoFromBiomart} that can show what the different
+chromosomes are called for a given source.
+
+Using the \Rfunction{makeTxDbFromBiomart}
+\Rfunction{makeTxDbFromUCSC} functions can take a while and
+may also require some bandwidth as these methods have to download and
+then assemble a database from their respective sources.  It is not
+expected that most users will want to do this step every time.
+Instead, we suggest that you save your annotation objects and label
+them with an appropriate time stamp so as to facilitate reproducible
+research.
+
+
+\subsection{Using \Rfunction{makeTxDbFromGFF}}
+
+You can also extract transcript information from either GFF3 or GTF
+files by using the \Rfunction{makeTxDbFromGFF} function.
+Usage is similar to \Rfunction{makeTxDbFromBiomart} and
+\Rfunction{makeTxDbFromUCSC}.  
+
+
+\subsection{Saving and Loading a \Rclass{TxDb} Object}
+
+Once a \Rclass{TxDb} object has been created, it can be saved
+to avoid the time and bandwidth costs of recreating it and to make it
+possible to reproduce results with identical genomic feature data at a
+later date.  Since \Rclass{TxDb} objects are backed by a
+SQLite database, the save format is a SQLite database file (which
+could be accessed from programs other than \R if desired).  Note that
+it is not possible to serialize a \Rclass{TxDb} object using
+\R's \Rfunction{save} function.
+
+<<saveDb-1, eval=FALSE>>=
+saveDb(mm9KG, file="fileName.sqlite")
+@
+
+And as was mentioned earlier, a saved \Rclass{TxDb} object can
+be initialized from a .sqlite file by simply using \Rfunction{loadDb}.
+
+<<loadDb-1, eval=FALSE>>=
+mm9KG <- loadDb("fileName.sqlite")
+@
+
+
+\subsection{Using \Rfunction{makeTxDbPackageFromUCSC} and
+    \Rfunction{makeTxDbPackageFromBiomart}}
+
+It is often much more convenient to just make an annotation package
+out of your annotations.  If you are finding that this is the case,
+then you should consider the convenience functions:
+\Rfunction{makeTxDbPackageFromUCSC} and
+\Rfunction{makeTxDbPackageFromBiomart}.  These functions are similar
+to \Rfunction{makeTxDbFromUCSC} and
+\Rfunction{makeTxDbFromBiomart} except that they will take the
+extra step of actually wrapping the database up into an annotation
+package for you.  This package can then be installed and used as of
+the standard TxDb packages found on in the Bioconductor
+repository.
+
+
+\section{Session Information}
+
+<<SessionInfo, echo=FALSE>>=
+sessionInfo()
+@
+
+\end{document}

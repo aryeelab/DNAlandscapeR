@@ -1,0 +1,42 @@
+Package: sparseHiC
+Type: Package
+Title: Efficient compression and analysis of Hi-C Data
+Version: 0.4.0
+Date: 2016-09-05
+Authors@R: c( person("Caleb", "Lareau", email =
+    "caleblareau@g.harvard.edu", role = c("aut", "cre")),
+    person("Martin", "Aryee", email = "aryee.martin@mgh.harvard.edu",
+    role = "aut") )
+Maintainer: Caleb Lareau <caleblareau@g.harvard.edu>
+Author: Caleb Lareau [aut, cre], Martin Aryee [aut]
+Description: A set of functions to compress output from common Hi-C
+    pre-processing tools and transforming them into efficient sparse
+    matrices for further downstream analyses, including visualization,
+    library normalization, differential boundary calls, etc.
+Imports: methods, BiocGenerics, BiocParallel, colorRamps,
+    GenomicRanges, gsubfn, Matrix, RCurl, readr, reshape2, Sushi, utils
+License: MIT + file LICENSE
+LazyData: TRUE
+Suggests: knitr, rmarkdown, testthat, processedHiCdata
+VignetteBuilder: knitr
+RoxygenNote: 5.0.1
+biocViews: Preprocessing, QualityControl, Visualization, DataImport,
+    DataRepresentation, GO
+NeedsCompilation: no
+Collate: 'sparseHiC.R' 'sparseHiC-class.R' 'coreHelp.R'
+    'coreCompress.R' 'hicpro.R' 'toDNAlandscapeR.R' 'AWS.R'
+    'primitive.R' 'HiCPlotter.R' 'access.R' 'data.R'
+Built: R 3.3.1; ; 2016-09-09 01:52:11 UTC; unix
+RemoteType: github
+RemoteHost: https://api.github.com
+RemoteRepo: sparseHiC
+RemoteUsername: aryeelab
+RemoteRef: master
+RemoteSha: 7ed44596b6b6b51d97bfbd7d28b7baeb4e453bb5
+GithubRepo: sparseHiC
+GithubUsername: aryeelab
+GithubRef: master
+GithubSHA1: 7ed44596b6b6b51d97bfbd7d28b7baeb4e453bb5
+InstallAgent: packrat 0.4.8.1
+InstallSource: github
+Hash: c29acd3e037ec3754b4be0c0e7bfa364

@@ -1,0 +1,18 @@
+citHeader("To cite beanplot in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Beanplot: A Boxplot Alternative for Visual Comparison of Distributions",
+  author       = personList(as.person("Peter Kampstra")),
+  journal      = "Journal of Statistical Software, Code Snippets",
+  year         = "2008",
+  volume       = "28",
+  number       = "1",
+  pages        = "1--9",
+  url          = "http://www.jstatsoft.org/v28/c01/",
+
+  textVersion  =
+  paste("Peter Kampstra (2008).",
+        "Beanplot: A Boxplot Alternative for Visual Comparison of Distributions.",
+        "Journal of Statistical Software, Code Snippets 28(1). 1-9.",
+        "URL http://www.jstatsoft.org/v28/c01/.")
+)
