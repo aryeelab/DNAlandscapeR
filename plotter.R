@@ -294,7 +294,13 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
 
 # bigwig.bumpPlot is used for methylation
 bigwig.bumpPlot <- function(file, region, shade = TRUE, sample, showGA, smoother, FUN, smoothBool, flip, datadl){
-    region.bed <- import.bw(file, which = addchr(region))
+        region.bed <- import.bw(file, which = addchr(region))
+    
+    # If the bigwig wasn't annotated with "chr", fix it. 
+    if(length(region.bed) == 0){
+        region.bed <- import.bw(file, which = region)
+        region.bed <- addchr(region.bed)
+    }
     
     if(smoothBool){
         tile <- unlist(tile(addchr(region), width = smoother)) 
@@ -350,7 +356,14 @@ bigwig.bumpPlot <- function(file, region, shade = TRUE, sample, showGA, smoother
 # bigwig.trackplot is used for most epigenetic peaks
 bigwig.trackplot <- function(file, region, smoother, datadl, FUN, ylab, sample, log2, flip, showGA){
     region.bed <- import.bw(file, which = addchr(region))
-    # smooth
+    
+    # If the bigwig wasn't annotated with "chr", fix it. 
+    if(length(region.bed) == 0){
+        region.bed <- import.bw(file, which = region)
+        region.bed <- addchr(region.bed)
+    }
+    
+    
     if(smoother != 0){
         tile <- unlist(tile(addchr(region), width = smoother)) 
         ovl <- findOverlaps(tile, region.bed)

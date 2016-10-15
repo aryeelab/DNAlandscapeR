@@ -136,8 +136,6 @@ where the specified .argsfile that corresponds to this particular sample follows
 ```
 bowtieref         = ~/bowtie_index/hg19/hg19
 bedtoolsgenome    = ~/bedtoolsgenome/human.hg19.genome
-LinkerA           = GGCCGCGATATCGGATCCAAC
-LinkerB           = GGCCGCGATATATGATCCAAC
 chromexclude      = chrM,chrY
 verboseoutput     = FALSE
 reportallpairs    = TRUE
