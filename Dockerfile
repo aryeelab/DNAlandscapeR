@@ -1,6 +1,9 @@
 FROM rocker/shiny
-RUN apt-get update && apt-get install -y git libxml2-dev libssl-dev ghostscript
-    
+
+RUN rm /var/lib/apt/lists/http.debian.net_debian_dists_* && \
+    apt-get update && \
+    apt-get install -y git libxml2-dev libssl-dev ghostscript
+ 
 # Install DNAlandscapeR
 COPY . /srv/shiny-server/DNAlandscapeR
  
