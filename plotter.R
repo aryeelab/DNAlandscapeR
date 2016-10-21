@@ -214,6 +214,7 @@ one.loopPlot <- function(objReg, y, sample, max_counts, colorLoops = TRUE, oneAn
             cs <- gsub("p-p", "orange", cs)
             cs <- gsub("e-e", "mediumpurple1", cs)
             cs <- gsub("ctcf", "blue", cs)
+            cs <- gsub("ns", "slategrey", cs)
             cs <- gsub("none", "black", cs)
         } else {
             cs <- rep("black", n)
