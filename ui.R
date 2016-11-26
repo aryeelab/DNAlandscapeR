@@ -6,7 +6,7 @@ shinyUI(navbarPage(HTML("<img src='harvard-logo.png'/>"),
                    
 tabPanel("Visualize", 
 tags$head(tags$style(HTML(mycss))),
-tags$head("<script>
+tags$head(HTML("<script>
 var _prum = [['id', '58390712724e3adfc3ac739a'],
              ['mark', 'firstbyte', (new Date()).getTime()]];
 (function() {
@@ -16,7 +16,7 @@ var _prum = [['id', '58390712724e3adfc3ac739a'],
     p.src = '//rum-static.pingdom.net/prum.min.js';
     s.parentNode.insertBefore(p, s);
 })();
-</script>"),
+</script>")),
 headerPanel(fluidRow(column(6, tags$h1(tags$b('DNA Landscape'))),
                      tags$h4(column(6, tags$h3(textOutput("topText")))))),
   sidebarLayout(
