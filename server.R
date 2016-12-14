@@ -8,7 +8,7 @@ function(input, output, session) {
     session$onSessionEnded(stopApp)
     
     # Set up dataframe for data description tab
-    dDF <- read.table("http://textuploader.com/5buvy/raw", header = TRUE, sep = "\t")
+    dDF <- read.table("https://raw.githubusercontent.com/aryeelab/dnalandscaper_tracks/master/tracks.txt", header = TRUE, sep = "\t")
     dDF$PMID <- paste0('<a href="http://www.ncbi.nlm.nih.gov/pubmed/', dDF$PMID, '" target="_blank">', dDF$PMID, '</a>')
     output$preloadedDataDescription <- renderDataTable({dDF}, escape = FALSE)
 
