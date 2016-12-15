@@ -1,6 +1,6 @@
 FROM rocker/shiny
 
-RUN rm /var/lib/apt/lists/http.debian* && \
+RUN rm /var/lib/apt/lists/*dists* && \
     apt-get update && \
     apt-get install -y git libxml2-dev libssl-dev ghostscript
  
