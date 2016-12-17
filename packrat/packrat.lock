@@ -631,7 +631,7 @@ Package: rsconnect
 Source: CRAN
 Version: 0.6
 Hash: 84946df70abc0d9e91f65afe169e7cd7
-Requires: PKI, RCurl, RJSONIO, digest, packrat, rstudioapi, yaml
+Requires: RJSONIO, digest, packrat, rstudioapi, yaml, RCurl, PKI
 
 Package: rstudioapi
 Source: CRAN
