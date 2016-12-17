@@ -275,13 +275,6 @@ Version: 1.9.6
 Hash: f92ef1f73afa43bf6fd69a22f3794abd
 Requires: chron
 
-Package: devtools
-Source: CRAN
-Version: 1.12.0
-Hash: bbad95109ae75cbb14099281cda43af2
-Requires: digest, git2r, httr, jsonlite, memoise, rstudioapi, whisker,
-    withr
-
 Package: dichromat
 Source: CRAN
 Version: 2.0-0
@@ -362,11 +355,6 @@ Source: CRAN
 Version: 2.1.0
 Hash: 50e297b0191179c39c7dcae0eff72b51
 Requires: MASS, digest, gtable, plyr, reshape2, scales
-
-Package: git2r
-Source: CRAN
-Version: 0.15.0
-Hash: 92d5a9f3cba5e146b92a76dabbc29fbb
 
 Package: gsubfn
 Source: CRAN
