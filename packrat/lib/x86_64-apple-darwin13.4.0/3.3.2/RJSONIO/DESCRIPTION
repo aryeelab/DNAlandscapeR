@@ -33,6 +33,6 @@ Date/Publication: 2014-07-28 17:26:19
 Built: R 3.3.0; x86_64-apple-darwin13.4.0; 2016-05-04 15:06:45 UTC;
     unix
 Archs: RJSONIO.so.dSYM
-InstallAgent: packrat 0.4.7.1
+InstallAgent: packrat 0.4.8.1
 InstallSource: CRAN
 Hash: fb672e20eb6f3010a3639f855d8ef6de

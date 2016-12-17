@@ -440,7 +440,7 @@ s1$getx()
 # Original is unaffected by changes to the clone
 s$getx()
 #&gt; [1] 1</code></pre>
-<p>If you don’t want a <code>clone</code> method to be added, you can use <code>cloneable=FALSE</code> when creating the class. If any loaded R6 object has a <code>clone</code> method, that function uses 44 kB, but for each additional object, the <code>clone</code> method costs a trivial amount of space (112 bytes).</p>
+<p>If you don’t want a <code>clone</code> method to be added, you can use <code>cloneable=FALSE</code> when creating the class. If any loaded R6 object has a <code>clone</code> method, that function uses 44.1 kB, but for each additional object, the <code>clone</code> method costs a trivial amount of space (112 bytes).</p>
 <div id="deep-cloning" class="section level4">
 <h4>Deep cloning</h4>
 <p>If there are any fields which are objects with reference sematics (environments, R6 objects, reference class objects), the copy will get a reference to the same object. This is sometimes desirable, but often it is not.</p>
@@ -541,36 +541,26 @@ pq
 </div>
 <div id="finalizers" class="section level3">
 <h3>Finalizers</h3>
-<p>Sometimes it’s useful to run a function when the object is garbage collected. For example, you may want to make sure a file or database connection gets closed. To do this, you can call the <code>reg.finalizer()</code> function in your <code>initialize</code> method, and pass it <code>self</code> as the object that will trigger the function when it is garbage collected.</p>
+<p>Sometimes it’s useful to run a function when the object is garbage collected. For example, you may want to make sure a file or database connection gets closed. To do this, you can define a <code>finalize()</code> method, which will be called with no arguments when the object is garbage collected.</p>
 <pre class="r"><code>A &lt;- R6Class(&quot;A&quot;, public = list(
-  initialize = function() {
-    reg.finalizer(self,
-                  function(e) print(&quot;Finalizer has been called!&quot;),
-                  onexit = TRUE)
+  finalize = function() {
+    print(&quot;Finalizer has been called!&quot;)
   }
 ))
 
 
-# Instantiate an object, but don't save a reference to it
-A$new()
-#&gt; &lt;A&gt;
-#&gt;   Public:
-#&gt;     clone: function (deep = FALSE) 
-#&gt;     initialize: function ()
+# Instantiate an object:
+obj &lt;- A$new()
 
-# Run something else to get rid of any references to the object, because the
-# last returned value is saved in .Last.value
-1+1
-#&gt; [1] 2
-
-# Force immediate garbage collection (normally this will happen automatically
-# from time to time)
-gc()
+# Remove the single existing reference to it, and force garbage collection
+# (normally garbage collection will happen automatically from time
+# to time)
+rm(obj); gc()
 #&gt; [1] &quot;Finalizer has been called!&quot;
 #&gt;          used (Mb) gc trigger (Mb) max used (Mb)
-#&gt; Ncells 400276 21.4     750400 40.1   592000 31.7
-#&gt; Vcells 616985  4.8    1308461 10.0   909818  7.0</code></pre>
-<p>In the example above, we used <code>onexit=TRUE</code>, so that the finalizer will also be called when R exits. This is useful in some cases, like database connections, but it isn’t necessary for others, like open files, since they will be closed anyway when the R process exits.</p>
+#&gt; Ncells 403597 21.6     750400 40.1   592000 31.7
+#&gt; Vcells 617939  4.8    1308461 10.0   908993  7.0</code></pre>
+<p>Finalizers are implemented using the <code>reg.finalizer()</code> function, and they set <code>onexit=TRUE</code>, so that the finalizer will also be called when R exits. This is useful in some cases, like database connections.</p>
 </div>
 </div>
 <div id="summary" class="section level2">

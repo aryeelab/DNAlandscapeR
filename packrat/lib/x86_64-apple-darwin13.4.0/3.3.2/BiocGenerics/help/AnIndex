@@ -145,6 +145,9 @@ updateObject,list-method	updateObject
 updateObjectFromSlots	updateObject
 url-class	S3-classes-as-S4-classes
 weights	weights
+which	which
+which.max	which
+which.min	which
 width	start
 width<-	start
 xtabs	xtabs

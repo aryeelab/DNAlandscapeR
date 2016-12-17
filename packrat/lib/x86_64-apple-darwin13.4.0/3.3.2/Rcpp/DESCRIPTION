@@ -1,9 +1,9 @@
 Package: Rcpp
 Title: Seamless R and C++ Integration
-Version: 0.12.7
-Date: 2016-09-04
+Version: 0.12.8
+Date: 2016-11-16
 Author: Dirk Eddelbuettel, Romain Francois, JJ Allaire, Kevin Ushey,
-    Qiang Kou, Douglas Bates and John Chambers
+    Qiang Kou, Nathan Russell, Douglas Bates and John Chambers
 Maintainer: Dirk Eddelbuettel <edd@debian.org>
 Description: The 'Rcpp' package provides R functions as well as C++
     classes which offer a seamless integration of R and C++. Many R
@@ -27,11 +27,12 @@ MailingList: Please send questions and comments regarding Rcpp to
     rcpp-devel@lists.r-forge.r-project.org
 RoxygenNote: 5.0.1
 NeedsCompilation: yes
-Packaged: 2016-09-04 13:44:21.29814 UTC; edd
+Packaged: 2016-11-16 13:37:45.66862 UTC; edd
 Repository: CRAN
-Date/Publication: 2016-09-05 02:31:01
-Built: R 3.3.2; x86_64-apple-darwin13.4.0; 2016-12-05 05:48:26 UTC;
+Date/Publication: 2016-11-17 17:59:44
+Built: R 3.3.2; x86_64-apple-darwin13.4.0; 2016-11-18 11:53:38 UTC;
     unix
-InstallAgent: packrat 0.4.7.1
+Archs: Rcpp.so.dSYM
+InstallAgent: packrat 0.4.8.1
 InstallSource: CRAN
-Hash: f0ba7322cfb66f1b563462faa9c2b2ab
+Hash: 436ad5c23fad4e22224c7ac2fc82b049

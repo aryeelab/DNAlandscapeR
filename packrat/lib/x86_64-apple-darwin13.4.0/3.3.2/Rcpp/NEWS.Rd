@@ -3,6 +3,60 @@
 \newcommand{\ghpr}{\href{https://github.com/RcppCore/Rcpp/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/RcppCore/Rcpp/issues/#1}{##1}}
 
+\section{Changes in Rcpp version 0.12.8 (2016-11-16)}{
+  \itemize{
+    \item Changes in Rcpp API:
+    \itemize{
+      \item String and vector elements now use extended \code{R_xlen_t} indices
+      (Qiang in PR \ghpr{560})
+      \item Hashing functions now return unsigned int (Qiang in PR \ghpr{561}) 
+      \item Added static methods \code{eye()}, \code{ones()}, and \code{zeros()} 
+      for select matrix types (Nathan Russell in PR \ghpr{569})
+      \item The exception call stack is again correctly reported; print methods
+      and tests added too (Jim Hester in PR \ghpr{582} fixing \ghit{579})
+      \item Variatic macros no longer use a GNU extensions (Nathan in PR
+      \ghpr{575})
+      \item Hash index functions were standardized on returning unsigned
+      integers (Also PR \ghpr{575})
+    }
+    \item Changes in Rcpp Sugar:
+    \itemize{
+      \item Added new Sugar functions \code{rowSums()}, \code{colSums()},
+      \code{rowMeans()}, \code{colMeans()} (PR \ghpr{551} by Nathan Russell 
+      fixing \ghit{549})
+      \item \code{Range} Sugar now used \code{R_xlen_t} type for start/end
+      (PR \ghpr{568} by Qiang Kou)
+      \item Defining \code{RCPP_NO_SUGAR} no longer breaks the build.
+      (PR \ghpr{585} by Daniel C. Dillon)
+    }
+    \item Changes in Rcpp unit tests
+    \itemize{
+      \item A test for expression vectors was corrected.
+      \item The constructor test for datetime vectors reflects the new classes
+      which treats Inf correctly (and still as a non-finite value)
+    }
+    \item Changes in Rcpp Attributes
+    \itemize{
+      \item An 'empty' return was corrected (PR \ghpr{589} fixing issue
+      \ghit{588}, and with thanks to Duncan Murdoch for the heads-up)
+    }
+    \item Updated Date and Datetime vector classes:
+    \itemize{
+      \item The \code{DateVector} and \code{DatetimeVector} classes were renamed
+      with a prefix \code{old}; they are currently \code{typedef}'ed to the
+      existing name (\ghpr{557})
+      \item New variants \code{newDateVector} and \code{newDatetimeVector} were
+      added based on \code{NumericVector} (also \ghpr{557}, \ghpr{577},
+      \ghpr{581}, \ghpr{587})
+      \item By defining \code{RCPP_NEW_DATE_DATETIME_VECTORS} the new classes
+      can activated. We intend to make the new classes the default no sooner
+      than twelve months from this release.
+      \item The \code{capabilities()} function can also be used for presence of
+      this feature 
+    }
+  }
+}
+
 \section{Changes in Rcpp version 0.12.7 (2016-09-04)}{
   \itemize{
     \item Changes in Rcpp API:
