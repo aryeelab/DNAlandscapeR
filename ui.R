@@ -1,8 +1,9 @@
 # DNAlandscapeR UI # 
 source("global.R")
 
-
 shinyUI(navbarPage(HTML("<img src='harvard-logo.png'/>"),
+
+## Consider adding the git hash again
                    
 tabPanel("Visualize", 
 tags$head(tags$style(HTML(mycss))),
