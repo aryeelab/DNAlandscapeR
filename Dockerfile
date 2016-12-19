@@ -14,7 +14,8 @@ RUN Rscript -e 'install.packages("packrat"); \
                 packrat::restore()'
 # Make special installs
 RUN githubsha1=`cat packrat/packrat.lock | grep -A4 diffloop | grep GithubSha1 | cut -f2 -d":" | tr -d ' '`; R CMD INSTALL packrat/src/diffloop/$githubsha1.tar.gz
-RUN Rscript -e 'devtools::install_github("s-u/PKI")'
+RUN Rscript -e 'devtools::install_github("s-u/PKI"); \
+                devtools::install_github("rstudio/rsconnect")'
 
 # Temporary permissions hack
 RUN chown shiny:shiny -R packrat && \
