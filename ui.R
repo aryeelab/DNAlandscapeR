@@ -251,7 +251,7 @@ tabPanel("Guide",
     includeMarkdown("www/DNAlandscapeR-help.Rmd")
 ),
 theme = shinytheme("cosmo"),
-footer = HTML(paste0('<P ALIGN=Center>DNAlandscapeR.&copy; <A HREF="mailto:caleblareau@g.harvard.edu">Caleb Lareau</A> & Martin Aryee')),
+footer = HTML(paste0('<P ALIGN=Center>DNAlandscapeR. [Version <A HREF="https://github.com/aryeelab/DNAlandscapeR/tree/', sha, '">', short_sha, '</A>] &copy; <A HREF="mailto:caleblareau@g.harvard.edu">Caleb Lareau</A> & Martin Aryee')), 
 collapsible = TRUE, 
 fluid = TRUE,
 windowTitle = "DNAlandscapeR"

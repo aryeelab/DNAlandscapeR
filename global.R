@@ -11,6 +11,10 @@ options(shiny.maxRequestSize=1*1024^3) #1 GB Max file size
 options(warn=-1)
 options(scipen=999)
 
+# Get commit ID
+sha <- git2r::commits()[[1]]@sha
+short_sha <- substr(sha, 1, 7)
+
 # Set up the local S3 cache dir
 cache_dir <- tempdir()
 
