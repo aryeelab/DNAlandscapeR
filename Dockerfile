@@ -25,7 +25,7 @@ RUN chown shiny:shiny -R packrat && \
 RUN sed -i 's/\/srv\/shiny-server/\/srv\/shiny-server\/DNAlandscapeR/' /etc/shiny-server/shiny-server.conf
 
 # Improve first page load time by not shutting down the R session when idle
-RUN sed -i '/location \/ {/a app_idle_timeout 0;' /etc/shiny-server/shiny-server.conf
+RUN sed -i '/location \/ {/a app_idle_timeout 14400;' /etc/shiny-server/shiny-server.conf
 
 # Increase app load timeout
 RUN sed -i '/location \/ {/a app_init_timeout 60;' /etc/shiny-server/shiny-server.conf
