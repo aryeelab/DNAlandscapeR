@@ -7,9 +7,6 @@ The browser is hosted at [dnalandscaper.aryeelab.org](http://dnalandscaper.aryee
 
 If you don't see data that you'd like to visualize, don't hesitate to submit a [data request](http://goo.gl/forms/BLqljNzVCRS3hUxh1). 
 
-## Sample plots with DNAlandscapeR
-Coming Soon!
-
 ## Contact
 [Caleb Lareau](https://caleblareau.github.io) is the primary maintainer/developer of DNAlandscapeR under the supervision of [Martin Aryee]("http://aryee.mgh.harvard.edu/), PhD. 
 

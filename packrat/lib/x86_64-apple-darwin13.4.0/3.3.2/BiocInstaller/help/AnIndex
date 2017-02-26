@@ -6,6 +6,7 @@ biocUpdatePackages	biocUpdatePackages
 BiocUpgrade	BiocUpgrade
 biocValid	biocValid
 biocVersion	biocVersion
+isDevel	useDevel
 monograph_group	packageGroups
 RBioinf_group	packageGroups
 useDevel	useDevel
