@@ -35,7 +35,7 @@ ucsc_coord <- paste0("chr", default_chr, ":", as.character(default_start), "-", 
 
 # Initialize data from Amazon
 amazon <- "http://s3.amazonaws.com/dnalandscaper"
-t <- unlist(get_bucket(bucket = "dnalandscaper"))
+t <- unlist(get_bucket(bucket = "dnalandscaper", check_region = FALSE))
 amazon.filenames <- paste(amazon, t[grep("data", t)], sep = "/")
 
 ## HUMAN INITIALIZATION ##
