@@ -4,7 +4,7 @@ importAmazonAWSBucket <- function(newBucket, dynamic.val){
     
     # Initialize data from Amazon
     amazon <- paste0("http://s3.amazonaws.com/", newBucket)
-    t <- unlist(get_bucket(bucket = newBucket))
+    t <- unlist(get_bucket(bucket = newBucket, check_region=FALSE))
     amazon.filenames <- paste(amazon, t[grep("data", t)], sep = "/")
     print(amazon.filenames)
     
